@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
+
+    <ImageView
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:id="@+id/penguinjumpimageview"
+        android:src="@drawable/penguin1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="100dp" />
+
+    <ImageButton
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:id="@+id/imageButton"
+        android:layout_gravity="bottom"
+        android:src="@drawable/startbutton"/>
+
+</LinearLayout>
+
+
+</LinearLayout>
