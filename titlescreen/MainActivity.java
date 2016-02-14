@@ -1,4 +1,4 @@
-package com.example.yutnori;
+package com.jeffreychan.yutnori;
 
 
 import android.app.Activity;
@@ -6,9 +6,13 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.content.Intent;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -18,22 +22,27 @@ public class MainActivity extends Activity {
 		penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
 		AnimationDrawable penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
 		penguinJumpAnimation.start();
-		
+
 		ImageView sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
 		sealJumpImageView.setBackgroundResource(R.drawable.sealmoveanimation);
 		AnimationDrawable sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
 		sealJumpAnimation.start();
-		
+
 		ImageView background = (ImageView) findViewById(R.id.titleBackground);
 		background.setBackgroundResource(R.drawable.background);
-		
+
+		Button startButton = (Button) findViewById(R.id.startButton);
+		startButton.setOnClickListener(this);
+		startButton.setX(300f);
+		startButton.setY(500f);
+
 		sealJumpImageView.setX(200f);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.menu_board, menu);
 		return true;
 	}
 
@@ -47,5 +56,10 @@ public class MainActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onClick(View v) {
+		startActivity(new Intent(this, BoardActivity.class));
 	}
 }
