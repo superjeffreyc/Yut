@@ -22,6 +22,10 @@ public class Player {
 		return numPieces;
 	}
 	
+	public Piece[] getPieces() {
+		return pieces;
+	}
+	
 	public void incrementPieces(int num) {
 		numPieces += num;
 	}
