@@ -4,6 +4,7 @@ import java.util.Random;
 public class Board {
 	//to indicate which Piece 
 	Piece selectedPiece;
+	
 	public ArrayList<Integer> diceRoll() {
 		Random stick = new Random();
 		ArrayList<Integer> rolls = new ArrayList<>(); 
@@ -23,7 +24,7 @@ public class Board {
 					if (rollResult[0] == 1) {
 						rolls.add(-1);
 					} else {
-						rolls.add(1)''
+						rolls.add(1);
 					}
 					break;
 				case 2:
