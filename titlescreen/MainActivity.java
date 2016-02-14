@@ -1,33 +1,84 @@
-package com.example.yutnori;
+package com.jeffreychan.yutnori;
 
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.content.Intent;
+import android.view.ViewGroup.LayoutParams;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
+
+	boolean firstTime = true;
+	ImageView penguinJumpImageView, sealJumpImageView, fallingStickImageView, background;
+	AnimationDrawable penguinJumpAnimation, sealJumpAnimation, fallingStickAnimation;
+	Button startButton;
+	int width, height;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.titlescreen);
-		ImageView penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
+		penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
 		penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
-		AnimationDrawable penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
+		penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
 		penguinJumpAnimation.start();
-		
-		ImageView sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
+
+		sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
 		sealJumpImageView.setBackgroundResource(R.drawable.sealmoveanimation);
-		AnimationDrawable sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
+		sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
 		sealJumpAnimation.start();
-		
-		ImageView background = (ImageView) findViewById(R.id.titleBackground);
+
+        fallingStickImageView = (ImageView) findViewById(R.id.fallingstickimageview);
+        fallingStickImageView.setBackgroundResource(R.drawable.fallingstickanimation);
+        fallingStickAnimation = (AnimationDrawable) fallingStickImageView.getBackground();
+        fallingStickAnimation.start();
+
+		background = (ImageView) findViewById(R.id.titleBackground);
 		background.setBackgroundResource(R.drawable.background);
-		
-		sealJumpImageView.setX(200f);
+
+		startButton = (Button) findViewById(R.id.startButton);
+		startButton.setOnClickListener(this);
+
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		width = size.x;
+		height = size.y;
+
+
+
+
+
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (firstTime){
+			//sealJumpImageView.setLayoutParams(new LayoutParams(width/4, width/4));
+			//penguinJumpImageView.setLayoutParams(new LayoutParams(width/4, width/4));
+
+			sealJumpImageView.setX(2.75f * width / 5.0f);
+			sealJumpImageView.setY(0.9f * height / 2.0f);
+
+			penguinJumpImageView.setX(0);
+			penguinJumpImageView.setY(0.9f * height / 2.0f);
+
+			startButton.setY(3.0f * height / 4.0f);
+			startButton.setX(width / 2.0f);
+
+			firstTime = false;
+		}
 	}
 
 	@Override
@@ -47,5 +98,17 @@ public class MainActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onClick(View v) {
+		sealJumpAnimation.stop();
+		penguinJumpAnimation.stop();
+		Intent intent = new Intent(this, BoardActivity.class);
+		try {
+			startActivity(intent);
+		} catch (Exception e){
+			//e.printStackTrace();
+		}
 	}
 }

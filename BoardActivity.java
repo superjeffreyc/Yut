@@ -33,6 +33,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerTwoImages = new ImageView[4];
 
 		for (int i = 0; i < 4; i++){
+
 			playerOneImages[i] = new ImageView(this);
 			playerTwoImages[i] = new ImageView(this);
 
@@ -45,11 +46,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		moveButtons = new ImageView[5];
 		for (int i = 0; i < 4; i++){
+
 			moveButtons[i] = new ImageView(this);
+
 			moveButtons[i].setId(i + 10);
 			moveButtons[i].setOnClickListener(this);
 
 		}
+
+
 
 
 	}
@@ -58,11 +63,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		while (isRunning) {
 			if (playerTurn == 1) {
+
 				//rolls = board.diceRoll();
+
 
 
 				playerTurn = 2;
 			} else {
+
 				//rolls = board.diceRoll();
 
 
