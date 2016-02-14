@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background">
+    android:fitsSystemWindows="true"
+    android:background="@drawable/background"
+    tools:context="com.example.atsukoshimizu.yutnori.MainActivity">
 
     <ImageView
         android:layout_width="170dp"
@@ -10,16 +13,24 @@
         android:id="@+id/penguinjumpimageview"
         android:src="@drawable/penguin1"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="100dp" />
+ />
 
     <ImageButton
-        android:layout_width="100dp"
+        android:layout_width="150dp"
         android:layout_height="30dp"
-        android:id="@+id/imageButton"
+        android:scaleType="centerCrop"
+        android:id="@+id/startbutton"
         android:layout_gravity="bottom"
-        android:src="@drawable/startbutton"/>
+        android:src="@drawable/startbutton"
+        android:layout_centerHorizontal="true"
+        android:onClick="startbutton"
+        />
 
-</LinearLayout>
+    <ImageView
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:id="@+id/sealmoveimageview"
+        android:src="@drawable/seal1"/>
 
 
 </LinearLayout>

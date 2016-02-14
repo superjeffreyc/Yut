@@ -1,27 +1,38 @@
 package com.example.atsukoshimizu.yutnori;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.titlescreen);
 
+        //Penguin jump animation
         ImageView penguinJumpImageView = (ImageView)findViewById(R.id.penguinjumpimageview);
         penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
         AnimationDrawable penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
         penguinJumpAnimation.start();
+
+        //Seal move animation
+        ImageView sealMoveImageView = (ImageView)findViewById(R.id.sealmoveimageview);
+        sealMoveImageView.setBackgroundResource(R.drawable.sealmoveanimation);
+        AnimationDrawable sealMoveAnimation = (AnimationDrawable) sealMoveImageView.getBackground();
+        sealMoveAnimation.start();
+
+        penguinJumpImageView.setX(200f);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -31,9 +42,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                        .setAction("ActioTn", null).show();
             }
         });
+    }
+
+    public void startbutton(View view)
+    {
+        Intent intent = new Intent(this, ToActivity.class);
+        EditText editText = (EditText) findViewById(R.id.edit_message);
     }
 
     @Override
