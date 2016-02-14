@@ -22,6 +22,10 @@ public class BoardActivity extends Activity implements OnClickListener
 	ArrayList<Integer> rolls;
 	boolean selectingMove = false;
 	PopupMenu movesPopup;
+	ImageView rollButton;
+	boolean isRolling;
+	Piece currentPiece;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,8 @@ public class BoardActivity extends Activity implements OnClickListener
 
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
+		
+		rollButton = (ImageView)findViewById(R.id.rollbutton);
 
 		for (int i = 0; i < 4; i++){
 			playerOneImages[i] = new ImageView(this);
@@ -41,6 +47,8 @@ public class BoardActivity extends Activity implements OnClickListener
 
 			playerOneImages[i].setId(i);
 			playerOneImages[i].setOnClickListener(this);
+			playerOneImages[i].setDrawable(R.drawable.penguinfaded);
+			playerOneImages[i].setSize;
 			playerTwoImages[i].setId(i + 4);
 			playerTwoImages[i].setOnClickListener(this);
 
@@ -58,7 +66,6 @@ public class BoardActivity extends Activity implements OnClickListener
 	}
 
 	public void startGameLoop(){
-
 		while (isRunning) {
 			if (playerTurn == 1) {
 				//rolls = board.diceRoll();
@@ -101,6 +108,8 @@ public class BoardActivity extends Activity implements OnClickListener
 		if (playerTurn == 1 && selectingMove) {
 			if (v.getId() < 4) {
 				pieceSelected = v.getId();
+				Piece [] pieceArray = players[0].getPieces;
+				currentPiece = pieceArray[pieceSelected];
 				ArrayList<Integer> moves = players[0].getAvailableMoves();
 				if (movesPopup != null) {
 					movesPopup.dismiss();
@@ -115,6 +124,8 @@ public class BoardActivity extends Activity implements OnClickListener
 		} else if (playerTurn == 2 && selectingMove) {
 			if (v.getId() >= 4) {
 				pieceSelected = v.getId();
+				Piece [] pieceArray = players[1].getPieces;
+				currentPiece = pieceArray[pieceSelected-4];
 				ArrayList<Integer> moves = players[1].getAvailableMoves();
 				if (movesPopup != null) {
 					movesPopup.dismiss();
@@ -126,6 +137,8 @@ public class BoardActivity extends Activity implements OnClickListener
 				movesPopup.setOnMenuItemClickListener(this);
 				movesPopup.show();
 			}
+		} else if (isRolling && v.getId() == rollbutton) {
+			board.diceRoll();
 		}
 	}
 	
@@ -134,6 +147,8 @@ public class BoardActivity extends Activity implements OnClickListener
 		int moveChosen = Integer.parseInt(item.getTitle());
 		this.players[this.playerTurn - 1].makeAvailableMove(pieceSelected - 
 				(this.playerTurn-1)*4, moveChosen);
+		this.movesPopup.dismiss();
+		this.animatePieceMovement(currentPiece, pieceSelected);
 		if (this.players[this.playerTurn-1].getAvailableMoves().size()==0){
 			if (this.playerTurn == 1) {
 				this.playerTurn++;
@@ -141,8 +156,10 @@ public class BoardActivity extends Activity implements OnClickListener
 				this.playerTurn = 1;
 			}
 		}
-		this.movesPopup.dismiss();
-		this.animatePieceMovement(pieceSelected);
+	}
+	
+	public void animatePieceMovement(Piece p, int pId) {
+		current = p.getLocation();
 		
 	}
 }
