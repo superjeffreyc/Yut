@@ -19,8 +19,8 @@ import android.view.ViewGroup.LayoutParams;
 public class MainActivity extends Activity implements OnClickListener {
 
 	boolean firstTime = true;
-	ImageView penguinJumpImageView, sealJumpImageView, background;
-	AnimationDrawable penguinJumpAnimation, sealJumpAnimation;
+	ImageView penguinJumpImageView, sealJumpImageView, fallingStickImageView, background;
+	AnimationDrawable penguinJumpAnimation, sealJumpAnimation, fallingStickAnimation;
 	Button startButton;
 	int width, height;
 
@@ -37,6 +37,11 @@ public class MainActivity extends Activity implements OnClickListener {
 		sealJumpImageView.setBackgroundResource(R.drawable.sealmoveanimation);
 		sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
 		sealJumpAnimation.start();
+
+        fallingStickImageView = (ImageView) findViewById(R.id.fallingstickimageview);
+        fallingStickImageView.setBackgroundResource(R.drawable.fallingstickanimation);
+        fallingStickAnimation = (AnimationDrawable) fallingStickImageView.getBackground();
+        fallingStickAnimation.start();
 
 		background = (ImageView) findViewById(R.id.titleBackground);
 		background.setBackgroundResource(R.drawable.background);
