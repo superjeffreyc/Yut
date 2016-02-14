@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/board">
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/penguin1"
+        android:src="@drawable/penguin1"
+        android:layout_marginEnd="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="10dp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView"
+        android:src="@drawable/penguin1"
+        android:layout_marginStart="49dp"
+        android:layout_alignTop="@+id/penguin1"
+        android:layout_alignStart="@+id/penguin1" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView4"
+        android:src="@drawable/penguinfaded"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView5"
+        android:src="@drawable/penguinfaded"
+        android:layout_alignTop="@+id/imageView4"
+        android:layout_toEndOf="@+id/imageView4" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView6"
+        android:src="@drawable/seal1"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/penguin1"
+        android:layout_marginTop="10dp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView7"
+        android:src="@drawable/seal1"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/imageView5"
+        android:layout_marginTop="10dp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView8"
+        android:src="@drawable/sealfaded"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/imageView5"
+        android:layout_marginTop="10dp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView9"
+        android:src="@drawable/seal1"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/imageView6"
+        android:layout_marginTop="10dp" />
+</RelativeLayout>
+
+
+</RelativeLayout>

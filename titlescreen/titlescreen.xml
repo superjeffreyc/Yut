@@ -1,36 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="@drawable/background"
-    tools:context="com.example.atsukoshimizu.yutnori.MainActivity">
-
-    <ImageView
-        android:layout_width="170dp"
-        android:layout_height="170dp"
-        android:id="@+id/penguinjumpimageview"
-        android:src="@drawable/penguin1"
-        android:layout_gravity="center_vertical"
- />
-
-    <ImageButton
-        android:layout_width="150dp"
-        android:layout_height="30dp"
-        android:scaleType="centerCrop"
-        android:id="@+id/startbutton"
-        android:layout_gravity="bottom"
-        android:src="@drawable/startbutton"
-        android:layout_centerHorizontal="true"
-        android:onClick="startbutton"
-        />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                android:background="@drawable/background"
+                tools:context="com.jeffreychan.yutnori.MainActivity">
 
     <ImageView
         android:layout_width="170dp"
         android:layout_height="170dp"
         android:id="@+id/sealmoveimageview"
-        android:src="@drawable/seal1"/>
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="180dp"
+        android:layout_height="170dp"
+        android:id="@+id/penguinjumpimageview"
+        android:layout_gravity="center_vertical"
+        android:layout_above="@+id/startButton"
+        android:layout_alignParentStart="true" />
 
 
-</LinearLayout>
+    <Button
+        android:layout_width="190dp"
+        android:layout_height="80dp"
+        android:id="@+id/startButton"
+        android:background="@drawable/startbutton1"
+        android:layout_below="@+id/sealmoveimageview"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="43dp"
+        android:gravity="center_horizontal"/>
+
+    <EditText
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:id="@+id/title"
+        android:layout_marginTop="34dp"
+        android:text="Yut Nori!"
+        android:focusableInTouchMode="true"
+        android:textColor="#18536D"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="50sp"
+        android:gravity="center_horizontal"/>
+
+
+</RelativeLayout>
