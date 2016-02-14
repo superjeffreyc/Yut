@@ -1,91 +1,109 @@
-package com.example.atsukoshimizu.yutnori;
+package com.jeffreychan.yutnori;
+
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-<<<<<<< HEAD
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.content.Intent;
-=======
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
+import android.view.ViewGroup.LayoutParams;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.titlescreen);
->>>>>>> parent of 2abea32... added game board
+	boolean firstTime = true;
+	ImageView penguinJumpImageView, sealJumpImageView, background;
+	AnimationDrawable penguinJumpAnimation, sealJumpAnimation;
+	Button startButton;
+	int width, height;
 
-        //Penguin jump animation
-        ImageView penguinJumpImageView = (ImageView)findViewById(R.id.penguinjumpimageview);
-        penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
-        AnimationDrawable penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
-        penguinJumpAnimation.start();
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.titlescreen);
+		penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
+		penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
+		penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
+		penguinJumpAnimation.start();
 
-        //Seal move animation
-        ImageView sealMoveImageView = (ImageView)findViewById(R.id.sealmoveimageview);
-        sealMoveImageView.setBackgroundResource(R.drawable.sealmoveanimation);
-        AnimationDrawable sealMoveAnimation = (AnimationDrawable) sealMoveImageView.getBackground();
-        sealMoveAnimation.start();
+		sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
+		sealJumpImageView.setBackgroundResource(R.drawable.sealmoveanimation);
+		sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
+		sealJumpAnimation.start();
 
-        penguinJumpImageView.setX(200f);
+		background = (ImageView) findViewById(R.id.titleBackground);
+		background.setBackgroundResource(R.drawable.background);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+		startButton = (Button) findViewById(R.id.startButton);
+		startButton.setOnClickListener(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("ActioTn", null).show();
-            }
-        });
-    }
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		width = size.x;
+		height = size.y;
 
-<<<<<<< HEAD
-		sealJumpImageView.setX(200f);
+
+
+
+
 	}
-=======
-    public void startbutton(View view)
-    {
-        Intent intent = new Intent(this, ToActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
->>>>>>> parent of 2abea32... added game board
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (firstTime){
+			//sealJumpImageView.setLayoutParams(new LayoutParams(width/4, width/4));
+			//penguinJumpImageView.setLayoutParams(new LayoutParams(width/4, width/4));
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+			sealJumpImageView.setX(2.75f * width / 5.0f);
+			sealJumpImageView.setY(0.9f * height / 2.0f);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+			penguinJumpImageView.setX(0);
+			penguinJumpImageView.setY(0.9f * height / 2.0f);
 
-        return super.onOptionsItemSelected(item);
-    }
+			startButton.setY(3.0f * height / 4.0f);
+			startButton.setX(width / 2.0f);
+
+			firstTime = false;
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onClick(View v) {
+		sealJumpAnimation.stop();
+		penguinJumpAnimation.stop();
+		Intent intent = new Intent(this, BoardActivity.class);
+		try {
+			startActivity(intent);
+		} catch (Exception e){
+			//e.printStackTrace();
+		}
+	}
 }
