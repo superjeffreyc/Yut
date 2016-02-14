@@ -7,18 +7,14 @@ public class Piece {
 	int location = 0;
 	
 	static TreeSet<Integer> specialTiles = new TreeSet<>();
-
-	public Piece(){
-		specialTiles.add(0);
-		specialTiles.add(1);
-		specialTiles.add(6);
-		specialTiles.add(11);
-		specialTiles.add(21);
-		specialTiles.add(21);
-		specialTiles.add(23);
-		specialTiles.add(24);
-		specialTiles.add(25);
-	}
+	specialTiles.add(0);
+	specialTiles.add(1);
+	specialTiles.add(6);
+	specialTiles.add(11);
+	specialTiles.add(21);
+	specialTiles.add(23);
+	specialTiles.add(24);
+	specialTiles.add(25);
 	
 	public void setLocation(int location) {
 		this.location = location;
