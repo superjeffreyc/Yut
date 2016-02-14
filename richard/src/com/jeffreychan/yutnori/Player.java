@@ -1,7 +1,9 @@
-package com.jeffreychan.yutnori;
+import java.util.ArrayList;
+
 public class Player {
 	private String name;
 	private int numPieces = 4;
+	private ArrayList<Integer> availableMoves;
 	
 	Piece[] pieces = new Piece[4];
 	
@@ -28,5 +30,15 @@ public class Player {
 		numPieces -= num;
 	}
 	
-		
+	public ArrayList<Integer> getAvailableMoves() {
+		return availableMoves;
+	}
+	
+	public int makeAvailableMove(int pieceNum, int move) {
+		//remove returns false if the move is not in the arraylist of available moves
+		if (availableMoves.remove(move)) {
+			pieces[pieceNum].handleMovement(move);
+		} 
+		return pieces[pieceNum].getLocation();
+	}
 }
