@@ -1,77 +1,51 @@
-package com.example.atsukoshimizu.yutnori;
+package com.example.yutnori;
+
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 public class MainActivity extends Activity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.titlescreen);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.titlescreen);
+		ImageView penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
+		penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
+		AnimationDrawable penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
+		penguinJumpAnimation.start();
+		
+		ImageView sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
+		sealJumpImageView.setBackgroundResource(R.drawable.sealmoveanimation);
+		AnimationDrawable sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
+		sealJumpAnimation.start();
+		
+		ImageView background = (ImageView) findViewById(R.id.titleBackground);
+		background.setBackgroundResource(R.drawable.background);
+		
+		sealJumpImageView.setX(200f);
+	}
 
-        //Penguin jump animation
-        ImageView penguinJumpImageView = (ImageView)findViewById(R.id.penguinjumpimageview);
-        penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
-        AnimationDrawable penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
-        penguinJumpAnimation.start();
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
-        //Seal move animation
-        ImageView sealMoveImageView = (ImageView)findViewById(R.id.sealmoveimageview);
-        sealMoveImageView.setBackgroundResource(R.drawable.sealmoveanimation);
-        AnimationDrawable sealMoveAnimation = (AnimationDrawable) sealMoveImageView.getBackground();
-        sealMoveAnimation.start();
-
-        penguinJumpImageView.setX(200f);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("ActioTn", null).show();
-            }
-        });
-    }
-
-    public void startbutton(View view)
-    {
-        Intent intent = new Intent(this, ToActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }
