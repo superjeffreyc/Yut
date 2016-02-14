@@ -5,7 +5,18 @@ import java.util.TreeSet;
 public class Piece {
 
 	int location = 0;
-
+	
+	static TreeSet<Integer> specialTiles = new TreeSet<>();
+	specialTiles.add(0);
+	specialTiles.add(1);
+	specialTiles.add(6);
+	specialTiles.add(11);
+	specialTiles.add(21);
+	specialTiles.add(21);
+	specialTiles.add(23);
+	specialTiles.add(24);
+	specialTiles.add(25);
+	
 	public void setLocation(int location) {
 		this.location = location;
 	}
@@ -14,20 +25,7 @@ public class Piece {
 		return this.location;
 	}
 
-	public int handleMovement(int moves){
-		int location = 0;
-		TreeSet<Integer> specialTiles = new TreeSet<>();
-		specialTiles.add(0);
-		specialTiles.add(1);
-		specialTiles.add(6);
-		specialTiles.add(11);
-		specialTiles.add(21);
-		specialTiles.add(21);
-		specialTiles.add(23);
-		specialTiles.add(24);
-		specialTiles.add(25);
-
-
+	public void handleMovement(int moves){
 		if (specialTiles.contains(new Integer(location))){
 			if (location == 0){
 				if (moves >= 1) {
@@ -105,12 +103,13 @@ public class Piece {
 					location--;
 				}
 			}
+		} else {
+			location += moves;
 		}
 
 		if (location > 32) {
 			location = 32;
 		}
-
-		return location;
+		
 	}
 }
