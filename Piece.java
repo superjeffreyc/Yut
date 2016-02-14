@@ -18,6 +18,7 @@ public class Piece {
 		int location = 0;
 		TreeSet<Integer> specialTiles = new TreeSet<>();
 		specialTiles.add(0);
+		specialTiles.add(1);
 		specialTiles.add(6);
 		specialTiles.add(11);
 		specialTiles.add(21);
@@ -29,7 +30,17 @@ public class Piece {
 
 		if (specialTiles.contains(new Integer(location))){
 			if (location == 0){
-				location = 1 + moves;
+				if (moves >= 1) {
+					location = 1 + moves;
+				}
+			}
+			else if (location == 1){
+				if (moves >= 1){
+					location = 1 + moves;
+				}
+				else if (moves == -1){
+					location = 32;
+				}
 			}
 			else if (location == 6){
 				if (moves >= 1) {
