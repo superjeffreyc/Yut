@@ -10,7 +10,8 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-public class BoardActivity extends Activity implements OnClickListener{
+public class BoardActivity extends Activity implements OnClickListener 
+	implements PopupMenu.OnMenuItemClickListener{
 
 	Board board;
 	Player[] players = new Player[2];
@@ -19,6 +20,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	boolean isRunning = true;
 	int pieceSelected = 0;
 	ArrayList<Integer> rolls;
+	boolean selectingMove = false;
+	PopupMenu movesPopup;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +54,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		}
 
-
+	
 	}
 
 	public void startGameLoop(){
@@ -95,45 +98,51 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public void onClick(View v) {
-		if (playerTurn == 1) {
-			if (v.getId() == playerOneImages[0].getId()) {
-				//popup
-				// alert dialog
-			} else if (v.getId() == playerOneImages[1].getId()) {
-
-			} else if (v.getId() == playerOneImages[2].getId()) {
-
-			} else if (v.getId() == playerOneImages[3].getId()) {
-
+		if (playerTurn == 1 && selectingMove) {
+			if (v.getId() < 4) {
+				pieceSelected = v.getId();
+				ArrayList<Integer> moves = players[0].getAvailableMoves();
+				if (movesPopup != null) {
+					movesPopup.dismiss();
+				}
+				movesPopup = new PopupMenu(this, findViewbyId(pieceSelected));
+				for (int i = 0; i < moves.size(); i++) {
+					movesPopup.getMenu().add(""+moves[i]);
+				}
+				movesPopup.setOnMenuItemClickListener(this);
+				movesPopup.show();
+			}
+		} else if (playerTurn == 2 && selectingMove) {
+			if (v.getId() >= 4) {
+				pieceSelected = v.getId();
+				ArrayList<Integer> moves = players[1].getAvailableMoves();
+				if (movesPopup != null) {
+					movesPopup.dismiss();
+				}
+				movesPopup = new PopupMenu(this, findViewbyId(pieceSelected));
+				for (int i = 0; i < moves.size(); i++) {
+					movesPopup.getMenu().add(""+moves[i]);
+				}
+				movesPopup.setOnMenuItemClickListener(this);
+				movesPopup.show();
 			}
 		}
-		else if (playerTurn == 2) {
-			if (v.getId() == playerTwoImages[0].getId()) {
-
-			} else if (v.getId() == playerTwoImages[1].getId()) {
-
-			} else if (v.getId() == playerTwoImages[2].getId()) {
-
-			} else if (v.getId() == playerTwoImages[3].getId()) {
-
+	}
+	
+	@Override
+	public void onMenuItemClick(MenuItem item) {
+		int moveChosen = Integer.parseInt(item.getTitle());
+		this.players[this.playerTurn - 1].makeAvailableMove(pieceSelected - 
+				(this.playerTurn-1)*4, moveChosen);
+		if (this.players[this.playerTurn-1].getAvailableMoves().size()==0){
+			if (this.playerTurn == 1) {
+				this.playerTurn++;
+			} else if (this.playerTurn == 2) {
+				this.playerTurn = 1;
 			}
 		}
-
-		if (v.getId() == moveButtons[0].getId() && pieceSelected == 1){
-			//players[0].getPiece(0).handleMovement()
-		}
-		else if (v.getId() == moveButtons[1].getId() && pieceSelected == 1){
-
-		}
-		else if (v.getId() == moveButtons[2].getId() && pieceSelected == 1){
-
-		}
-		else if (v.getId() == moveButtons[3].getId() && pieceSelected == 1){
-
-		}
-		else if (v.getId() == moveButtons[4].getId() && pieceSelected == 1){
-
-		}
-
+		this.movesPopup.dismiss();
+		this.animatePieceMovement(pieceSelected);
+		
 	}
 }
