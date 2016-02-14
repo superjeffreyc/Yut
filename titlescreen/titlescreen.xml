@@ -30,9 +30,10 @@
         />
 
     <Button
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="170dp"
+        android:layout_height="80dp"
         android:id="@+id/startButton"
+        android:background="@drawable/startbutton1"
         />
 
 
