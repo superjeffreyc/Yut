@@ -4,15 +4,21 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.Activity;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
-public class BoardActivity extends Activity {
+import java.util.ArrayList;
+
+public class BoardActivity extends Activity implements OnClickListener{
 
 	Board board;
 	Player[] players = new Player[2];
-	ImageView image;
+	ImageView[] playerOneImages, playerTwoImages, moveButtons;
 	int playerTurn = 1;
 	boolean isRunning = true;
+	int pieceSelected = 0;
+	ArrayList<Integer> rolls;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,20 +27,41 @@ public class BoardActivity extends Activity {
 
 		players[0] = new Player("Player 1");
 		players[1] = new Player("Player 2");
+		board = new Board();
+
+		playerOneImages = new ImageView[4];
+		playerTwoImages = new ImageView[4];
+
+		for (int i = 0; i < 4; i++){
+			playerOneImages[i].setId(i);
+			playerOneImages[i].setOnClickListener(this);
+			playerTwoImages[i].setId(i + 4);
+			playerTwoImages[i].setOnClickListener(this);
+
+		}
+
+		moveButtons = new ImageView[5];
+		for (int i = 0; i < 4; i++){
+			moveButtons[i].setId(i + 10);
+			moveButtons[i].setOnClickListener(this);
+
+		}
+
 
 		startGameLoop();
 	}
 
 	public void startGameLoop(){
-		int[] rolls;
+
 		while (isRunning) {
 			if (playerTurn == 1) {
-				//rolls = board.diceRoll();
+				rolls = board.diceRoll();
 
 
 				playerTurn = 2;
 			} else {
-				//rolls = board.diceRoll();
+				rolls = board.diceRoll();
+
 
 				playerTurn = 1;
 			}
@@ -44,7 +71,7 @@ public class BoardActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu_board, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -61,5 +88,49 @@ public class BoardActivity extends Activity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (playerTurn == 1) {
+			if (v.getId() == playerOneImages[0].getId()) {
+				//popup
+				// alert dialog
+			} else if (v.getId() == playerOneImages[1].getId()) {
+
+			} else if (v.getId() == playerOneImages[2].getId()) {
+
+			} else if (v.getId() == playerOneImages[3].getId()) {
+
+			}
+		}
+		else if (playerTurn == 2) {
+			if (v.getId() == playerTwoImages[0].getId()) {
+
+			} else if (v.getId() == playerTwoImages[1].getId()) {
+
+			} else if (v.getId() == playerTwoImages[2].getId()) {
+
+			} else if (v.getId() == playerTwoImages[3].getId()) {
+
+			}
+		}
+
+		if (v.getId() == moveButtons[0].getId() && pieceSelected == 1){
+			//players[0].getPiece(0).handleMovement()
+		}
+		else if (v.getId() == moveButtons[1].getId() && pieceSelected == 1){
+
+		}
+		else if (v.getId() == moveButtons[2].getId() && pieceSelected == 1){
+
+		}
+		else if (v.getId() == moveButtons[3].getId() && pieceSelected == 1){
+
+		}
+		else if (v.getId() == moveButtons[4].getId() && pieceSelected == 1){
+
+		}
+
 	}
 }
