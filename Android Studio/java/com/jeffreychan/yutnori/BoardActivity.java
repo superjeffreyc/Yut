@@ -1,12 +1,16 @@
 package com.jeffreychan.yutnori;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.Activity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -74,7 +78,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+//		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -83,14 +87,38 @@ public class BoardActivity extends Activity implements OnClickListener{
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
-		}
+//		int id = item.getItemId();
+//
+//		//noinspection SimplifiableIfStatement
+//		if (id == R.id.action_settings) {
+//			return true;
+//		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		AlertDialog.Builder adb = new AlertDialog.Builder(this);
+		TextView tv = new TextView(this);
+		tv.setPadding(0, 40, 0, 40);
+		tv.setText("Return to main menu?\nThe game will not be saved.");
+		tv.setTextSize(20f);
+		tv.setGravity(Gravity.CENTER_HORIZONTAL);
+		adb.setView(tv);
+		adb.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
+
+			public void onClick(DialogInterface dialog, int whichButton) {
+				finish();
+			}
+		});
+		adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				dialog.cancel();
+			}
+		});
+		adb.show();
 	}
 
 	@Override

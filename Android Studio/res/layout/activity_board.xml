@@ -6,5 +6,13 @@
                 android:orientation="vertical"
                 android:background="@drawable/boardimage"
                 tools:context="com.jeffreychan.yutnori.BoardActivity">
+    <Button
+        android:layout_width="170dp"
+        android:layout_height="80dp"
+        android:id="@+id/rollButton"
+        android:background="@drawable/rollbutton"
+        android:layout_marginBottom="39dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
