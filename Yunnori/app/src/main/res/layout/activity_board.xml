@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/rl"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -11,8 +12,16 @@
         android:layout_height="80dp"
         android:id="@+id/rollButton"
         android:background="@drawable/rollbutton"
-        android:layout_marginBottom="39dp"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/sticks"
         android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:id="@+id/sticks"
+        android:background="@drawable/fallingstickanimation"
+        android:layout_centerInParent="true"
+
+        />
 
 </RelativeLayout>

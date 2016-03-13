@@ -2,6 +2,7 @@ package com.jeffreychan.yutnori;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -9,7 +10,10 @@ import android.view.MenuItem;
 import android.app.Activity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,6 +23,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Board board;
 	Player[] players = new Player[2];
 	ImageView[] playerOneImages, playerTwoImages, moveButtons;
+	ImageView sticks;
+	AnimationDrawable fallingSticks;
+	Button roll;
 	int playerTurn = 1;
 	boolean isRunning = true;
 	int pieceSelected = 0;
@@ -29,12 +36,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_board);
 
+		RelativeLayout rl = (RelativeLayout) findViewById(R.id.rl);
 		players[0] = new Player("Player 1");
 		players[1] = new Player("Player 2");
 		board = new Board();
 
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
+		sticks = (ImageView) findViewById(R.id.sticks);
+		fallingSticks = (AnimationDrawable) sticks.getBackground();
+
+		roll = (Button) findViewById(R.id.rollButton);
+		roll.setOnClickListener(this);
+
 
 		for (int i = 0; i < 4; i++){
 			playerOneImages[i] = new ImageView(this);
@@ -55,6 +69,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		}
 
+
+
+
+		rl.addView(sticks);
 
 	}
 
@@ -123,7 +141,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public void onClick(View v) {
-		if (playerTurn == 1) {
+/*		if (playerTurn == 1) {
 			if (v.getId() == playerOneImages[0].getId()) {
 				//popup
 				// alert dialog
@@ -146,7 +164,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 			}
 		}
-
+*/
 		if (v.getId() == moveButtons[0].getId() && pieceSelected == 1){
 			//players[0].getPiece(0).handleMovement()
 		}
@@ -159,8 +177,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 		else if (v.getId() == moveButtons[3].getId() && pieceSelected == 1){
 
 		}
-		else if (v.getId() == moveButtons[4].getId() && pieceSelected == 1){
+		else if (v.getId() == moveButtons[4].getId() && pieceSelected == 1) {
 
+		}
+		else if (v.getId() == R.id.rollButton){
+			fallingSticks.start();
 		}
 
 	}
