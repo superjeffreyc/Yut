@@ -200,6 +200,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 		*/
 		if (v.getId() == R.id.rollButton){
 
+			roll.setVisibility(View.INVISIBLE);
+
 			move1.setVisibility(View.INVISIBLE);
 			move2.setVisibility(View.INVISIBLE);
 			move3.setVisibility(View.INVISIBLE);
@@ -238,6 +240,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 						default:
 
 					}
+
+					roll.setVisibility(View.VISIBLE);
 				}
 			}, 900);
 
