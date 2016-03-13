@@ -42,6 +42,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
 		sticks = (ImageView) findViewById(R.id.sticks);
+		sticks.setBackgroundResource(R.drawable.fallingstickanimation);
+
 		fallingSticks = (AnimationDrawable) sticks.getBackground();
 
 		roll = (Button) findViewById(R.id.rollButton);

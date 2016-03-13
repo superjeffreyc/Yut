@@ -9,6 +9,8 @@
     <item android:drawable="@drawable/stick6" android:duration="180"/>
     <item android:drawable="@drawable/stick7" android:duration="180"/>
     <item android:drawable="@drawable/stick8" android:duration="180"/>
-    <item android:drawable="@drawable/stick9" android:duration="360"/>
+    <item android:drawable="@drawable/stick9" android:duration="180"/>
+    <item android:drawable="@drawable/stick10" android:duration="360"/>
+
 
 </animation-list>
