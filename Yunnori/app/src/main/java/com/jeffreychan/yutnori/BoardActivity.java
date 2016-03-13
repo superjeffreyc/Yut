@@ -159,7 +159,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 			}
 		}
-*/
+
 		if (v.getId() == moveButtons[0].getId() && pieceSelected == 1){
 			//players[0].getPiece(0).handleMovement()
 		}
@@ -175,7 +175,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 		else if (v.getId() == moveButtons[4].getId() && pieceSelected == 1) {
 
 		}
-		else if (v.getId() == R.id.rollButton){
+		*/
+		if (v.getId() == R.id.rollButton){
+			fallingSticks.stop();
 			fallingSticks.start();
 		}
 
