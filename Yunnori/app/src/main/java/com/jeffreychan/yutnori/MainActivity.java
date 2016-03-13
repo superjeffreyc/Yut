@@ -1,5 +1,6 @@
 package com.jeffreychan.yutnori;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -9,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -26,7 +29,11 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.titlescreen);
+
+
 		penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
 		penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
 		penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
@@ -73,8 +80,8 @@ public class MainActivity extends Activity implements OnClickListener {
 			penguinJumpImageView.setX(0);
 			penguinJumpImageView.setY(0.9f * height / 2.0f);
 
-			startButton.setY(3.0f * height / 4.0f);
-			startButton.setX(width / 3.0f);
+//			startButton.setY(3.0f * height / 4.0f);
+//			startButton.setX(width / 3.0f);
 
 			firstTime = false;
 		}
