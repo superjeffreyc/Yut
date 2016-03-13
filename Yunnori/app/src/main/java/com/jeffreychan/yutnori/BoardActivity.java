@@ -35,8 +35,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_board);
-
-		RelativeLayout rl = (RelativeLayout) findViewById(R.id.rl);
 		players[0] = new Player("Player 1");
 		players[1] = new Player("Player 2");
 		board = new Board();
@@ -68,11 +66,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			moveButtons[i].setOnClickListener(this);
 
 		}
-
-
-
-
-		rl.addView(sticks);
 
 	}
 
