@@ -11,7 +11,7 @@
     <item android:drawable="@drawable/stick7" android:duration="90"/>
     <item android:drawable="@drawable/stick8" android:duration="90"/>
     <item android:drawable="@drawable/stick9" android:duration="90"/>
-    <item android:drawable="@drawable/stick10" android:duration="180"/>
+    <item android:drawable="@drawable/stick10" android:duration="90"/>
 
 
 </animation-list>

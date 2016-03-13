@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,13 +26,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Board board;
 	Player[] players = new Player[2];
 	ImageView[] playerOneImages, playerTwoImages, moveButtons;
-	ImageView sticks;
+	ImageView sticks, move1, move2, move3, move4, move5, moveminus1;
 	AnimationDrawable fallingSticks;
 	Button roll;
 	int playerTurn = 1;
 	boolean isRunning = true;
 	int pieceSelected = 0;
 	ArrayList<Integer> rolls;
+	int rollAmount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +48,24 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
+
+		move1 = (ImageView) findViewById(R.id.move1);
+		move2 = (ImageView) findViewById(R.id.move2);
+		move3 = (ImageView) findViewById(R.id.move3);
+		move4 = (ImageView) findViewById(R.id.move4);
+		move5 = (ImageView) findViewById(R.id.move5);
+		moveminus1 = (ImageView) findViewById(R.id.moveminus1);
+
+		move1.setBackgroundResource(R.drawable.move1);
+		move2.setBackgroundResource(R.drawable.move2);
+		move3.setBackgroundResource(R.drawable.move3);
+		move4.setBackgroundResource(R.drawable.move4);
+		move5.setBackgroundResource(R.drawable.move5);
+		moveminus1.setBackgroundResource(R.drawable.moveminus1);
+
+
 		sticks = (ImageView) findViewById(R.id.sticks);
 		sticks.setBackgroundResource(R.drawable.fallingstickanimation);
-
 		fallingSticks = (AnimationDrawable) sticks.getBackground();
 
 		roll = (Button) findViewById(R.id.rollButton);
@@ -182,9 +199,65 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 		*/
 		if (v.getId() == R.id.rollButton){
+
+			move1.setVisibility(View.INVISIBLE);
+			move2.setVisibility(View.INVISIBLE);
+			move3.setVisibility(View.INVISIBLE);
+			move4.setVisibility(View.INVISIBLE);
+			move5.setVisibility(View.INVISIBLE);
+			moveminus1.setVisibility(View.INVISIBLE);
+
 			fallingSticks.stop();
 			fallingSticks.start();
+
+
+			Handler handler = new Handler();
+			handler.postDelayed(new Runnable() {
+				public void run() {
+					rollAmount = throwSticks();
+
+					switch (rollAmount){
+						case -1:
+							moveminus1.setVisibility(View.VISIBLE);
+							break;
+						case 1:
+							move1.setVisibility(View.VISIBLE);
+							break;
+						case 2:
+							move2.setVisibility(View.VISIBLE);
+							break;
+						case 3:
+							move3.setVisibility(View.VISIBLE);
+							break;
+						case 4:
+							move4.setVisibility(View.VISIBLE);
+							break;
+						case 5:
+							move5.setVisibility(View.VISIBLE);
+							break;
+						default:
+
+					}
+				}
+			}, 900);
+
+
 		}
 
+	}
+
+	public int throwSticks(){
+		int roll = 1;
+
+		int num = (int) (Math.random() * 16) + 1;
+
+		if (num == 1) roll = -1;
+		else if (num > 1 && num <= 4) roll = 1;
+		else if (num > 4 && num <= 10) roll = 2;
+		else if (num > 10 && num <= 14) roll = 3;
+		else if (num > 14 && num <= 15) roll = 4;
+		else if (num > 15 && num <= 16) roll = 5;
+
+		return roll;
 	}
 }
