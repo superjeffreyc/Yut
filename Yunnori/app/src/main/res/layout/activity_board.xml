@@ -132,4 +132,21 @@
             android:background="@drawable/penguin1"/>
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="80dp"
+        android:id="@+id/rollText"
+        android:layout_alignTop="@+id/sticks"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="50dp"
+        android:id="@+id/playerTurn"
+        android:layout_above="@+id/sticks"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

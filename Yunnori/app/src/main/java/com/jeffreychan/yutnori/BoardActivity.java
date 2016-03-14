@@ -2,6 +2,7 @@ package com.jeffreychan.yutnori;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +35,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	int pieceSelected = 0;
 	ArrayList<Integer> rolls;
 	int rollAmount;
+	TextView rollText, playerTurnText;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		move4 = (ImageView) findViewById(R.id.move4);
 		move5 = (ImageView) findViewById(R.id.move5);
 		moveminus1 = (ImageView) findViewById(R.id.moveminus1);
+		rollText = (TextView) findViewById(R.id.rollText);
+		rollText.setTextColor(Color.BLACK);
+		playerTurnText = (TextView) findViewById(R.id.playerTurn);
+		playerTurnText.setTextColor(Color.RED);
 
 		move1.setBackgroundResource(R.drawable.move1);
 		move2.setBackgroundResource(R.drawable.move2);
@@ -91,23 +97,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		}
 
-	}
-
-	public void startGameLoop(){
-
-		while (isRunning) {
-			if (playerTurn == 1) {
-				//rolls = board.diceRoll();
-
-
-				playerTurn = 2;
-			} else {
-				//rolls = board.diceRoll();
-
-
-				playerTurn = 1;
-			}
-		}
 	}
 
 	@Override
@@ -200,15 +189,18 @@ public class BoardActivity extends Activity implements OnClickListener{
 		*/
 		if (v.getId() == R.id.rollButton){
 
-			roll.setVisibility(View.INVISIBLE);
 
+			roll.setVisibility(View.INVISIBLE);
 			move1.setVisibility(View.INVISIBLE);
 			move2.setVisibility(View.INVISIBLE);
 			move3.setVisibility(View.INVISIBLE);
 			move4.setVisibility(View.INVISIBLE);
 			move5.setVisibility(View.INVISIBLE);
 			moveminus1.setVisibility(View.INVISIBLE);
-
+			rollText.setText("");
+			playerTurnText.setText("");
+			sticks.setVisibility(View.VISIBLE);
+			fallingSticks.setVisible(true, false);
 			fallingSticks.stop();
 			fallingSticks.start();
 
@@ -218,32 +210,65 @@ public class BoardActivity extends Activity implements OnClickListener{
 				public void run() {
 					rollAmount = throwSticks();
 
-					switch (rollAmount){
+					switch (rollAmount) {
 						case -1:
 							moveminus1.setVisibility(View.VISIBLE);
+							rollText.setText("-1");
 							break;
 						case 1:
 							move1.setVisibility(View.VISIBLE);
+							rollText.setText("1");
 							break;
 						case 2:
 							move2.setVisibility(View.VISIBLE);
+							rollText.setText("2");
 							break;
 						case 3:
 							move3.setVisibility(View.VISIBLE);
+							rollText.setText("3");
 							break;
 						case 4:
 							move4.setVisibility(View.VISIBLE);
+							rollText.setText("4");
 							break;
 						case 5:
 							move5.setVisibility(View.VISIBLE);
+							rollText.setText("5");
 							break;
 						default:
 
 					}
 
-					roll.setVisibility(View.VISIBLE);
 				}
 			}, 900);
+
+			Handler handler2 = new Handler();
+			handler2.postDelayed(new Runnable() {
+				public void run() {
+
+					rollText.setText("");
+					sticks.setVisibility(View.INVISIBLE);
+					fallingSticks.setVisible(false, false);
+					move1.setVisibility(View.INVISIBLE);
+					move2.setVisibility(View.INVISIBLE);
+					move3.setVisibility(View.INVISIBLE);
+					move4.setVisibility(View.INVISIBLE);
+					move5.setVisibility(View.INVISIBLE);
+					moveminus1.setVisibility(View.INVISIBLE);
+
+					roll.setVisibility(View.VISIBLE);
+
+					if (playerTurn == 1) {
+						playerTurn = 2;
+						playerTurnText.setText("Player 2 Turn");
+					}
+					else {
+						playerTurn = 1;
+						playerTurnText.setText("Player 1 Turn");
+					}
+
+				}
+			}, 1900);
 
 
 		}
