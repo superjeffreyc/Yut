@@ -17,6 +17,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -36,6 +37,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ArrayList<Integer> rolls;
 	int rollAmount;
 	TextView rollText, playerTurnText;
+	LinearLayout topBar, bottomBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 		players[0] = new Player("Player 1");
 		players[1] = new Player("Player 2");
 		board = new Board();
+
+		topBar = (LinearLayout) findViewById(R.id.topBar);
+		bottomBar = (LinearLayout) findViewById(R.id.bottomBar);
 
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
@@ -61,6 +66,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rollText.setTextColor(Color.BLACK);
 		playerTurnText = (TextView) findViewById(R.id.playerTurn);
 		playerTurnText.setTextColor(Color.RED);
+		//playerTurnText.setText("Player 1 Turn");
 
 		move1.setBackgroundResource(R.drawable.move1);
 		move2.setBackgroundResource(R.drawable.move2);
@@ -73,6 +79,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 		sticks = (ImageView) findViewById(R.id.sticks);
 		sticks.setBackgroundResource(R.drawable.fallingstickanimation);
 		fallingSticks = (AnimationDrawable) sticks.getBackground();
+		sticks.setVisibility(View.INVISIBLE);
+		fallingSticks.setVisible(false, false);
 
 		roll = (Button) findViewById(R.id.rollButton);
 		roll.setOnClickListener(this);
@@ -147,46 +155,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public void onClick(View v) {
-/*		if (playerTurn == 1) {
-			if (v.getId() == playerOneImages[0].getId()) {
-				//popup
-				// alert dialog
-			} else if (v.getId() == playerOneImages[1].getId()) {
 
-			} else if (v.getId() == playerOneImages[2].getId()) {
-
-			} else if (v.getId() == playerOneImages[3].getId()) {
-
-			}
-		}
-		else if (playerTurn == 2) {
-			if (v.getId() == playerTwoImages[0].getId()) {
-
-			} else if (v.getId() == playerTwoImages[1].getId()) {
-
-			} else if (v.getId() == playerTwoImages[2].getId()) {
-
-			} else if (v.getId() == playerTwoImages[3].getId()) {
-
-			}
-		}
-
-		if (v.getId() == moveButtons[0].getId() && pieceSelected == 1){
-			//players[0].getPiece(0).handleMovement()
-		}
-		else if (v.getId() == moveButtons[1].getId() && pieceSelected == 1){
-
-		}
-		else if (v.getId() == moveButtons[2].getId() && pieceSelected == 1){
-
-		}
-		else if (v.getId() == moveButtons[3].getId() && pieceSelected == 1){
-
-		}
-		else if (v.getId() == moveButtons[4].getId() && pieceSelected == 1) {
-
-		}
-		*/
 		if (v.getId() == R.id.rollButton){
 
 
@@ -198,7 +167,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			move5.setVisibility(View.INVISIBLE);
 			moveminus1.setVisibility(View.INVISIBLE);
 			rollText.setText("");
-			playerTurnText.setText("");
+			//playerTurnText.setText("");
 			sticks.setVisibility(View.VISIBLE);
 			fallingSticks.setVisible(true, false);
 			fallingSticks.stop();
@@ -258,13 +227,23 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 					roll.setVisibility(View.VISIBLE);
 
-					if (playerTurn == 1) {
-						playerTurn = 2;
-						playerTurnText.setText("Player 2 Turn");
+					//String rollAgain = "Player " + playerTurn + " roll again!";
+					if (rollAmount == 4 || rollAmount == 5){
+						//playerTurnText.setText(rollAgain);
 					}
 					else {
-						playerTurn = 1;
-						playerTurnText.setText("Player 1 Turn");
+						if (playerTurn == 1) {
+							playerTurn = 2;
+							//playerTurnText.setText("Player 2 Turn");
+							bottomBar.setBackgroundResource(R.color.Gold);
+							topBar.setBackgroundResource(R.color.LighterBlue);
+
+						} else {
+							playerTurn = 1;
+							//playerTurnText.setText("Player 1 Turn");
+							topBar.setBackgroundResource(R.color.Gold);
+							bottomBar.setBackgroundResource(R.color.LighterBlue);
+						}
 					}
 
 				}

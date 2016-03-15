@@ -4,14 +4,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:background="@drawable/boardimage"
+                android:background="@drawable/board_clear"
                 tools:context="com.jeffreychan.yutnori.BoardActivity">
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:id="@+id/temp"
+        android:background="@drawable/board_tiles"
+        android:layout_below="@+id/topBar"
+        android:layout_above="@+id/rollBar"/>
+
     <Button
         android:layout_width="170dp"
         android:layout_height="80dp"
         android:id="@+id/rollButton"
         android:background="@drawable/rollbutton"
-        android:layout_below="@+id/sticks"
+        android:layout_above="@+id/rollBar"
         android:layout_centerHorizontal="true" />
 
     <ImageView
@@ -21,11 +31,11 @@
         android:layout_centerInParent="true"  />
 
     <ImageView
-    android:layout_width="200dp"
-    android:layout_height="300dp"
-    android:id="@+id/move1"
-    android:visibility="invisible"
-    android:layout_centerInParent="true"  />
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:id="@+id/move1"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"  />
 
     <ImageView
         android:layout_width="200dp"
@@ -63,13 +73,32 @@
         android:layout_centerInParent="true"  />
 
     <LinearLayout
-        android:layout_width="200dp"
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="7.5dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:weightSum="4"
+        android:weightSum="7"
+        android:background="@color/Gold"
         >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/seal_icon"
+            android:background="@drawable/seal_icon"
+            android:layout_margin="5dp"
+            android:layout_centerInParent="true"  />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:id="@+id/player1"
+            android:background="@drawable/player1"
+            android:layout_margin="10dp"
+            android:layout_centerInParent="true"  />
 
         <ImageView
             android:layout_width="0dp"
@@ -98,13 +127,33 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="200dp"
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginBottom="7.5dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:weightSum="4"
+        android:weightSum="7"
+        android:background="@color/LighterBlue"
+
         >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/penguin_icon"
+            android:background="@drawable/penguin_icon"
+            android:layout_margin="5dp"
+            android:layout_centerInParent="true"  />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:id="@+id/player2"
+            android:layout_margin="10dp"
+            android:background="@drawable/player2"
+            android:layout_centerInParent="true"  />
 
         <ImageView
             android:layout_width="0dp"
@@ -147,6 +196,62 @@
         android:text=""
         android:textSize="50dp"
         android:id="@+id/playerTurn"
+        android:gravity="center"
         android:layout_above="@+id/sticks"
         android:layout_centerHorizontal="true"/>
+
+    <LinearLayout
+        android:id="@+id/rollBar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_above="@+id/bottomBar"
+        android:layout_alignParentEnd="true"
+        android:weightSum="5"
+        android:background="@color/Black"
+
+
+        >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot1"
+            android:background="@drawable/white_marker"
+            android:layout_margin="5dp"
+            android:layout_centerInParent="true"  />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot2"
+            android:background="@drawable/white_marker"
+            android:layout_margin="5dp"
+            android:layout_centerInParent="true"  />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot3"
+            android:layout_margin="5dp"
+            android:background="@drawable/white_marker"/>
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot4"
+            android:layout_margin="5dp"
+            android:background="@drawable/white_marker" />
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot5"
+            android:layout_margin="5dp"
+            android:background="@drawable/white_marker"/>
+
+    </LinearLayout>
+
 </RelativeLayout>
