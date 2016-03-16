@@ -27,17 +27,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	Board board;
 	Player[] players = new Player[2];
-	ImageView[] playerOneImages, playerTwoImages, moveButtons;
+	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot;
 	ImageView sticks, move1, move2, move3, move4, move5, moveminus1;
 	AnimationDrawable fallingSticks;
 	Button roll;
-	int playerTurn = 1;
-	boolean isRunning = true;
-	int pieceSelected = 0;
+	int playerTurn = 1, rollAmount, counter = 0;
 	ArrayList<Integer> rolls;
-	int rollAmount;
-	TextView rollText, playerTurnText;
+	TextView rollText;
 	LinearLayout topBar, bottomBar;
+	int[] rollArray, playerOneCompleted, playerTwoCompleted;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +46,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		players[0] = new Player("Player 1");
 		players[1] = new Player("Player 2");
+		rollArray = new int[5];
+		rollSlot = new ImageView[5];
 		board = new Board();
 
 		topBar = (LinearLayout) findViewById(R.id.topBar);
@@ -64,9 +64,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 		moveminus1 = (ImageView) findViewById(R.id.moveminus1);
 		rollText = (TextView) findViewById(R.id.rollText);
 		rollText.setTextColor(Color.BLACK);
-		playerTurnText = (TextView) findViewById(R.id.playerTurn);
-		playerTurnText.setTextColor(Color.RED);
-		//playerTurnText.setText("Player 1 Turn");
+
+		rollSlot[0] = (ImageView) findViewById(R.id.rollSlot1);
+		rollSlot[1] = (ImageView) findViewById(R.id.rollSlot2);
+		rollSlot[2] = (ImageView) findViewById(R.id.rollSlot3);
+		rollSlot[3] = (ImageView) findViewById(R.id.rollSlot4);
+		rollSlot[4] = (ImageView) findViewById(R.id.rollSlot5);
+
+
 
 		move1.setBackgroundResource(R.drawable.move1);
 		move2.setBackgroundResource(R.drawable.move2);
@@ -86,16 +91,21 @@ public class BoardActivity extends Activity implements OnClickListener{
 		roll.setOnClickListener(this);
 
 
+		playerOneImages[0] = (ImageView) findViewById(R.id.seal1);
+		playerOneImages[1] = (ImageView) findViewById(R.id.seal2);
+		playerOneImages[2] = (ImageView) findViewById(R.id.seal3);
+		playerOneImages[3] = (ImageView) findViewById(R.id.seal4);
+
+		playerTwoImages[0] = (ImageView) findViewById(R.id.penguin1);
+		playerTwoImages[1] = (ImageView) findViewById(R.id.penguin2);
+		playerTwoImages[2] = (ImageView) findViewById(R.id.penguin3);
+		playerTwoImages[3] = (ImageView) findViewById(R.id.penguin4);
+
 		for (int i = 0; i < 4; i++){
-			playerOneImages[i] = new ImageView(this);
-			playerTwoImages[i] = new ImageView(this);
-
-			playerOneImages[i].setId(i);
 			playerOneImages[i].setOnClickListener(this);
-			playerTwoImages[i].setId(i + 4);
 			playerTwoImages[i].setOnClickListener(this);
-
 		}
+
 
 		moveButtons = new ImageView[5];
 		for (int i = 0; i < 4; i++){
@@ -104,6 +114,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 			moveButtons[i].setOnClickListener(this);
 
 		}
+
+		playerOneCompleted = new int[4];
+		playerTwoCompleted = new int[4];
 
 	}
 
@@ -156,7 +169,47 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 
-		if (v.getId() == R.id.rollButton){
+		if (v.getId() == R.id.seal1) {
+			playerOneCompleted[0] = (playerOneCompleted[0] + 1) % 2;
+			if (playerOneCompleted[0] == 1)	playerOneImages[0].setBackgroundResource(R.drawable.sealfaded);
+			else playerOneImages[0].setBackgroundResource(R.drawable.seal1);
+		}
+		else if (v.getId() == R.id.seal2) {
+			playerOneCompleted[1] = (playerOneCompleted[1] + 1) % 2;
+			if (playerOneCompleted[1] == 1)	playerOneImages[1].setBackgroundResource(R.drawable.sealfaded);
+			else playerOneImages[1].setBackgroundResource(R.drawable.seal1);
+		}
+		else if (v.getId() == R.id.seal3) {
+			playerOneCompleted[2] = (playerOneCompleted[2] + 1) % 2;
+			if (playerOneCompleted[2] == 1)	playerOneImages[2].setBackgroundResource(R.drawable.sealfaded);
+			else playerOneImages[2].setBackgroundResource(R.drawable.seal1);
+		}
+		else if (v.getId() == R.id.seal4) {
+			playerOneCompleted[3] = (playerOneCompleted[3] + 1) % 2;
+			if (playerOneCompleted[3] == 1)	playerOneImages[3].setBackgroundResource(R.drawable.sealfaded);
+			else playerOneImages[3].setBackgroundResource(R.drawable.seal1);
+		}
+		else if (v.getId() == R.id.penguin1) {
+			playerTwoCompleted[0] = (playerTwoCompleted[0] + 1) % 2;
+			if (playerTwoCompleted[0] == 1)	playerTwoImages[0].setBackgroundResource(R.drawable.penguinfaded);
+			else playerTwoImages[0].setBackgroundResource(R.drawable.penguin1);
+		}
+		else if (v.getId() == R.id.penguin2) {
+			playerTwoCompleted[1] = (playerTwoCompleted[1] + 1) % 2;
+			if (playerTwoCompleted[1] == 1)	playerTwoImages[1].setBackgroundResource(R.drawable.penguinfaded);
+			else playerTwoImages[1].setBackgroundResource(R.drawable.penguin1);
+		}
+		else if (v.getId() == R.id.penguin3) {
+			playerTwoCompleted[2] = (playerTwoCompleted[2] + 1) % 2;
+			if (playerTwoCompleted[2] == 1)	playerTwoImages[2].setBackgroundResource(R.drawable.penguinfaded);
+			else playerTwoImages[2].setBackgroundResource(R.drawable.penguin1);
+		}
+		else if (v.getId() == R.id.penguin4) {
+			playerTwoCompleted[3] = (playerTwoCompleted[3] + 1) % 2;
+			if (playerTwoCompleted[3] == 1)	playerTwoImages[3].setBackgroundResource(R.drawable.penguinfaded);
+			else playerTwoImages[3].setBackgroundResource(R.drawable.penguin1);
+		}
+		else if (v.getId() == R.id.rollButton){
 
 
 			roll.setVisibility(View.INVISIBLE);
@@ -167,7 +220,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			move5.setVisibility(View.INVISIBLE);
 			moveminus1.setVisibility(View.INVISIBLE);
 			rollText.setText("");
-			//playerTurnText.setText("");
 			sticks.setVisibility(View.VISIBLE);
 			fallingSticks.setVisible(true, false);
 			fallingSticks.stop();
@@ -183,26 +235,38 @@ public class BoardActivity extends Activity implements OnClickListener{
 						case -1:
 							moveminus1.setVisibility(View.VISIBLE);
 							rollText.setText("-1");
+							rollArray[counter] = -1;
+							rollSlot[counter].setBackgroundResource(R.drawable.circleminus1);
 							break;
 						case 1:
 							move1.setVisibility(View.VISIBLE);
 							rollText.setText("1");
+							rollArray[counter] = 1;
+							rollSlot[counter].setBackgroundResource(R.drawable.circle1);
 							break;
 						case 2:
 							move2.setVisibility(View.VISIBLE);
 							rollText.setText("2");
+							rollArray[counter] = 2;
+							rollSlot[counter].setBackgroundResource(R.drawable.circle2);
 							break;
 						case 3:
 							move3.setVisibility(View.VISIBLE);
 							rollText.setText("3");
+							rollArray[counter] = 3;
+							rollSlot[counter].setBackgroundResource(R.drawable.circle3);
 							break;
 						case 4:
 							move4.setVisibility(View.VISIBLE);
 							rollText.setText("4");
+							rollArray[counter] = 4;
+							rollSlot[counter].setBackgroundResource(R.drawable.circle4);
 							break;
 						case 5:
 							move5.setVisibility(View.VISIBLE);
 							rollText.setText("5");
+							rollArray[counter] = 5;
+							rollSlot[counter].setBackgroundResource(R.drawable.circle5);
 							break;
 						default:
 
@@ -227,23 +291,27 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 					roll.setVisibility(View.VISIBLE);
 
-					//String rollAgain = "Player " + playerTurn + " roll again!";
-					if (rollAmount == 4 || rollAmount == 5){
-						//playerTurnText.setText(rollAgain);
+					if (rollAmount == 4 || rollAmount == 5 && counter < 4){
+						counter++;
 					}
 					else {
 						if (playerTurn == 1) {
 							playerTurn = 2;
-							//playerTurnText.setText("Player 2 Turn");
-							bottomBar.setBackgroundResource(R.color.Gold);
+							bottomBar.setBackgroundResource(R.color.Orange);
 							topBar.setBackgroundResource(R.color.LighterBlue);
 
 						} else {
 							playerTurn = 1;
-							//playerTurnText.setText("Player 1 Turn");
-							topBar.setBackgroundResource(R.color.Gold);
+							topBar.setBackgroundResource(R.color.Orange);
 							bottomBar.setBackgroundResource(R.color.LighterBlue);
 						}
+
+						counter = 0;
+						for (int i = 0; i < 5; i++) {
+							rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+						}
+						resetRollArray();
+
 					}
 
 				}
@@ -252,6 +320,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		}
 
+	}
+
+	public void resetRollArray(){
+		for (int i = 0; i < 5; i++){
+			rollArray[i] = 0;
+		}
 	}
 
 	public int throwSticks(){

@@ -10,11 +10,11 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:id="@+id/temp"
         android:background="@drawable/board_tiles"
         android:layout_below="@+id/topBar"
-        android:layout_above="@+id/rollBar"/>
+        android:layout_above="@+id/rollButton"/>
 
     <Button
         android:layout_width="170dp"
@@ -79,7 +79,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:weightSum="7"
-        android:background="@color/Gold"
+        android:background="@color/Orange"
         >
 
         <ImageView
@@ -187,8 +187,8 @@
         android:text=""
         android:textSize="80dp"
         android:id="@+id/rollText"
-        android:layout_alignTop="@+id/sticks"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignTop="@+id/playerTurn"
+        android:layout_centerHorizontal="true"/>
 
     <TextView
         android:layout_width="wrap_content"
