@@ -7,7 +7,7 @@ public class Board {
 
 	int[] rollArray = new int[5];
 	int rollIndex = 0;
-	int playerTurn = 1;
+	int playerTurn = 0;
 
 	public int throwSticks(){
 		int roll = 1;
@@ -30,17 +30,15 @@ public class Board {
 	 * @param roll The roll amount being added to the array
 	 * @return The last index that contains a roll
 	 */
-	public int addRoll(int roll){
+	public void addRoll(int roll){
 		rollArray[rollIndex] = roll;
 
-		if (roll == 4 || roll == 5 && rollIndex < 4){
+		if ((roll == 4 || roll == 5) && rollIndex < 4){
 			rollIndex++;
-			return rollIndex-1;
 		}
 		else {
-			playerTurn = ((playerTurn + 1) % 2) + 1;
+			playerTurn = (playerTurn + 1) % 2;
 			resetRollArray();
-			return rollIndex;
 		}
 	}
 

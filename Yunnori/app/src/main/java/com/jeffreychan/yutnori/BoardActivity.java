@@ -27,7 +27,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1;
 	AnimationDrawable fallingSticks;
 	Button roll;
-	int rollAmount;
+	int rollAmount, turn = 0, counter = 0;
 	TextView rollText;
 	LinearLayout topBar, bottomBar;
 	int[] playerOneCompleted, playerTwoCompleted;
@@ -204,42 +204,44 @@ public class BoardActivity extends Activity implements OnClickListener{
 			handler.postDelayed(new Runnable() {
 				public void run() {
 					rollAmount = board.throwSticks();
-					int i = board.addRoll(rollAmount);
+					board.addRoll(rollAmount);
 
 					switch (rollAmount) {
 						case -1:
 							moveMinus1.setVisibility(View.VISIBLE);
 							rollText.setText("-1");
-							rollSlot[i].setBackgroundResource(R.drawable.circleminus1);
+							rollSlot[counter].setBackgroundResource(R.drawable.circleminus1);
 							break;
 						case 1:
 							move1.setVisibility(View.VISIBLE);
 							rollText.setText("1");
-							rollSlot[i].setBackgroundResource(R.drawable.circle1);
+							rollSlot[counter].setBackgroundResource(R.drawable.circle1);
 							break;
 						case 2:
 							move2.setVisibility(View.VISIBLE);
 							rollText.setText("2");
-							rollSlot[i].setBackgroundResource(R.drawable.circle2);
+							rollSlot[counter].setBackgroundResource(R.drawable.circle2);
 							break;
 						case 3:
 							move3.setVisibility(View.VISIBLE);
 							rollText.setText("3");
-							rollSlot[i].setBackgroundResource(R.drawable.circle3);
+							rollSlot[counter].setBackgroundResource(R.drawable.circle3);
 							break;
 						case 4:
 							move4.setVisibility(View.VISIBLE);
 							rollText.setText("4");
-							rollSlot[i].setBackgroundResource(R.drawable.circle4);
+							rollSlot[counter].setBackgroundResource(R.drawable.circle4);
 							break;
 						case 5:
 							move5.setVisibility(View.VISIBLE);
 							rollText.setText("5");
-							rollSlot[i].setBackgroundResource(R.drawable.circle5);
+							rollSlot[counter].setBackgroundResource(R.drawable.circle5);
 							break;
 						default:
 
 					}
+
+					counter++;
 
 				}
 			}, 900);
@@ -260,12 +262,16 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 					roll.setVisibility(View.VISIBLE);
 
-					if (board.getPlayerTurn() == 2) {
+					if (board.getPlayerTurn() == 1 && turn == 0) {
+						turn = board.getPlayerTurn();
 						bottomBar.setBackgroundResource(R.color.Orange);
 						topBar.setBackgroundResource(R.color.LighterBlue);
-					} else {
+						reset();
+					} else if (board.getPlayerTurn() == 0 && turn == 1){
+						turn = board.getPlayerTurn();
 						topBar.setBackgroundResource(R.color.Orange);
 						bottomBar.setBackgroundResource(R.color.LighterBlue);
+						reset();
 					}
 
 					}
@@ -280,6 +286,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
 		}
 		board.resetRollArray();
+		counter = 0;
 	}
 
 }
