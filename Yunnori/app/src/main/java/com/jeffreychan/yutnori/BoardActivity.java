@@ -12,30 +12,25 @@ import android.view.MenuItem;
 import android.app.Activity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 public class BoardActivity extends Activity implements OnClickListener{
 
 	Board board;
 	Player[] players = new Player[2];
 	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot;
-	ImageView sticks, move1, move2, move3, move4, move5, moveminus1;
+	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1;
 	AnimationDrawable fallingSticks;
 	Button roll;
-	int playerTurn = 1, rollAmount, counter = 0;
-	ArrayList<Integer> rolls;
+	int rollAmount;
 	TextView rollText;
 	LinearLayout topBar, bottomBar;
-	int[] rollArray, playerOneCompleted, playerTwoCompleted;
+	int[] playerOneCompleted, playerTwoCompleted;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +41,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		players[0] = new Player("Player 1");
 		players[1] = new Player("Player 2");
-		rollArray = new int[5];
 		rollSlot = new ImageView[5];
 		board = new Board();
 
@@ -61,7 +55,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		move3 = (ImageView) findViewById(R.id.move3);
 		move4 = (ImageView) findViewById(R.id.move4);
 		move5 = (ImageView) findViewById(R.id.move5);
-		moveminus1 = (ImageView) findViewById(R.id.moveminus1);
+		moveMinus1 = (ImageView) findViewById(R.id.moveminus1);
 		rollText = (TextView) findViewById(R.id.rollText);
 		rollText.setTextColor(Color.BLACK);
 
@@ -71,15 +65,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rollSlot[3] = (ImageView) findViewById(R.id.rollSlot4);
 		rollSlot[4] = (ImageView) findViewById(R.id.rollSlot5);
 
-
-
 		move1.setBackgroundResource(R.drawable.move1);
 		move2.setBackgroundResource(R.drawable.move2);
 		move3.setBackgroundResource(R.drawable.move3);
 		move4.setBackgroundResource(R.drawable.move4);
 		move5.setBackgroundResource(R.drawable.move5);
-		moveminus1.setBackgroundResource(R.drawable.moveminus1);
-
+		moveMinus1.setBackgroundResource(R.drawable.moveminus1);
 
 		sticks = (ImageView) findViewById(R.id.sticks);
 		sticks.setBackgroundResource(R.drawable.fallingstickanimation);
@@ -89,7 +80,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		roll = (Button) findViewById(R.id.rollButton);
 		roll.setOnClickListener(this);
-
 
 		playerOneImages[0] = (ImageView) findViewById(R.id.seal1);
 		playerOneImages[1] = (ImageView) findViewById(R.id.seal2);
@@ -106,7 +96,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			playerTwoImages[i].setOnClickListener(this);
 		}
 
-
 		moveButtons = new ImageView[5];
 		for (int i = 0; i < 4; i++){
 			moveButtons[i] = new ImageView(this);
@@ -122,23 +111,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-//		int id = item.getItemId();
-//
-//		//noinspection SimplifiableIfStatement
-//		if (id == R.id.action_settings) {
-//			return true;
-//		}
-
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -210,63 +187,55 @@ public class BoardActivity extends Activity implements OnClickListener{
 			else playerTwoImages[3].setBackgroundResource(R.drawable.penguin1);
 		}
 		else if (v.getId() == R.id.rollButton){
-
-
 			roll.setVisibility(View.INVISIBLE);
 			move1.setVisibility(View.INVISIBLE);
 			move2.setVisibility(View.INVISIBLE);
 			move3.setVisibility(View.INVISIBLE);
 			move4.setVisibility(View.INVISIBLE);
 			move5.setVisibility(View.INVISIBLE);
-			moveminus1.setVisibility(View.INVISIBLE);
+			moveMinus1.setVisibility(View.INVISIBLE);
 			rollText.setText("");
 			sticks.setVisibility(View.VISIBLE);
 			fallingSticks.setVisible(true, false);
 			fallingSticks.stop();
 			fallingSticks.start();
 
-
 			Handler handler = new Handler();
 			handler.postDelayed(new Runnable() {
 				public void run() {
-					rollAmount = throwSticks();
+					rollAmount = board.throwSticks();
+					int i = board.addRoll(rollAmount);
 
 					switch (rollAmount) {
 						case -1:
-							moveminus1.setVisibility(View.VISIBLE);
+							moveMinus1.setVisibility(View.VISIBLE);
 							rollText.setText("-1");
-							rollArray[counter] = -1;
-							rollSlot[counter].setBackgroundResource(R.drawable.circleminus1);
+							rollSlot[i].setBackgroundResource(R.drawable.circleminus1);
 							break;
 						case 1:
 							move1.setVisibility(View.VISIBLE);
 							rollText.setText("1");
-							rollArray[counter] = 1;
-							rollSlot[counter].setBackgroundResource(R.drawable.circle1);
+							rollSlot[i].setBackgroundResource(R.drawable.circle1);
 							break;
 						case 2:
 							move2.setVisibility(View.VISIBLE);
 							rollText.setText("2");
-							rollArray[counter] = 2;
-							rollSlot[counter].setBackgroundResource(R.drawable.circle2);
+							rollSlot[i].setBackgroundResource(R.drawable.circle2);
 							break;
 						case 3:
 							move3.setVisibility(View.VISIBLE);
 							rollText.setText("3");
-							rollArray[counter] = 3;
-							rollSlot[counter].setBackgroundResource(R.drawable.circle3);
+							rollSlot[i].setBackgroundResource(R.drawable.circle3);
 							break;
 						case 4:
 							move4.setVisibility(View.VISIBLE);
 							rollText.setText("4");
-							rollArray[counter] = 4;
-							rollSlot[counter].setBackgroundResource(R.drawable.circle4);
+							rollSlot[i].setBackgroundResource(R.drawable.circle4);
 							break;
 						case 5:
 							move5.setVisibility(View.VISIBLE);
 							rollText.setText("5");
-							rollArray[counter] = 5;
-							rollSlot[counter].setBackgroundResource(R.drawable.circle5);
+							rollSlot[i].setBackgroundResource(R.drawable.circle5);
 							break;
 						default:
 
@@ -287,59 +256,30 @@ public class BoardActivity extends Activity implements OnClickListener{
 					move3.setVisibility(View.INVISIBLE);
 					move4.setVisibility(View.INVISIBLE);
 					move5.setVisibility(View.INVISIBLE);
-					moveminus1.setVisibility(View.INVISIBLE);
+					moveMinus1.setVisibility(View.INVISIBLE);
 
 					roll.setVisibility(View.VISIBLE);
 
-					if (rollAmount == 4 || rollAmount == 5 && counter < 4){
-						counter++;
+					if (board.getPlayerTurn() == 2) {
+						bottomBar.setBackgroundResource(R.color.Orange);
+						topBar.setBackgroundResource(R.color.LighterBlue);
+					} else {
+						topBar.setBackgroundResource(R.color.Orange);
+						bottomBar.setBackgroundResource(R.color.LighterBlue);
 					}
-					else {
-						if (playerTurn == 1) {
-							playerTurn = 2;
-							bottomBar.setBackgroundResource(R.color.Orange);
-							topBar.setBackgroundResource(R.color.LighterBlue);
-
-						} else {
-							playerTurn = 1;
-							topBar.setBackgroundResource(R.color.Orange);
-							bottomBar.setBackgroundResource(R.color.LighterBlue);
-						}
-
-						counter = 0;
-						for (int i = 0; i < 5; i++) {
-							rollSlot[i].setBackgroundResource(R.drawable.white_marker);
-						}
-						resetRollArray();
 
 					}
 
-				}
 			}, 1900);
-
-
-		}
-
-	}
-
-	public void resetRollArray(){
-		for (int i = 0; i < 5; i++){
-			rollArray[i] = 0;
 		}
 	}
 
-	public int throwSticks(){
-		int roll = 1;
 
-		int num = (int) (Math.random() * 16) + 1;
-
-		if (num == 1) roll = -1;
-		else if (num > 1 && num <= 4) roll = 1;
-		else if (num > 4 && num <= 10) roll = 2;
-		else if (num > 10 && num <= 14) roll = 3;
-		else if (num > 14 && num <= 15) roll = 4;
-		else if (num > 15 && num <= 16) roll = 5;
-
-		return roll;
+	public void reset(){
+		for (int i = 0; i < 5; i++) {
+			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+		}
+		board.resetRollArray();
 	}
+
 }

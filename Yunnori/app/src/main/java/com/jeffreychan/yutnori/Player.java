@@ -1,4 +1,5 @@
 package com.jeffreychan.yutnori;
+
 public class Player {
 	private String name;
 	private int numPieces = 4;
