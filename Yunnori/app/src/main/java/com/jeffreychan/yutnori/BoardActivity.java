@@ -181,7 +181,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		topBar.setMinimumHeight(height/5);
+
+		roll.setMaxWidth(width/4);
 	//	boardLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, width));
 
 	}
@@ -307,12 +308,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 					if (board.getPlayerTurn() == 1 && turn == 0) {
 						turn = board.getPlayerTurn();
-						bottomBar.setBackgroundResource(R.color.Orange);
+						bottomBar.setBackgroundResource(R.color.DarkerBlue);
 						topBar.setBackgroundResource(R.color.LighterBlue);
 						reset();
 					} else if (board.getPlayerTurn() == 0 && turn == 1){
 						turn = board.getPlayerTurn();
-						topBar.setBackgroundResource(R.color.Orange);
+						topBar.setBackgroundResource(R.color.DarkerBlue);
 						bottomBar.setBackgroundResource(R.color.LighterBlue);
 						reset();
 					}

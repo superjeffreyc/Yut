@@ -435,7 +435,8 @@
         android:id="@+id/rollButton"
         android:background="@drawable/rollbutton"
         android:layout_weight="1"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:layout_margin="5dp"/>
 
 
     <LinearLayout
@@ -443,8 +444,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:weightSum="5"
-        android:background="@color/Black" >
+        android:weightSum="5" >
 
         <ImageView
             android:layout_width="0dp"
