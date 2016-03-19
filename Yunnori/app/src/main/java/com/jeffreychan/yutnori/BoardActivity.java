@@ -3,9 +3,11 @@ package com.jeffreychan.yutnori;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,14 +25,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	Board board;
 	Player[] players = new Player[2];
-	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot;
+	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot, tiles;
 	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1;
 	AnimationDrawable fallingSticks;
 	Button roll;
-	int rollAmount, turn = 0, counter = 0;
+	int rollAmount, turn = 0, counter = 0, width, height;
 	TextView rollText;
 	LinearLayout topBar, bottomBar;
 	int[] playerOneCompleted, playerTwoCompleted;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_board);
+
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		width = size.x;
+		height = size.y;
 
 		players[0] = new Player("Player 1");
 		players[1] = new Player("Player 2");
@@ -49,6 +58,20 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
+
+		tiles = new ImageView[20];
+		tiles[5] = (ImageView) findViewById(R.id.location5);
+		tiles[5].setOnClickListener(this);
+		tiles[6] = (ImageView) findViewById(R.id.location6);
+		tiles[6].setOnClickListener(this);
+		tiles[7] = (ImageView) findViewById(R.id.location7);
+		tiles[7].setOnClickListener(this);
+		tiles[8] = (ImageView) findViewById(R.id.location8);
+		tiles[8].setOnClickListener(this);
+		tiles[9] = (ImageView) findViewById(R.id.location9);
+		tiles[9].setOnClickListener(this);
+		tiles[10] = (ImageView) findViewById(R.id.location10);
+		tiles[10].setOnClickListener(this);
 
 		move1 = (ImageView) findViewById(R.id.move1);
 		move2 = (ImageView) findViewById(R.id.move2);
@@ -141,6 +164,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		});
 		adb.show();
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+
+//		tiles[5].setX((float) (6 * width / 7.0));
+//		tiles[6].setX((float) (5 * width / 7.0));
+//		tiles[7].setX((float) (4 * width / 7.0));
+//		tiles[8].setX((float) (3 * width / 7.0));
+//		tiles[9].setX((float) (2 * width / 7.0));
+//		tiles[10].setX((float) (1 * width / 7.0));
+
 	}
 
 	@Override
