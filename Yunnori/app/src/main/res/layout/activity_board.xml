@@ -7,13 +7,24 @@
                 android:background="@drawable/board_clear"
                 tools:context="com.jeffreychan.yutnori.BoardActivity">
 
-    <Button
-        android:layout_width="170dp"
-        android:layout_height="80dp"
-        android:id="@+id/rollButton"
-        android:background="@drawable/rollbutton"
-        android:layout_above="@+id/rollBar"
-        android:layout_centerHorizontal="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="80dp"
+        android:id="@+id/rollText"
+        android:layout_alignTop="@+id/playerTurn"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="50dp"
+        android:id="@+id/playerTurn"
+        android:gravity="center"
+        android:layout_above="@+id/sticks"
+        android:layout_centerHorizontal="true"/>
 
     <ImageView
         android:layout_width="210dp"
@@ -64,14 +75,19 @@
         android:layout_centerInParent="true"  />
 
     <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/screenLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="10" >
+
+    <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:weightSum="7"
-        android:background="@color/Orange"
-        >
+        android:background="@color/Orange" >
 
         <ImageView
             android:layout_width="0dp"
@@ -118,137 +134,13 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:weightSum="7"
-        android:background="@color/LighterBlue">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/penguin_icon"
-            android:background="@drawable/penguin_icon"
-            android:layout_margin="5dp"
-            android:layout_centerInParent="true"  />
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="match_parent"
-            android:id="@+id/player2"
-            android:layout_margin="10dp"
-            android:background="@drawable/player2"
-            android:layout_centerInParent="true"  />
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/penguin1"
-            android:background="@drawable/penguin1"/>
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/penguin2"
-            android:background="@drawable/penguin1" />
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/penguin3"
-            android:background="@drawable/penguin1"/>
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/penguin4"
-            android:background="@drawable/penguin1"/>
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="80dp"
-        android:id="@+id/rollText"
-        android:layout_alignTop="@+id/playerTurn"
-        android:layout_centerHorizontal="true"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="50dp"
-        android:id="@+id/playerTurn"
-        android:gravity="center"
-        android:layout_above="@+id/sticks"
-        android:layout_centerHorizontal="true"/>
-
-    <LinearLayout
-        android:id="@+id/rollBar"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_above="@+id/bottomBar"
-        android:layout_alignParentEnd="true"
-        android:weightSum="5"
-        android:background="@color/Black" >
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/rollSlot1"
-            android:background="@drawable/white_marker"
-            android:layout_margin="5dp"
-            android:layout_centerInParent="true"  />
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/rollSlot2"
-            android:background="@drawable/white_marker"
-            android:layout_margin="5dp"
-            android:layout_centerInParent="true"  />
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/rollSlot3"
-            android:layout_margin="5dp"
-            android:background="@drawable/white_marker"/>
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/rollSlot4"
-            android:layout_margin="5dp"
-            android:background="@drawable/white_marker" />
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:id="@+id/rollSlot5"
-            android:layout_margin="5dp"
-            android:background="@drawable/white_marker"/>
-
-    </LinearLayout>
-
-    <LinearLayout
         android:orientation="vertical"
         android:id="@+id/board"
-        android:layout_margin="10dp"
+        android:layout_margin="0dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/topBar"
-        android:weightSum="6"
-        android:layout_above="@+id/rollButton">
+        android:layout_height="0dp"
+        android:layout_weight="6"
+        android:weightSum="6" >
 
         <LinearLayout
             android:id="@+id/firstRow"
@@ -537,5 +429,117 @@
 
     </LinearLayout>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:id="@+id/rollButton"
+        android:background="@drawable/rollbutton"
+        android:layout_weight="1"
+        android:layout_gravity="center"/>
+
+
+    <LinearLayout
+        android:id="@+id/rollBar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:weightSum="5"
+        android:background="@color/Black" >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot1"
+            android:background="@drawable/white_marker"
+            android:layout_margin="5dp"
+            android:layout_centerInParent="true"  />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot2"
+            android:background="@drawable/white_marker"
+            android:layout_margin="5dp"
+            android:layout_centerInParent="true"  />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot3"
+            android:layout_margin="5dp"
+            android:background="@drawable/white_marker"/>
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot4"
+            android:layout_margin="5dp"
+            android:background="@drawable/white_marker" />
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/rollSlot5"
+            android:layout_margin="5dp"
+            android:background="@drawable/white_marker"/>
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="7"
+            android:background="@color/LighterBlue">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:id="@+id/penguin_icon"
+                android:background="@drawable/penguin_icon"
+                android:layout_margin="5dp"
+                android:layout_centerInParent="true"  />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:id="@+id/player2"
+                android:layout_margin="10dp"
+                android:background="@drawable/player2"
+                android:layout_centerInParent="true"  />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:id="@+id/penguin1"
+                android:background="@drawable/penguin1"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:id="@+id/penguin2"
+                android:background="@drawable/penguin1" />
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:id="@+id/penguin3"
+                android:background="@drawable/penguin1"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:id="@+id/penguin4"
+                android:background="@drawable/penguin1"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

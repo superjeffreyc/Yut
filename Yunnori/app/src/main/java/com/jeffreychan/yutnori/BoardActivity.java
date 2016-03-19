@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 public class BoardActivity extends Activity implements OnClickListener{
@@ -31,7 +32,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Button roll;
 	int rollAmount, turn = 0, counter = 0, width, height;
 	TextView rollText;
-	LinearLayout topBar, bottomBar;
+	LinearLayout topBar, bottomBar, boardLayout;
 	int[] playerOneCompleted, playerTwoCompleted;
 
 
@@ -52,6 +53,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		players[1] = new Player("Player 2");
 		rollSlot = new ImageView[5];
 		board = new Board();
+		boardLayout = (LinearLayout) findViewById(R.id.board);
 
 		topBar = (LinearLayout) findViewById(R.id.topBar);
 		bottomBar = (LinearLayout) findViewById(R.id.bottomBar);
@@ -59,19 +61,29 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
 
-		tiles = new ImageView[20];
+		tiles = new ImageView[29];
+		tiles[0] = (ImageView) findViewById(R.id.location0);
+		tiles[1] = (ImageView) findViewById(R.id.location1);
+		tiles[2] = (ImageView) findViewById(R.id.location2);
+		tiles[3] = (ImageView) findViewById(R.id.location3);
+		tiles[4] = (ImageView) findViewById(R.id.location4);
 		tiles[5] = (ImageView) findViewById(R.id.location5);
-		tiles[5].setOnClickListener(this);
 		tiles[6] = (ImageView) findViewById(R.id.location6);
-		tiles[6].setOnClickListener(this);
 		tiles[7] = (ImageView) findViewById(R.id.location7);
-		tiles[7].setOnClickListener(this);
 		tiles[8] = (ImageView) findViewById(R.id.location8);
-		tiles[8].setOnClickListener(this);
 		tiles[9] = (ImageView) findViewById(R.id.location9);
-		tiles[9].setOnClickListener(this);
 		tiles[10] = (ImageView) findViewById(R.id.location10);
-		tiles[10].setOnClickListener(this);
+		tiles[11] = (ImageView) findViewById(R.id.location11);
+		tiles[12] = (ImageView) findViewById(R.id.location12);
+		tiles[13] = (ImageView) findViewById(R.id.location13);
+		tiles[14] = (ImageView) findViewById(R.id.location14);
+		tiles[15] = (ImageView) findViewById(R.id.location15);
+		tiles[16] = (ImageView) findViewById(R.id.location16);
+		tiles[17] = (ImageView) findViewById(R.id.location17);
+		tiles[18] = (ImageView) findViewById(R.id.location18);
+		tiles[19] = (ImageView) findViewById(R.id.location19);
+
+//		for (ImageView iv : tiles){	iv.setOnClickListener(this); }
 
 		move1 = (ImageView) findViewById(R.id.move1);
 		move2 = (ImageView) findViewById(R.id.move2);
@@ -169,13 +181,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-
-//		tiles[5].setX((float) (6 * width / 7.0));
-//		tiles[6].setX((float) (5 * width / 7.0));
-//		tiles[7].setX((float) (4 * width / 7.0));
-//		tiles[8].setX((float) (3 * width / 7.0));
-//		tiles[9].setX((float) (2 * width / 7.0));
-//		tiles[10].setX((float) (1 * width / 7.0));
+		topBar.setMinimumHeight(height/5);
+	//	boardLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, width));
 
 	}
 
