@@ -19,7 +19,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 public class BoardActivity extends Activity implements OnClickListener{
@@ -34,7 +33,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	TextView rollText;
 	LinearLayout topBar, bottomBar, boardLayout;
 	int[] playerOneCompleted, playerTwoCompleted;
-
+	boolean[] isPlayerOnePieceSelected, isPlayerTwoPieceSelected, isPlayerOnePieceDone, isPlayerTwoPieceDone;
+	boolean isReady;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +53,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 		players[1] = new Player("Player 2");
 		rollSlot = new ImageView[5];
 		board = new Board();
+		isPlayerOnePieceSelected = new boolean[4];
+		isPlayerTwoPieceSelected = new boolean[4];
+		isPlayerOnePieceDone = new boolean[4];
+		isPlayerTwoPieceDone = new boolean[4];
+		for (int i = 0; i < 4; i++){
+			isPlayerOnePieceSelected[i] = true;
+			isPlayerTwoPieceSelected[i] = true;
+		}
+
 		boardLayout = (LinearLayout) findViewById(R.id.board);
 
 		topBar = (LinearLayout) findViewById(R.id.topBar);
@@ -190,44 +199,68 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 
-		if (v.getId() == R.id.seal1) {
+		if (v.getId() == R.id.seal1 && isPlayerOnePieceSelected[0] && turn == 0 && isReady) {
+			for (int i = 1; i < 4; i++){
+				isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
+			}
 			playerOneCompleted[0] = (playerOneCompleted[0] + 1) % 2;
-			if (playerOneCompleted[0] == 1)	playerOneImages[0].setBackgroundResource(R.drawable.sealfaded);
+			if (playerOneCompleted[0] == 1)	playerOneImages[0].setBackgroundResource(R.drawable.seal_highlighted);
 			else playerOneImages[0].setBackgroundResource(R.drawable.seal1);
 		}
-		else if (v.getId() == R.id.seal2) {
+		else if (v.getId() == R.id.seal2 && isPlayerOnePieceSelected[1] && turn == 0 && isReady) {
+			for (int i = 0; i < 4; i++){
+				if (i != 1) isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
+			}
 			playerOneCompleted[1] = (playerOneCompleted[1] + 1) % 2;
-			if (playerOneCompleted[1] == 1)	playerOneImages[1].setBackgroundResource(R.drawable.sealfaded);
+			if (playerOneCompleted[1] == 1)	playerOneImages[1].setBackgroundResource(R.drawable.seal_highlighted);
 			else playerOneImages[1].setBackgroundResource(R.drawable.seal1);
 		}
-		else if (v.getId() == R.id.seal3) {
+		else if (v.getId() == R.id.seal3 && isPlayerOnePieceSelected[2] && turn == 0 && isReady) {
+			for (int i = 0; i < 4; i++){
+				if (i != 2) isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
+			}
 			playerOneCompleted[2] = (playerOneCompleted[2] + 1) % 2;
-			if (playerOneCompleted[2] == 1)	playerOneImages[2].setBackgroundResource(R.drawable.sealfaded);
+			if (playerOneCompleted[2] == 1)	playerOneImages[2].setBackgroundResource(R.drawable.seal_highlighted);
 			else playerOneImages[2].setBackgroundResource(R.drawable.seal1);
 		}
-		else if (v.getId() == R.id.seal4) {
+		else if (v.getId() == R.id.seal4 && isPlayerOnePieceSelected[3] && turn == 0 && isReady) {
+			for (int i = 0; i < 4; i++){
+				if (i != 3) isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
+			}
 			playerOneCompleted[3] = (playerOneCompleted[3] + 1) % 2;
-			if (playerOneCompleted[3] == 1)	playerOneImages[3].setBackgroundResource(R.drawable.sealfaded);
+			if (playerOneCompleted[3] == 1)	playerOneImages[3].setBackgroundResource(R.drawable.seal_highlighted);
 			else playerOneImages[3].setBackgroundResource(R.drawable.seal1);
 		}
-		else if (v.getId() == R.id.penguin1) {
+		else if (v.getId() == R.id.penguin1 && isPlayerTwoPieceSelected[0] && turn == 1 && isReady) {
+			for (int i = 1; i < 4; i++){
+				isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
+			}
 			playerTwoCompleted[0] = (playerTwoCompleted[0] + 1) % 2;
-			if (playerTwoCompleted[0] == 1)	playerTwoImages[0].setBackgroundResource(R.drawable.penguinfaded);
+			if (playerTwoCompleted[0] == 1)	playerTwoImages[0].setBackgroundResource(R.drawable.penguin_highlighted);
 			else playerTwoImages[0].setBackgroundResource(R.drawable.penguin1);
 		}
-		else if (v.getId() == R.id.penguin2) {
+		else if (v.getId() == R.id.penguin2 && isPlayerTwoPieceSelected[1] && turn == 1 && isReady) {
+			for (int i = 0; i < 4; i++){
+				if (i != 1) isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
+			}
 			playerTwoCompleted[1] = (playerTwoCompleted[1] + 1) % 2;
-			if (playerTwoCompleted[1] == 1)	playerTwoImages[1].setBackgroundResource(R.drawable.penguinfaded);
+			if (playerTwoCompleted[1] == 1)	playerTwoImages[1].setBackgroundResource(R.drawable.penguin_highlighted);
 			else playerTwoImages[1].setBackgroundResource(R.drawable.penguin1);
 		}
-		else if (v.getId() == R.id.penguin3) {
+		else if (v.getId() == R.id.penguin3 && isPlayerTwoPieceSelected[2] && turn == 1 && isReady) {
+			for (int i = 0; i < 4; i++){
+				if (i != 2) isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
+			}
 			playerTwoCompleted[2] = (playerTwoCompleted[2] + 1) % 2;
-			if (playerTwoCompleted[2] == 1)	playerTwoImages[2].setBackgroundResource(R.drawable.penguinfaded);
+			if (playerTwoCompleted[2] == 1)	playerTwoImages[2].setBackgroundResource(R.drawable.penguin_highlighted);
 			else playerTwoImages[2].setBackgroundResource(R.drawable.penguin1);
 		}
-		else if (v.getId() == R.id.penguin4) {
+		else if (v.getId() == R.id.penguin4 && isPlayerTwoPieceSelected[3] && turn == 1 && isReady) {
+			for (int i = 0; i < 4; i++){
+				if (i != 3) isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
+			}
 			playerTwoCompleted[3] = (playerTwoCompleted[3] + 1) % 2;
-			if (playerTwoCompleted[3] == 1)	playerTwoImages[3].setBackgroundResource(R.drawable.penguinfaded);
+			if (playerTwoCompleted[3] == 1)	playerTwoImages[3].setBackgroundResource(R.drawable.penguin_highlighted);
 			else playerTwoImages[3].setBackgroundResource(R.drawable.penguin1);
 		}
 		else if (v.getId() == R.id.rollButton){
@@ -286,6 +319,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 					}
 
 					counter++;
+					isReady = true;
 
 				}
 			}, 900);
@@ -331,6 +365,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 		board.resetRollArray();
 		counter = 0;
+		isReady = false;
+		for (int i = 0; i < 4; i++){
+			playerOneImages[i].setBackgroundResource(R.drawable.seal1);
+			playerTwoImages[i].setBackgroundResource(R.drawable.penguin1);
+
+		}
 	}
 
 }
