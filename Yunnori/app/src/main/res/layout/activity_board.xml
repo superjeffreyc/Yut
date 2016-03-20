@@ -452,8 +452,7 @@
             android:layout_height="match_parent"
             android:id="@+id/rollSlot1"
             android:background="@drawable/white_marker"
-            android:layout_margin="5dp"
-            android:layout_centerInParent="true"  />
+            android:layout_margin="10dp"  />
 
         <ImageView
             android:layout_width="0dp"
@@ -461,29 +460,28 @@
             android:layout_height="match_parent"
             android:id="@+id/rollSlot2"
             android:background="@drawable/white_marker"
-            android:layout_margin="5dp"
-            android:layout_centerInParent="true"  />
+            android:layout_margin="10dp" />
 
         <ImageView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:id="@+id/rollSlot3"
-            android:layout_margin="5dp"
+            android:layout_margin="10dp"
             android:background="@drawable/white_marker"/>
         <ImageView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:id="@+id/rollSlot4"
-            android:layout_margin="5dp"
+            android:layout_margin="10dp"
             android:background="@drawable/white_marker" />
         <ImageView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:id="@+id/rollSlot5"
-            android:layout_margin="5dp"
+            android:layout_margin="10dp"
             android:background="@drawable/white_marker"/>
 
     </LinearLayout>
