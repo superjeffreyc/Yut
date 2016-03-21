@@ -4,7 +4,7 @@ import java.util.TreeSet;
 
 public class Piece {
 
-	int location = 0;
+	int location = -1;
 	
 	static TreeSet<Integer> specialTiles = new TreeSet<>();
 
@@ -13,7 +13,6 @@ public class Piece {
 		specialTiles.add(1);
 		specialTiles.add(6);
 		specialTiles.add(11);
-		specialTiles.add(21);
 		specialTiles.add(21);
 		specialTiles.add(23);
 		specialTiles.add(24);
@@ -102,6 +101,32 @@ public class Piece {
 			possibleMoves[i] = location;
 		}
 
+		return possibleMoves;
+	}
+
+	public int[] tempCalculateMoveset(int[] moves){
+
+		int[] possibleMoves = new int[moves.length];
+		int tempLocation = location;
+
+		for (int i = 0; i < moves.length; i++) {
+			if (moves[i] != 0) {
+
+				if (location == -1){
+					location++;
+				}
+
+				location += moves[i];
+
+				if (location >= 20) {
+					location = 0;
+				}
+				possibleMoves[i] = location;
+			} else {
+				possibleMoves[i] = -1;
+			}
+			location = tempLocation;
+		}
 		return possibleMoves;
 	}
 }

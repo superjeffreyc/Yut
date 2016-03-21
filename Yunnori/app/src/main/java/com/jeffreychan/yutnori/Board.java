@@ -5,9 +5,15 @@ import java.util.Random;
 
 public class Board {
 
-	int[] rollArray = new int[5];
+	public int[] rollArray = new int[5];
 	int rollIndex = 0;
 	int playerTurn = 0;
+
+	public Board(){
+		for (int i = 0; i < 5; i++){
+			rollArray[i] = 0;
+		}
+	}
 
 	public int throwSticks(){
 		int roll = 1;
@@ -37,8 +43,9 @@ public class Board {
 			rollIndex++;
 		}
 		else {
-			playerTurn = (playerTurn + 1) % 2;
-			resetRollArray();
+
+			//playerTurn = (playerTurn + 1) % 2;
+			//resetRollArray();
 		}
 	}
 
@@ -51,6 +58,11 @@ public class Board {
 
 	public int getPlayerTurn(){
 		return playerTurn;
+	}
+
+	public void endTurn(){
+		playerTurn = (playerTurn + 1) % 2;
+		resetRollArray();
 	}
 
 }
