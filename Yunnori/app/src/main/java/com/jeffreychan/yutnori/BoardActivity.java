@@ -1,5 +1,6 @@
 package com.jeffreychan.yutnori;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -14,12 +15,15 @@ import android.view.MenuItem;
 import android.app.Activity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.view.ViewGroup.LayoutParams;
 
 import java.util.TreeSet;
 
@@ -38,6 +42,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	boolean[] isPlayerOnePieceSelected, isPlayerTwoPieceSelected, isPlayerOnePieceDone, isPlayerTwoPieceDone;
 	boolean isReady, canRoll = true;
 	TreeSet<Integer> specialTiles = new TreeSet<>();
+	RelativeLayout rl;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +57,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 		width = size.x;
 		height = size.y;
 
+		rl = (RelativeLayout) findViewById(R.id.rl);
 		players = new Player[2];
 		players[0] = new Player();
 		players[1] = new Player();
+
 
 		rollSlot = new ImageView[5];
 		board = new Board();
@@ -80,7 +87,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
 
-		tiles = new ImageView[20];
+		tiles = new ImageView[30];
 		tiles[0] = (ImageView) findViewById(R.id.location0);
 		tiles[1] = (ImageView) findViewById(R.id.location1);
 		tiles[2] = (ImageView) findViewById(R.id.location2);
@@ -101,6 +108,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 		tiles[17] = (ImageView) findViewById(R.id.location17);
 		tiles[18] = (ImageView) findViewById(R.id.location18);
 		tiles[19] = (ImageView) findViewById(R.id.location19);
+		for (int i = 0; i < 20; i++){
+			tiles[i].setOnClickListener(this);
+		}
 
 		move1 = (ImageView) findViewById(R.id.move1);
 		move2 = (ImageView) findViewById(R.id.move2);
@@ -159,6 +169,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerOneCompleted = new int[4];
 		playerTwoCompleted = new int[4];
 
+
+		for (int i = 20; i < 30; i++) {
+			tiles[i] = new ImageView(this);
+
+			if (i == 22) tiles[i].setBackgroundResource(R.drawable.orange_marker);
+			else tiles[i].setBackgroundResource(R.drawable.blue_marker);
+
+			tiles[i].setLayoutParams(new LayoutParams(50, 50));
+			tiles[i].setOnClickListener(this);
+			rl.addView(tiles[i]);
+		}
+
+
 	}
 
 	@Override
@@ -199,8 +222,18 @@ public class BoardActivity extends Activity implements OnClickListener{
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 
-		roll.setMaxWidth(width / 4);
-	//	boardLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, width));
+		int w = tiles[10].getWidth();
+		for (int i = 20; i < 30; i++){
+			tiles[i].getLayoutParams().width = w;
+			tiles[i].getLayoutParams().height = w;
+		}
+
+		tiles[20].setX(tiles[10].getX() + w);
+		tiles[20].setY(tiles[10].getY() + (float) 2.6*w);
+
+		tiles[21].setX(tiles[20].getX() + w);
+		tiles[21].setY(tiles[20].getY() + w);
+
 
 	}
 
