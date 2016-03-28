@@ -134,301 +134,41 @@
                 android:background="@drawable/seal1"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:id="@+id/board"
-            android:layout_margin="0dp"
+        <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="6"
-            android:weightSum="6" >
+            android:layout_weight="1"
+            />
 
-            <LinearLayout
-                android:id="@+id/firstRow"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:weightSum="6">
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location10"
-                    android:background="@drawable/orange_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location9"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location8"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location7"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location6"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location5"
-                    android:background="@drawable/orange_marker"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/secondRow"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:weightSum="6">
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location11"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="50dp"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location4"
-                    android:background="@drawable/blue_marker"
-                    android:layout_marginLeft="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/thirdRow"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:weightSum="6">
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location12"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="50dp"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location3"
-                    android:background="@drawable/blue_marker"
-                    android:layout_marginLeft="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/fourthRow"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:weightSum="6">
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location13"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="50dp"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location2"
-                    android:background="@drawable/blue_marker"
-                    android:layout_marginLeft="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/fifthRow"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:weightSum="6">
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location14"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="50dp"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location1"
-                    android:background="@drawable/blue_marker"
-                    android:layout_marginLeft="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/sixthRow"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:weightSum="6">
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location15"
-                    android:background="@drawable/orange_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location16"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location17"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location18"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location19"
-                    android:background="@drawable/blue_marker"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/location0"
-                    android:background="@drawable/orange_marker"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
 
         <Button
             android:layout_width="wrap_content"
@@ -540,5 +280,7 @@
         </LinearLayout>
 
     </LinearLayout>
+
+
 
 </RelativeLayout>
