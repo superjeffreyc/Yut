@@ -78,7 +78,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		specialTiles.add(10);
 		specialTiles.add(15);
 
-		boardLayout = (LinearLayout) findViewById(R.id.board);
+//		boardLayout = (LinearLayout) findViewById(R.id.board);
 
 		topBar = (LinearLayout) findViewById(R.id.topBar);
 		bottomBar = (LinearLayout) findViewById(R.id.bottomBar);
