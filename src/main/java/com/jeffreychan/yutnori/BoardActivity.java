@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.view.ViewGroup.LayoutParams;
 
 import java.util.TreeSet;
 
@@ -31,7 +30,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Player[] players;
 	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot, tiles;
 	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1;
-	AnimationDrawable fallingSticks;
+	AnimationDrawable fallingSticks, rollFlash;
+	AnimationDrawable[] playerOneAnimate, playerTwoAnimate;
 	Button roll;
 	int rollAmount, turn = 0, counter = 0, width, height;
 	TextView rollText;
@@ -64,6 +64,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		rollSlot = new ImageView[5];
 		board = new Board();
+		playerOneAnimate = new AnimationDrawable[4];
+		playerTwoAnimate = new AnimationDrawable[4];
 		isPlayerOnePieceSelected = new boolean[4];
 		isPlayerTwoPieceSelected = new boolean[4];
 		isPlayerOnePieceDone = new boolean[4];
@@ -140,7 +142,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		fallingSticks.setVisible(false, false);
 
 		roll = (Button) findViewById(R.id.rollButton);
+		roll.setBackgroundResource(R.drawable.rollflashanimation);
 		roll.setOnClickListener(this);
+		rollFlash = (AnimationDrawable) roll.getBackground();
+		rollFlash.start();
 
 		playerOneImages[0] = (ImageView) findViewById(R.id.seal1);
 		playerOneImages[1] = (ImageView) findViewById(R.id.seal2);
@@ -154,7 +159,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		for (int i = 0; i < 4; i++){
 			playerOneImages[i].setOnClickListener(this);
+			playerOneImages[i].setBackgroundResource(R.drawable.sealmoveanimation);
+			playerOneAnimate[i] = (AnimationDrawable) playerOneImages[i].getBackground();
 			playerTwoImages[i].setOnClickListener(this);
+			playerTwoImages[i].setBackgroundResource(R.drawable.penguinjumpanimation);
+			playerTwoAnimate[i] = (AnimationDrawable) playerTwoImages[i].getBackground();
 		}
 
 		moveButtons = new ImageView[5];
@@ -282,21 +291,37 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (pl == 0){
 			playerOneCompleted[piece] = (playerOneCompleted[piece] + 1) % 2;
 			if (playerOneCompleted[piece] == 1) {
+				for (int i = 0; i < 4; i++){
+					playerOneAnimate[i].stop();
+					playerOneImages[i].setBackgroundResource(R.drawable.seal1);
+				}
 				playerOneImages[piece].setBackgroundResource(R.drawable.seal_highlighted);
-				showPossibleTiles(0, piece);
+//				showPossibleTiles(0, piece);
 			} else {
-				playerOneImages[piece].setBackgroundResource(R.drawable.seal1);
-				hidePossibleTiles(0, piece);
+				for (int i = 0; i < 4; i++){
+					playerOneImages[i].setBackgroundResource(R.drawable.sealmoveanimation);
+					playerOneAnimate[i].start();
+				}
+				//playerOneImages[piece].setBackgroundResource(R.drawable.seal1);
+//				hidePossibleTiles(0, piece);
 				board.endTurn();
 			}
 		} else {
 			playerTwoCompleted[piece] = (playerTwoCompleted[piece] + 1) % 2;
 			if (playerTwoCompleted[piece] == 1) {
+				for (int i = 0; i < 4; i++){
+					playerTwoAnimate[i].stop();
+					playerTwoImages[i].setBackgroundResource(R.drawable.penguin1);
+				}
 				playerTwoImages[piece].setBackgroundResource(R.drawable.penguin_highlighted);
-				showPossibleTiles(1, piece);
+//				showPossibleTiles(1, piece);
 			} else {
-				playerTwoImages[piece].setBackgroundResource(R.drawable.penguin1);
-				hidePossibleTiles(1, piece);
+				for (int i = 0; i < 4; i++){
+					playerTwoImages[i].setBackgroundResource(R.drawable.penguinjumpanimation);
+					playerTwoAnimate[i].start();
+				}
+//				playerTwoImages[piece].setBackgroundResource(R.drawable.penguin1);
+//				hidePossibleTiles(1, piece);
 				board.endTurn();
 			}
 		}
@@ -410,8 +435,24 @@ public class BoardActivity extends Activity implements OnClickListener{
 					}
 
 					if ((rollAmount == 4 || rollAmount == 5) && counter < 4) counter++;
-					else canRoll = false;
-					isReady = true;
+					else {
+						canRoll = false;
+						isReady = true;
+						if (turn == 0){
+							for (int i = 0; i < 4 ; i++){
+								playerOneImages[i].setBackgroundResource(R.drawable.sealmoveanimation);
+								playerOneAnimate[i] = (AnimationDrawable) playerOneImages[i].getBackground();
+								playerOneAnimate[i].start();
+							}
+						}
+						else {
+							for (int i = 0; i < 4 ; i++){
+								playerTwoImages[i].setBackgroundResource(R.drawable.penguinjumpanimation);
+								playerTwoAnimate[i] = (AnimationDrawable) playerTwoImages[i].getBackground();
+								playerTwoAnimate[i].start();
+							}
+						}
+					}
 
 				}
 			}, 900);
@@ -462,8 +503,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		canRoll = true;
 		roll.setVisibility(View.VISIBLE);
 		for (int i = 0; i < 4; i++){
-			playerOneImages[i].setBackgroundResource(R.drawable.seal1);
-			playerTwoImages[i].setBackgroundResource(R.drawable.penguin1);
+			playerOneImages[i].setBackgroundResource(R.drawable.sealmoveanimation);
+			playerTwoImages[i].setBackgroundResource(R.drawable.penguinjumpanimation);
+			playerOneAnimate[i].stop();
+			playerTwoAnimate[i].stop();
 
 		}
 	}
