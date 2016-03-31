@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
@@ -16,12 +17,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class BoardActivity extends Activity implements OnClickListener{
@@ -29,17 +32,18 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Board board;
 	Player[] players;
 	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot, tiles;
-	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1;
-	AnimationDrawable fallingSticks, rollFlash;
+	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1, playerIcon;
+	AnimationDrawable fallingSticks, rollFlash, playerIconAnimation;
 	Button roll;
-	int rollAmount, turn = 0, counter = 0, width, height;
+	int rollAmount, turn = 0, counter = 0, width, height, playerOneCurrentPiece = 0, playerTwoCurrentPiece = 0;
 	TextView rollText;
 	LinearLayout topBar, bottomBar;
 	int[] playerOneCompleted, playerTwoCompleted;
-	boolean[] isPlayerOnePieceSelected, isPlayerTwoPieceSelected, isPlayerOnePieceDone, isPlayerTwoPieceDone;
+	boolean[] isPlayerOnePieceSelected, isPlayerTwoPieceSelected, isPlayerOnePieceDone, isPlayerTwoPieceDone, isMarked;
 	boolean isReady, canRoll = true;
 	TreeSet<Integer> specialTiles = new TreeSet<>();
 	RelativeLayout rl;
+	ArrayList<Integer> ids = new ArrayList<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +81,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		specialTiles.add(10);
 		specialTiles.add(15);
 
-//		boardLayout = (LinearLayout) findViewById(R.id.board);
+		playerIcon = (ImageView) findViewById(R.id.playerIcon);
+		playerIcon.setBackgroundResource(R.drawable.sealmoveanimation);
+		playerIconAnimation = (AnimationDrawable) playerIcon.getBackground();
+		playerIcon.setOnClickListener(this);
 
 		topBar = (LinearLayout) findViewById(R.id.topBar);
 		bottomBar = (LinearLayout) findViewById(R.id.bottomBar);
@@ -85,6 +92,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
 
+		isMarked = new boolean[29];
 		tiles = new ImageView[29];
 		tiles[0] = (ImageView) findViewById(R.id.location0);
 		tiles[1] = (ImageView) findViewById(R.id.location1);
@@ -108,6 +116,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		tiles[19] = (ImageView) findViewById(R.id.location19);
 		for (int i = 0; i < 20; i++){
 			tiles[i].setOnClickListener(this);
+			ids.add(tiles[i].getId());
 		}
 
 		move1 = (ImageView) findViewById(R.id.move1);
@@ -264,18 +273,22 @@ public class BoardActivity extends Activity implements OnClickListener{
 		for (int i = 0; i < moveSet.length; i++) {
 			if (moveSet[i] != -1) {
 				tiles[moveSet[i]].setBackgroundResource(R.drawable.red_marker);
+				isMarked[moveSet[i]] = true;
 			}
 		}
 	}
 
-	private void hidePossibleTiles(int pl, int pi) {
-		int[] moveSet = players[pl].pieces[pi].tempCalculateMoveset(board.rollArray);
-		for (int i = 0; i < moveSet.length; i++) {
-			if (moveSet[i] != -1 && !specialTiles.contains(moveSet[i])) {
-				tiles[moveSet[i]].setBackgroundResource(R.drawable.blue_marker);
-			} else if (moveSet[i] != -1 && specialTiles.contains(moveSet[i])) {
-				tiles[moveSet[i]].setBackgroundResource(R.drawable.orange_marker);
+	private void hidePossibleTiles() {
+//		int[] moveSet = players[pl].pieces[pi].tempCalculateMoveset(board.rollArray);
+		for (int i = 0; i < 20; i++) {
+			isMarked[i] = false;
+
+			if (!specialTiles.contains(i)) {
+				tiles[i].setBackgroundResource(R.drawable.blue_marker);
+			} else if (specialTiles.contains(i)) {
+				tiles[i].setBackgroundResource(R.drawable.orange_marker);
 			}
+
 		}
 	}
 
@@ -284,22 +297,27 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (pl == 0){
 			playerOneCompleted[piece] = (playerOneCompleted[piece] + 1) % 2;
 			if (playerOneCompleted[piece] == 1) {
-				playerOneImages[piece].setBackgroundResource(R.drawable.seal_highlighted);
+				playerIconAnimation.stop();
+				playerIcon.setBackgroundResource(R.drawable.seal_highlighted);
 				showPossibleTiles(0, piece);
 			} else {
-				playerOneImages[piece].setBackgroundResource(R.drawable.seal1);
-				hidePossibleTiles(0, piece);
-				board.endTurn();
+				playerIcon.setBackgroundResource(R.drawable.sealmoveanimation);
+				playerIconAnimation = (AnimationDrawable) playerIcon.getBackground();
+				playerIconAnimation.start();
+				hidePossibleTiles();
+//				board.endTurn();
 			}
 		} else {
 			playerTwoCompleted[piece] = (playerTwoCompleted[piece] + 1) % 2;
 			if (playerTwoCompleted[piece] == 1) {
-				playerTwoImages[piece].setBackgroundResource(R.drawable.penguin_highlighted);
+				playerIcon.setBackgroundResource(R.drawable.penguin_highlighted);
 				showPossibleTiles(1, piece);
 			} else {
-				playerTwoImages[piece].setBackgroundResource(R.drawable.penguin1);
-				hidePossibleTiles(1, piece);
-				board.endTurn();
+				playerIcon.setBackgroundResource(R.drawable.penguinjumpanimation);
+				playerIconAnimation = (AnimationDrawable) playerIcon.getBackground();
+				playerIconAnimation.start();
+				hidePossibleTiles();
+//				board.endTurn();
 			}
 		}
 	}
@@ -307,54 +325,26 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 
-		if (v.getId() == R.id.seal1 && isPlayerOnePieceSelected[0] && turn == 0 && isReady) {
+		if (v.getId() == R.id.playerIcon && isPlayerOnePieceSelected[0] && turn == 0 && isReady) {
 			for (int i = 1; i < 4; i++){
 				isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
 			}
 			highlightPlayerImages(0, 0);
 
 		}
-		else if (v.getId() == R.id.seal2 && isPlayerOnePieceSelected[1] && turn == 0 && isReady) {
-			for (int i = 0; i < 4; i++){
-				if (i != 1) isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
-			}
-			highlightPlayerImages(0, 1);
-		}
-		else if (v.getId() == R.id.seal3 && isPlayerOnePieceSelected[2] && turn == 0 && isReady) {
-			for (int i = 0; i < 4; i++){
-				if (i != 2) isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
-			}
-			highlightPlayerImages(0, 2);
-		}
-		else if (v.getId() == R.id.seal4 && isPlayerOnePieceSelected[3] && turn == 0 && isReady) {
-			for (int i = 0; i < 4; i++){
-				if (i != 3) isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
-			}
-			highlightPlayerImages(0, 3);
-		}
-		else if (v.getId() == R.id.penguin1 && isPlayerTwoPieceSelected[0] && turn == 1 && isReady) {
+		else if (v.getId() == R.id.playerIcon && isPlayerTwoPieceSelected[0] && turn == 1 && isReady) {
 			for (int i = 1; i < 4; i++){
 				isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
 			}
 			highlightPlayerImages(1, 0);
+
 		}
-		else if (v.getId() == R.id.penguin2 && isPlayerTwoPieceSelected[1] && turn == 1 && isReady) {
-			for (int i = 0; i < 4; i++){
-				if (i != 1) isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
+		else if (ids.contains(v.getId())){
+			for (int i = 0; i < 20; i++){
+				if (v.getId() == tiles[i].getId() && isMarked[i]){
+					board.endTurn();
+				}
 			}
-			highlightPlayerImages(1, 1);
-		}
-		else if (v.getId() == R.id.penguin3 && isPlayerTwoPieceSelected[2] && turn == 1 && isReady) {
-			for (int i = 0; i < 4; i++){
-				if (i != 2) isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
-			}
-			highlightPlayerImages(1, 2);
-		}
-		else if (v.getId() == R.id.penguin4 && isPlayerTwoPieceSelected[3] && turn == 1 && isReady) {
-			for (int i = 0; i < 4; i++){
-				if (i != 3) isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
-			}
-			highlightPlayerImages(1, 3);
 		}
 		else if (v.getId() == R.id.rollButton){
 			roll.setVisibility(View.INVISIBLE);
@@ -435,6 +425,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 					moveMinus1.setVisibility(View.INVISIBLE);
 
 					if (canRoll) roll.setVisibility(View.VISIBLE);
+					else {
+						playerIcon.setVisibility(View.VISIBLE);
+						playerIconAnimation.start();
+					}
 
 				}
 
@@ -444,11 +438,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		if (board.getPlayerTurn() == 1 && turn == 0) {
 			turn = board.getPlayerTurn();
+			playerIcon.setVisibility(View.INVISIBLE);
+			playerIconAnimation.stop();
+			playerIcon.setBackgroundResource(R.drawable.penguinjumpanimation);
+			playerIconAnimation = (AnimationDrawable) playerIcon.getBackground();
 			bottomBar.setBackgroundResource(R.color.DarkerBlue);
 			topBar.setBackgroundResource(R.color.LighterBlue);
 			reset();
 		} else if (board.getPlayerTurn() == 0 && turn == 1){
 			turn = board.getPlayerTurn();
+			playerIcon.setVisibility(View.INVISIBLE);
+			playerIconAnimation.stop();
+			playerIcon.setBackgroundResource(R.drawable.sealmoveanimation);
+			playerIconAnimation = (AnimationDrawable) playerIcon.getBackground();
 			topBar.setBackgroundResource(R.color.DarkerBlue);
 			bottomBar.setBackgroundResource(R.color.LighterBlue);
 			reset();
@@ -464,6 +466,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		counter = 0;
 		isReady = false;
 		canRoll = true;
+		hidePossibleTiles();
 		roll.setVisibility(View.VISIBLE);
 		for (int i = 0; i < 4; i++){
 			playerOneImages[i].setBackgroundResource(R.drawable.seal1);
