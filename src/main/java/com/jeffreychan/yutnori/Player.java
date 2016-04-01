@@ -1,7 +1,7 @@
 package com.jeffreychan.yutnori;
 
 public class Player {
-	private int numPieces = 4;
+	private int score = 0;
 	public Piece[] pieces = new Piece[4];
 	
 	public Player() {
@@ -10,17 +10,8 @@ public class Player {
 		}
 	}
 
-	public int getNumPieces() {
-		return numPieces;
+	public int getScore() {
+		return score;
 	}
-	
-	public void incrementPieces(int num) {
-		numPieces += num;
-	}
-	
-	public void decrementPieces(int num) {
-		numPieces -= num;
-	}
-	
-		
+
 }

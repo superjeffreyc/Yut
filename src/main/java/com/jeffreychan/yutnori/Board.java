@@ -1,8 +1,5 @@
 package com.jeffreychan.yutnori;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 public class Board {
 
 	public int[] rollArray = new int[5];
@@ -34,18 +31,12 @@ public class Board {
 	 * Adds a roll amount to the rollArray
 	 *
 	 * @param roll The roll amount being added to the array
-	 * @return The last index that contains a roll
 	 */
 	public void addRoll(int roll){
 		rollArray[rollIndex] = roll;
 
 		if ((roll == 4 || roll == 5) && rollIndex < 4){
 			rollIndex++;
-		}
-		else {
-
-			//playerTurn = (playerTurn + 1) % 2;
-			//resetRollArray();
 		}
 	}
 
