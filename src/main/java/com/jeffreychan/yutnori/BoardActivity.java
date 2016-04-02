@@ -133,7 +133,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 				tiles[i].setX((float)(width / 2 - tileSize / 2 + (22 - i) * ((tiles[0].getX() - (width / 2 - tileSize / 2))) / 3));
 				tiles[i].setY((float) (height * 0.4 - tileSize / 2 - (22 - i) * ((tiles[0].getY() - (height * 0.4 - tileSize / 2))) / 3));
 			}
-
 			else {
 				int j = i;
 				if(i > 26) j ++;
@@ -429,13 +428,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (turn == 1) {
 			playerIcon.setBackgroundResource(R.drawable.penguinjumpanimation);
 			playerIconAnimation = (AnimationDrawable) playerIcon.getBackground();
+
 			bottomBar.setBackgroundResource(R.color.DarkerBlue);
+			bottomBar.setAlpha(1.0f);
 			topBar.setBackgroundResource(R.color.LighterBlue);
+			topBar.setAlpha(0.5f);
 		} else {
 			playerIcon.setBackgroundResource(R.drawable.sealmoveanimation);
 			playerIconAnimation = (AnimationDrawable) playerIcon.getBackground();
+
 			topBar.setBackgroundResource(R.color.DarkerBlue);
+			topBar.setAlpha(1.0f);
 			bottomBar.setBackgroundResource(R.color.LighterBlue);
+			bottomBar.setAlpha(0.5f);
 		}
 
 		for (int i = 0; i < 5; i++) {
