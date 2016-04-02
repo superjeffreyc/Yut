@@ -32,6 +32,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot, tiles;
 	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1, playerIcon;
 	AnimationDrawable fallingSticks, rollFlash, playerIconAnimation;
+	AnimationDrawable[] tilesAnimation;
 	Button roll;
 	int rollAmount, turn = 0, counter = 0, width, height, playerOneCurrentPiece = 0, playerTwoCurrentPiece = 0, MAX_TILES = 29;
 	TextView rollText;
@@ -77,6 +78,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		specialTiles.add(5);
 		specialTiles.add(10);
 		specialTiles.add(15);
+		specialTiles.add(22);
 
 		playerIcon = (ImageView) findViewById(R.id.playerIcon);
 		playerIcon.setBackgroundResource(R.drawable.sealmoveanimation);
@@ -90,6 +92,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerTwoImages = new ImageView[4];
 
 		isMarked = new boolean[MAX_TILES];
+		tilesAnimation = new AnimationDrawable[MAX_TILES];
 
 		/* BOARD SETUP
 		 * <><><><><><><><><><><><><><><><><><><><>
@@ -247,7 +250,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 		int[] moveSet = players[pl].pieces[pi].tempCalculateMoveset(board.rollArray);
 		for (int move : moveSet) {
 			if (move != -1) {
-				tiles[move].setBackgroundResource(R.drawable.red_marker);
+				if (move % 5 == 0 || move == 22){
+					tiles[move].setBackgroundResource(R.drawable.orangemarkerflash);
+				} else {
+					tiles[move].setBackgroundResource(R.drawable.bluemarkerflash);
+				}
+				tilesAnimation[move] = (AnimationDrawable) tiles[move].getBackground();
+				tilesAnimation[move].start();
 				isMarked[move] = true;
 			}
 		}
@@ -355,7 +364,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				if (isEndTurn) endTurn();
 				else if (canRoll) roll.setVisibility(View.VISIBLE);
 				else {
-					if ((turn == 0 && playerOneCurrentPiece < 4) || (turn == 1 && playerTwoCurrentPiece < 4)){
+					if ((turn == 0 && playerOneCurrentPiece < 4) || (turn == 1 && playerTwoCurrentPiece < 4)) {
 						playerIcon.setVisibility(View.VISIBLE);
 						playerIconAnimation.start();
 					}
