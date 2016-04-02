@@ -37,8 +37,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	int rollAmount, turn = 0, counter = 0, width, height, playerOneCurrentPiece = 0, playerTwoCurrentPiece = 0, MAX_TILES = 29;
 	TextView rollText;
 	LinearLayout topBar, bottomBar;
-	int[] playerOneCompleted, playerTwoCompleted;
-	boolean[] isPlayerOnePieceSelected, isPlayerTwoPieceSelected, isPlayerOnePieceDone, isPlayerTwoPieceDone, isMarked;
+	int[] playerOnePieceSelected, playerTwoPieceSelected;
+	boolean[] isPlayerOnePieceSelectable, isPlayerTwoPieceSelectable, isMarked;
 	boolean isReady, canRoll = true, isEndTurn;
 	TreeSet<Integer> specialTiles = new TreeSet<>();
 	RelativeLayout rl;
@@ -65,13 +65,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		rollSlot = new ImageView[5];
 		board = new Board();
-		isPlayerOnePieceSelected = new boolean[4];
-		isPlayerTwoPieceSelected = new boolean[4];
-		isPlayerOnePieceDone = new boolean[4];
-		isPlayerTwoPieceDone = new boolean[4];
+		isPlayerOnePieceSelectable = new boolean[4];
+		isPlayerTwoPieceSelectable = new boolean[4];
 		for (int i = 0; i < 4; i++){
-			isPlayerOnePieceSelected[i] = true;
-			isPlayerTwoPieceSelected[i] = true;
+			isPlayerOnePieceSelectable[i] = true;
+			isPlayerTwoPieceSelectable[i] = true;
 		}
 
 		specialTiles.add(0);
@@ -207,8 +205,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		}
 
-		playerOneCompleted = new int[4];
-		playerTwoCompleted = new int[4];
+		playerOnePieceSelected = new int[4];
+		playerTwoPieceSelected = new int[4];
 
 	}
 
@@ -250,7 +248,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		int[] moveSet = players[pl].pieces[pi].tempCalculateMoveset(board.rollArray);
 		for (int move : moveSet) {
 			if (move != -1) {
-				if (move % 5 == 0 || move == 22){
+				if (specialTiles.contains(move)){
 					tiles[move].setBackgroundResource(R.drawable.orangemarkerflash);
 				} else {
 					tiles[move].setBackgroundResource(R.drawable.bluemarkerflash);
@@ -278,8 +276,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void highlightPlayerImages(int pl, int piece){
 
 		if (pl == 0){
-			playerOneCompleted[piece] = (playerOneCompleted[piece] + 1) % 2;
-			if (playerOneCompleted[piece] == 1) {
+			for (int i = 0; i < 4; i++){
+				if (i != piece) {
+					isPlayerOnePieceSelectable[i] = !isPlayerOnePieceSelectable[i];
+				}
+			}
+
+			playerOnePieceSelected[piece] = (playerOnePieceSelected[piece] + 1) % 2;
+			if (playerOnePieceSelected[piece] == 1) {
 				playerIconAnimation.stop();
 				playerIcon.setBackgroundResource(R.drawable.seal_highlighted);
 				showPossibleTiles(0, piece);
@@ -290,8 +294,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 				hidePossibleTiles();
 			}
 		} else {
-			playerTwoCompleted[piece] = (playerTwoCompleted[piece] + 1) % 2;
-			if (playerTwoCompleted[piece] == 1) {
+			for (int i = 0; i < 4; i++){
+				if (i != piece) {
+					isPlayerTwoPieceSelectable[i] = !isPlayerTwoPieceSelectable[i];
+				}
+			}
+
+			playerTwoPieceSelected[piece] = (playerTwoPieceSelected[piece] + 1) % 2;
+			if (playerTwoPieceSelected[piece] == 1) {
 				playerIcon.setBackgroundResource(R.drawable.penguin_highlighted);
 				showPossibleTiles(1, piece);
 			} else {
@@ -307,15 +317,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 	public void onClick(View v) {
 
 		if (v.getId() == R.id.playerIcon && turn == 0 && isReady) {
-			for (int i = 1; i < 4; i++){
-				isPlayerOnePieceSelected[i] = !isPlayerOnePieceSelected[i];
-			}
 			highlightPlayerImages(0, 0);
 		}
 		else if (v.getId() == R.id.playerIcon && turn == 1 && isReady) {
-			for (int i = 1; i < 4; i++){
-				isPlayerTwoPieceSelected[i] = !isPlayerTwoPieceSelected[i];
-			}
 			highlightPlayerImages(1, 0);
 		}
 		else if (ids.contains(v.getId())){
@@ -466,8 +470,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		for (int i = 0; i < 4; i++){
 			playerOneImages[i].setBackgroundResource(R.drawable.seal1);
 			playerTwoImages[i].setBackgroundResource(R.drawable.penguin1);
-			playerOneCompleted[i] = 0;
-			playerTwoCompleted[i] = 0;
+			playerOnePieceSelected[i] = 0;
+			playerTwoPieceSelected[i] = 0;
+			isPlayerOnePieceSelectable[i] = true;
+			isPlayerTwoPieceSelectable[i] = true;
 		}
 
 		isEndTurn = false;
