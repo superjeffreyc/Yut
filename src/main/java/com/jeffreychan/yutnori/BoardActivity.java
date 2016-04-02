@@ -33,7 +33,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1, playerIcon;
 	AnimationDrawable fallingSticks, rollFlash, playerIconAnimation;
 	Button roll;
-	int rollAmount, turn = 0, counter = 0, width, height, playerOneCurrentPiece = 0, playerTwoCurrentPiece = 0, MAX_TILES = 20;
+	int rollAmount, turn = 0, counter = 0, width, height, playerOneCurrentPiece = 0, playerTwoCurrentPiece = 0, MAX_TILES = 29;
 	TextView rollText;
 	LinearLayout topBar, bottomBar;
 	int[] playerOneCompleted, playerTwoCompleted;
@@ -89,32 +89,63 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
 
-		isMarked = new boolean[29];
-		tiles = new ImageView[29];
-		tiles[0] = (ImageView) findViewById(R.id.location0);
-		tiles[1] = (ImageView) findViewById(R.id.location1);
-		tiles[2] = (ImageView) findViewById(R.id.location2);
-		tiles[3] = (ImageView) findViewById(R.id.location3);
-		tiles[4] = (ImageView) findViewById(R.id.location4);
-		tiles[5] = (ImageView) findViewById(R.id.location5);
-		tiles[6] = (ImageView) findViewById(R.id.location6);
-		tiles[7] = (ImageView) findViewById(R.id.location7);
-		tiles[8] = (ImageView) findViewById(R.id.location8);
-		tiles[9] = (ImageView) findViewById(R.id.location9);
-		tiles[10] = (ImageView) findViewById(R.id.location10);
-		tiles[11] = (ImageView) findViewById(R.id.location11);
-		tiles[12] = (ImageView) findViewById(R.id.location12);
-		tiles[13] = (ImageView) findViewById(R.id.location13);
-		tiles[14] = (ImageView) findViewById(R.id.location14);
-		tiles[15] = (ImageView) findViewById(R.id.location15);
-		tiles[16] = (ImageView) findViewById(R.id.location16);
-		tiles[17] = (ImageView) findViewById(R.id.location17);
-		tiles[18] = (ImageView) findViewById(R.id.location18);
-		tiles[19] = (ImageView) findViewById(R.id.location19);
-		for (int i = 0; i < MAX_TILES; i++){
+		isMarked = new boolean[MAX_TILES];
+
+		/* BOARD SETUP
+		 * <><><><><><><><><><><><><><><><><><><><>
+		 */
+		double padding = 20;
+		double space = 40;
+		double boardSize = height*0.6;
+		if(height*0.6 > width) boardSize = width;
+		double tileSize = (boardSize - padding*2 - space*5) / 6;
+//		float offset = height / 10; // Seal line
+
+		tiles = new ImageView[MAX_TILES];
+		for(int i = 0; i < tiles.length; i++) {
+			tiles[i] = new ImageView(this);
+			if(i < 20 && i % 5 == 0 || i == 22) {
+				tiles[i].setBackgroundResource(R.drawable.orange_marker);
+			} else {
+				tiles[i].setBackgroundResource(R.drawable.blue_marker);
+			}
 			tiles[i].setOnClickListener(this);
+			tiles[i].setId(View.generateViewId());
 			ids.add(tiles[i].getId());
+			tiles[i].setLayoutParams(new RelativeLayout.LayoutParams((int) tileSize, (int) tileSize));
+			if(i < 6) {
+				tiles[i].setX((float)(width / 2 + boardSize / 2 - tileSize - padding));
+				tiles[i].setY((float)(height * 0.4 + boardSize / 2 - i * (tileSize + space) - tileSize - padding));
+			}
+			else if(i < 10) {
+				tiles[i].setX((float) (tiles[5].getX() - (i - 5) * (tileSize + space)));
+				tiles[i].setY((tiles[5].getY()));
+			}
+			else if(i < 16) {
+				tiles[i].setX((float)(tiles[9].getX() - tileSize - space));
+				tiles[i].setY(tiles[5 - (i - 10)].getY());
+			}
+			else if(i < 20) {
+				tiles[i].setX((tiles[9 - (i - 16)].getX()));
+				tiles[i].setY(tiles[15].getY());
+			}
+			else if(i < 25) {
+				tiles[i].setX((float)(width / 2 - tileSize / 2 + (22 - i) * ((tiles[0].getX() - (width / 2 - tileSize / 2))) / 3));
+				tiles[i].setY((float) (height * 0.4 - tileSize / 2 - (22 - i) * ((tiles[0].getY() - (height * 0.4 - tileSize / 2))) / 3));
+			}
+
+			else {
+				int j = i;
+				if(i > 26) j ++;
+				tiles[i].setX((float)(width / 2 - tileSize / 2 + (j - 27) * ((tiles[0].getX() - (width / 2 - tileSize / 2))) / 3));
+				tiles[i].setY((float) (height * 0.4 - tileSize / 2 + (j - 27) * ((tiles[0].getY() - (height * 0.4 - tileSize / 2))) / 3));
+			}
+			rl.addView(tiles[i]);
 		}
+
+		/* END BOARD SETUP
+		 * <><><><><><><><><><><><><><><><><><><><>
+		 */
 
 		move1 = (ImageView) findViewById(R.id.move1);
 		move2 = (ImageView) findViewById(R.id.move2);
@@ -140,6 +171,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		sticks = (ImageView) findViewById(R.id.sticks);
 		sticks.setBackgroundResource(R.drawable.fallingstickanimation);
+		sticks.bringToFront();
 		fallingSticks = (AnimationDrawable) sticks.getBackground();
 		sticks.setVisibility(View.INVISIBLE);
 		fallingSticks.setVisible(false, false);
@@ -176,20 +208,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 		playerOneCompleted = new int[4];
 		playerTwoCompleted = new int[4];
 
-
-//		for (int i = 20; i < 29; i++) {
-//			tiles[i] = new ImageView(this);
-//
-//			if (i == 22) tiles[i].setBackgroundResource(R.drawable.orange_marker);
-//			else tiles[i].setBackgroundResource(R.drawable.blue_marker);
-//
-//			tiles[i].setLayoutParams(new LayoutParams(50, 50));
-//			tiles[i].setOnClickListener(this);
-//			rl.addView(tiles[i]);
-//		}
-
-
-
 	}
 
 	@Override
@@ -224,45 +242,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		});
 		adb.show();
-	}
-
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-//
-//		int w = tiles[10].getWidth();
-//		for (int i = 20; i < 29; i++){
-//			tiles[i].getLayoutParams().width = w;
-//			tiles[i].getLayoutParams().height = w;
-//		}
-//
-//		tiles[25].setX(tiles[10].getX() + (float) 1.4 * w);
-//		tiles[25].setY(tiles[10].getY() + (float) 3.2 * w);
-//
-//		tiles[26].setX(tiles[25].getX() + (float) 1.2 * w);
-//		tiles[26].setY(tiles[25].getY() + (float) 1.2 * w);
-//
-//		tiles[22].setX(tiles[26].getX() + (float) 1.2 * w);
-//		tiles[22].setY(tiles[26].getY() + (float) 1.2 * w);
-//
-//		tiles[27].setX(tiles[22].getX() + (float) 1.2 * w);
-//		tiles[27].setY(tiles[22].getY() + (float) 1.2 * w);
-//
-//		tiles[28].setX(tiles[27].getX() + (float) 1.2 * w);
-//		tiles[28].setY(tiles[27].getY() + (float) 1.2 * w);
-//
-//		tiles[20].setX(tiles[28].getX());
-//		tiles[20].setY(tiles[25].getY());
-//
-//		tiles[21].setX(tiles[27].getX());
-//		tiles[21].setY(tiles[26].getY());
-//
-//		tiles[23].setX(tiles[26].getX());
-//		tiles[23].setY(tiles[27].getY());
-//
-//		tiles[24].setX(tiles[25].getX());
-//		tiles[24].setY(tiles[28].getY());
-
 	}
 
 	private void showPossibleTiles(int pl, int pi){
