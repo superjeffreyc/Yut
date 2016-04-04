@@ -29,20 +29,22 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	Board board;
 	Player[] players;
-	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot, tiles;
-	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1, playerIcon;
+	Piece currentPiece;
+	ImageView[] playerOneImages, playerTwoImages, moveButtons, rollSlot, tiles, playerOneChars, playerTwoChars;
+	ImageView sticks, move1, move2, move3, move4, move5, moveMinus1, playerIcon, p1current, p2current;
 	AnimationDrawable fallingSticks, rollFlash, playerIconAnimation;
-	AnimationDrawable[] tilesAnimation;
+	AnimationDrawable[] tilesAnimation, playerOneCharsAnimation, playerTwoCharsAnimation;
 	Button roll;
 	int rollAmount, turn = 0, counter = 0, width, height, playerOneCurrentPiece = 0, playerTwoCurrentPiece = 0, MAX_TILES = 29;
 	TextView rollText;
 	LinearLayout topBar, bottomBar;
 	int[] playerOnePieceSelected, playerTwoPieceSelected;
 	boolean[] isPlayerOnePieceSelectable, isPlayerTwoPieceSelectable, isMarked;
-	boolean isReady, canRoll = true, isEndTurn;
+	boolean isReady, canRoll = true, isEndTurn, isPlayerIconSelected;
 	TreeSet<Integer> specialTiles = new TreeSet<>();
 	RelativeLayout rl;
 	ArrayList<Integer> ids = new ArrayList<>();
+	ArrayList<Integer> pids = new ArrayList<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +90,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		playerOneImages = new ImageView[4];
 		playerTwoImages = new ImageView[4];
+		playerOneChars = new ImageView[4];
+		playerTwoChars = new ImageView[4];
+		playerOneCharsAnimation = new AnimationDrawable[4];
+		playerTwoCharsAnimation = new AnimationDrawable[4];
 
 		isMarked = new boolean[MAX_TILES];
 		tilesAnimation = new AnimationDrawable[MAX_TILES];
@@ -195,6 +201,27 @@ public class BoardActivity extends Activity implements OnClickListener{
 		for (int i = 0; i < 4; i++){
 			playerOneImages[i].setOnClickListener(this);
 			playerTwoImages[i].setOnClickListener(this);
+
+			playerOneChars[i] = new ImageView(this);
+			playerOneChars[i].setOnClickListener(this);
+			playerOneChars[i].setId(View.generateViewId());
+			playerOneChars[i].setLayoutParams(new RelativeLayout.LayoutParams((int) tileSize, (int) tileSize));
+			playerOneChars[i].setBackgroundResource(R.drawable.sealmoveanimation);
+			playerOneChars[i].setX(-width);
+			playerOneCharsAnimation[i] = (AnimationDrawable) playerOneChars[i].getBackground();
+			pids.add(playerOneChars[i].getId());
+			rl.addView(playerOneChars[i]);
+
+			playerTwoChars[i] = new ImageView(this);
+			playerTwoChars[i].setOnClickListener(this);
+			playerTwoChars[i].setId(View.generateViewId());
+			playerTwoChars[i].setLayoutParams(new RelativeLayout.LayoutParams((int) tileSize, (int) tileSize));
+			playerTwoChars[i].setBackgroundResource(R.drawable.penguinjumpanimation);
+			playerTwoChars[i].setX(-width);
+			playerTwoCharsAnimation[i] = (AnimationDrawable) playerTwoChars[i].getBackground();
+			pids.add(playerTwoChars[i].getId());
+			rl.addView(playerTwoChars[i]);
+
 		}
 
 		moveButtons = new ImageView[5];
@@ -245,6 +272,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 	}
 
 	private void showPossibleTiles(int pl, int pi){
+
+		currentPiece = players[pl].pieces[pi];
+		if (pl == 0){
+			p1current = playerOneChars[pi];
+		} else {
+			p2current = playerTwoChars[pi];
+		}
+
 		int[] moveSet = players[pl].pieces[pi].tempCalculateMoveset(board.rollArray);
 		for (int move : moveSet) {
 			if (move != -1) {
@@ -317,14 +352,68 @@ public class BoardActivity extends Activity implements OnClickListener{
 	public void onClick(View v) {
 
 		if (v.getId() == R.id.playerIcon && turn == 0 && isReady) {
-			highlightPlayerImages(0, 0);
+			int p = findAvailablePiece(0);
+			if (p != -1) {
+				highlightPlayerImages(0, p);
+				isPlayerIconSelected = !isPlayerIconSelected;
+			}
 		}
 		else if (v.getId() == R.id.playerIcon && turn == 1 && isReady) {
-			highlightPlayerImages(1, 0);
+			int p = findAvailablePiece(1);
+			if (p != -1) {
+				highlightPlayerImages(1, p);
+				isPlayerIconSelected = !isPlayerIconSelected;
+			}
 		}
 		else if (ids.contains(v.getId())){
 			for (int i = 0; i < MAX_TILES; i++){
 				if (v.getId() == tiles[i].getId() && isMarked[i]){
+					movePiece(i);
+					endTurn();
+				}
+			}
+		}
+		else if (pids.contains(v.getId())){
+			for (int i = 0; i < 4; i++){
+				if (v.getId() == playerOneChars[i].getId() && turn == 0 && isReady && !isMarked[players[0].pieces[i].getLocation()]) {
+					highlightPlayerImages(0, i);
+				}
+				else if (v.getId() == playerTwoChars[i].getId() && turn == 1 && isReady && !isMarked[players[1].pieces[i].getLocation()]) {
+					highlightPlayerImages(1, i);
+				}
+				else if (v.getId() == playerOneChars[i].getId() && isMarked[players[0].pieces[i].getLocation()]){
+
+					if (turn == 0) {
+						movePiece(players[0].pieces[i].getLocation());
+					} else {
+						movePiece(players[0].pieces[i].getLocation());
+						for (int j = 0; j < 4; j++){
+							if (players[0].pieces[j].getLocation() == currentPiece.getLocation()){
+								playerOneChars[j].setX(-width);
+								players[0].pieces[j].setLocation(-1);
+								playerOneCurrentPiece--;
+							}
+						}
+					}
+
+					// TODO: Continue game logic
+					endTurn();
+				}
+				else if (v.getId() == playerTwoChars[i].getId() && isMarked[players[1].pieces[i].getLocation()]){
+
+					if (turn == 1) {
+						movePiece(players[1].pieces[i].getLocation());
+					} else {
+						movePiece(players[1].pieces[i].getLocation());
+						for (int j = 0; j < 4; j++){
+							if (players[1].pieces[j].getLocation() == currentPiece.getLocation()){
+								playerTwoChars[j].setX(-width);
+								players[1].pieces[j].setLocation(-1);
+								playerTwoCurrentPiece--;
+							}
+						}
+					}
+
 					// TODO: Continue game logic
 					endTurn();
 				}
@@ -334,6 +423,30 @@ public class BoardActivity extends Activity implements OnClickListener{
 			handleRoll();
 		}
 
+	}
+
+	private int findAvailablePiece(int pl){
+		for (int i = 0; i < 4; i++){
+			if (players[pl].pieces[i].getLocation() == -1){
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private void movePiece(int i){
+
+		currentPiece.setLocation(i);
+
+		if (turn == 0) {
+			p1current.setX(tiles[i].getX());
+			p1current.setY(tiles[i].getY());
+			if (isPlayerIconSelected) playerOneCurrentPiece++;
+		} else {
+			p2current.setX(tiles[i].getX());
+			p2current.setY(tiles[i].getY());
+			if (isPlayerIconSelected) playerTwoCurrentPiece++;
+		}
 	}
 
 	private void handleRoll(){
@@ -466,6 +579,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		canRoll = true;
 		hidePossibleTiles();
 		roll.setVisibility(View.VISIBLE);
+		isPlayerIconSelected = false;
 
 		for (int i = 0; i < 4; i++){
 			playerOneImages[i].setBackgroundResource(R.drawable.seal1);

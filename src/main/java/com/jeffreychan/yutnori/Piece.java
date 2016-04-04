@@ -121,4 +121,12 @@ public class Piece {
 		}
 		return possibleMoves;
 	}
+
+	public int getLocation(){
+		return location;
+	}
+
+	public void setLocation(int i){
+		location = i;
+	}
 }
