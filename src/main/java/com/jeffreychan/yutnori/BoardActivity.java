@@ -99,7 +99,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		tilesAnimation = new AnimationDrawable[MAX_TILES];
 
 		/* BOARD SETUP
-		 * <><><><><><><><><><><><><><><><><><><><>
+		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 */
 		double padding = 20;
 		double space = 40;
@@ -150,7 +150,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 
 		/* END BOARD SETUP
-		 * <><><><><><><><><><><><><><><><><><><><>
+		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 */
 
 		move1 = (ImageView) findViewById(R.id.move1);
