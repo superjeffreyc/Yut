@@ -431,6 +431,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 					}
 				}
 				if (counter == 0 && isReady) endTurn();
+			} else {
+				playerIcon.setVisibility(View.INVISIBLE);
+				playerIconAnimation.stop();
+				isReady = false;
+				canRoll = true;
+
 			}
 
 			capture = false;
@@ -611,7 +617,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	private void removeRoll(int i) {
 		board.removeRoll(i);
-		counter = board.rollArray.length;
+		int count = 0;
+		for (int k = 0; k < board.rollArray.length; k++){
+			if (board.rollArray[k] != 0) count++;
+		}
+		counter = count;
+		if (counter == 5) counter = 4;
+
 		for(int j = 0; j < 5; ++j) {
 			switch (board.rollArray[j]) {
 				case -1:
@@ -633,6 +645,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 					rollSlot[j].setBackgroundResource(R.drawable.circle5);
 					break;
 				default:
+					rollSlot[j].setBackgroundResource(R.drawable.white_marker);
 			}
 		}
 	}
