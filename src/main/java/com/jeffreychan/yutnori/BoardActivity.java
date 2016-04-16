@@ -40,11 +40,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 	LinearLayout topBar, bottomBar;
 	int[] playerOnePieceSelected, playerTwoPieceSelected;
 	boolean[] isPlayerOnePieceSelectable, isPlayerTwoPieceSelectable, isMarked;
-	boolean isReady, canRoll = true, isEndTurn, isPlayerIconSelected;
+	boolean isReady, canRoll = true, isEndTurn, moveDone, isPlayerIconSelected, capture;
 	TreeSet<Integer> specialTiles = new TreeSet<>();
 	RelativeLayout rl;
 	ArrayList<Integer> tile_ids = new ArrayList<>();
 	ArrayList<Integer> player_ids = new ArrayList<>();
+	int[][] moveSet = new int[1][2];
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -280,19 +281,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 			p2current = playerTwoChars[pi];
 		}
 
-		int[] moveSet = players[pl].pieces[pi].calculateMoveset(board.rollArray);
-		for (int move : moveSet) {
-			if (move != -1) {
+		moveSet = players[pl].pieces[pi].calculateMoveset(board.rollArray);
+		for (int[] move : moveSet) {
+			if (move[0] != -1) {
 
 
-				if (specialTiles.contains(move)){
-					tiles[move].setBackgroundResource(R.drawable.orangemarkerflash);
+				if (specialTiles.contains(move[0])){
+					tiles[move[0]].setBackgroundResource(R.drawable.orangemarkerflash);
 				} else {
-					tiles[move].setBackgroundResource(R.drawable.bluemarkerflash);
+					tiles[move[0]].setBackgroundResource(R.drawable.bluemarkerflash);
 				}
-				tilesAnimation[move] = (AnimationDrawable) tiles[move].getBackground();
-				tilesAnimation[move].start();
-				isMarked[move] = true;
+				tilesAnimation[move[0]] = (AnimationDrawable) tiles[move[0]].getBackground();
+				tilesAnimation[move[0]].start();
+				isMarked[move[0]] = true;
 			}
 		}
 	}
@@ -347,15 +348,17 @@ public class BoardActivity extends Activity implements OnClickListener{
 				highlightPlayerImages(1, p);
 			}
 		}
-		else if (tile_ids.contains(v.getId())){
+		else if (tile_ids.contains(v.getId())){    // Activates on tile click
 			for (int i = 0; i < MAX_TILES; i++){
 				if (v.getId() == tiles[i].getId() && isMarked[i]){
+
 					movePiece(i);
-					endTurn();
+					moveDone = true;
+					// TODO
 				}
 			}
 		}
-		else if (player_ids.contains(v.getId())){
+		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
 			for (int i = 0; i < 4; i++){
 				if (v.getId() == playerOneChars[i].getId() && turn == 0 && isReady && !isMarked[players[0].pieces[i].getLocation()]) {
 					highlightPlayerImages(0, i);
@@ -363,24 +366,26 @@ public class BoardActivity extends Activity implements OnClickListener{
 				else if (v.getId() == playerTwoChars[i].getId() & turn == 1 && isReady && !isMarked[players[1].pieces[i].getLocation()]) {
 					highlightPlayerImages(1, i);
 				}
+				// Land on player1 piece
 				else if (v.getId() == playerOneChars[i].getId() && isMarked[players[0].pieces[i].getLocation()]){
 
-					if (turn == 0) {
+					if (turn == 0) { // SAME TEAM
 						movePiece(players[0].pieces[i].getLocation());
-					} else {
+					} else { // OPPOSITE TEAM; send target to graveyard
 						movePiece(players[0].pieces[i].getLocation());
-						for (int j = 0; j < 4; j++){
-							if (players[0].pieces[j].getLocation() == currentPiece.getLocation()){
+						for (int j = 0; j < 4; j++) {
+							if (players[0].pieces[j].getLocation() == currentPiece.getLocation()) {
 								playerOneChars[j].setX(-width);
 								players[0].pieces[j].setLocation(-1);
 								playerOneCurrentPiece--;
 							}
 						}
+						roll.setVisibility(View.VISIBLE);
+						capture = true;
 					}
-
-					// TODO: Continue game logic
-					endTurn();
+					moveDone = true;
 				}
+				// Land on player2 piece
 				else if (v.getId() == playerTwoChars[i].getId() && isMarked[players[1].pieces[i].getLocation()]){
 
 					if (turn == 1) {
@@ -394,10 +399,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 								playerTwoCurrentPiece--;
 							}
 						}
+						roll.setVisibility(View.VISIBLE);
+						capture = true;
 					}
 
-					// TODO: Continue game logic
-					endTurn();
+					moveDone = true;
 				}
 			}
 		}
@@ -405,6 +411,31 @@ public class BoardActivity extends Activity implements OnClickListener{
 			handleRoll();
 		}
 
+		if (moveDone) {
+			moveDone = false;
+			int value = 0;
+			for (int[] i : moveSet) {
+				if (i[0] == currentPiece.getLocation()) {
+					value = i[1];
+					break;
+				}
+			}
+			removeRoll(value);
+
+			if (!capture) {
+				int counter = 0;
+				for (int i : board.rollArray) {
+					if (i != 0) {
+						counter++;
+						break;
+					}
+				}
+				if (counter == 0 && isReady) endTurn();
+			}
+
+			capture = false;
+			hidePossibleTiles();
+		}
 	}
 
 	private int findAvailablePiece(int pl){
@@ -576,6 +607,34 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		isEndTurn = false;
 
+	}
+
+	private void removeRoll(int i) {
+		board.removeRoll(i);
+		counter = board.rollArray.length;
+		for(int j = 0; j < 5; ++j) {
+			switch (board.rollArray[j]) {
+				case -1:
+					rollSlot[j].setBackgroundResource(R.drawable.circleminus1);
+					break;
+				case 1:
+					rollSlot[j].setBackgroundResource(R.drawable.circle1);
+					break;
+				case 2:
+					rollSlot[j].setBackgroundResource(R.drawable.circle2);
+					break;
+				case 3:
+					rollSlot[j].setBackgroundResource(R.drawable.circle3);
+					break;
+				case 4:
+					rollSlot[j].setBackgroundResource(R.drawable.circle4);
+					break;
+				case 5:
+					rollSlot[j].setBackgroundResource(R.drawable.circle5);
+					break;
+				default:
+			}
+		}
 	}
 
 }

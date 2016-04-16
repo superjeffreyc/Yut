@@ -21,9 +21,9 @@ public class Piece {
 		specialTiles.add(24);
 	}
 
-	public int[] calculateMoveset(int[] moves){
+	public int[][] calculateMoveset(int[] moves){
 
-		int[] possibleMoves = new int[moves.length];
+		int[][] possibleMoves = new int[moves.length][2]; // [location][move distance]
 		int tempLocation = location;
 
 		for (int i = 0; i < moves.length; i++) {
@@ -118,7 +118,8 @@ public class Piece {
 				location = 32;
 			}
 
-			possibleMoves[i] = location;
+			possibleMoves[i][0] = location;
+			possibleMoves[i][1] = moves[i];
 			location = tempLocation;
 		}
 

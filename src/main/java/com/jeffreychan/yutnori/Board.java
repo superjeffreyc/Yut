@@ -1,5 +1,7 @@
 package com.jeffreychan.yutnori;
 
+import java.util.Arrays;
+
 public class Board {
 
 	public int[] rollArray = new int[5];
@@ -56,6 +58,44 @@ public class Board {
 		resetRollArray();
 	}
 
+	public void removeRoll(int i) {
+		int j = 0;
+		for(j = 0; j < rollArray.length; ++j) {
+			if(rollArray[j] == i) {rollArray[j] = 0; break;}
+		}
+		for(int k = 0; k < rollArray.length; ++k) {
+			if(rollArray[k] == 0) {
+				int index = k + 1;
+				while(index < rollArray.length && rollArray[index] == 0) index += 1;
+				if(index == rollArray.length) index--;
+				if(rollArray[index] == 0) break;
+				rollArray[k] = rollArray[index];
+				rollArray[index] = 0;
+			}
+		}
+
+		System.out.println(Arrays.toString(rollArray));
+	}
+	/*
+	DO NOT TOUCH ~NO TRESPASSING~
+	calculates the distance moved by chosen piece
+	public int moveDistance(int startPos, int endPos) {
+		int distance = 0;
+		if(startPos <= 19 && endPos <= 19) distance = endPos - startPos;
+		else if(startPos == 5) distance = endPos - startPos - 14; // 14 displacement (5 -> 20)
+		else if(startPos == 10) {
+			if(endPos == 22) distance = 3;
+			else if(endPos < 27) distance = endPos - 24;
+			else distance = endPos - 23;
+		}
+		else if(startPos == 22) {
+			if(endPos < 29) distance = endPos - 26;
+			else distance = 3;
+		}
+
+		return distance;
+	}
+	*/
 }
 
 
