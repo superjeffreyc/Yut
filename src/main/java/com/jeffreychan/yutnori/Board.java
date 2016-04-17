@@ -14,6 +14,15 @@ public class Board {
 		}
 	}
 
+	/**
+	 * There are 4 sticks to throw, each of which can be facing up or down.
+	 * The roll is determined by the number of sticks facing up, with the following exceptions:
+	 * All sticks face down is a roll of 5 and only one marked stick face up is a roll of -1.
+	 * This gives the following probabilities for these rolls:
+	 * (1) 4/16 (2) 6/16 (3) 4/16 (4) 1/16 (5) 1/16 (-1) 1/16
+	 *
+	 * @return the value of the sticks thrown
+	 */
 	public int throwSticks(){
 		int roll = 1;
 
@@ -58,9 +67,13 @@ public class Board {
 		resetRollArray();
 	}
 
+	/**
+	 * Removes the roll from the roll array. This method should be called after the player has made a move.
+	 *
+	 * @param i the roll to remove from the roll array
+	 */
 	public void removeRoll(int i) {
-		int j = 0;
-		for(j = 0; j < rollArray.length; ++j) {
+		for(int j = 0; j < rollArray.length; ++j) {
 			if(rollArray[j] == i) {rollArray[j] = 0; break;}
 		}
 		for(int k = 0; k < rollArray.length; ++k) {
@@ -76,26 +89,6 @@ public class Board {
 
 		System.out.println(Arrays.toString(rollArray));
 	}
-	/*
-	DO NOT TOUCH ~NO TRESPASSING~
-	calculates the distance moved by chosen piece
-	public int moveDistance(int startPos, int endPos) {
-		int distance = 0;
-		if(startPos <= 19 && endPos <= 19) distance = endPos - startPos;
-		else if(startPos == 5) distance = endPos - startPos - 14; // 14 displacement (5 -> 20)
-		else if(startPos == 10) {
-			if(endPos == 22) distance = 3;
-			else if(endPos < 27) distance = endPos - 24;
-			else distance = endPos - 23;
-		}
-		else if(startPos == 22) {
-			if(endPos < 29) distance = endPos - 26;
-			else distance = 3;
-		}
-
-		return distance;
-	}
-	*/
 }
 
 

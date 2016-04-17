@@ -8,25 +8,6 @@
                 android:background="@drawable/board_clear"
                 tools:context="com.jeffreychan.yutnori.BoardActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="80dp"
-        android:id="@+id/rollText"
-        android:layout_alignTop="@+id/playerTurn"
-        android:layout_centerHorizontal="true"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="50dp"
-        android:id="@+id/playerTurn"
-        android:gravity="center"
-        android:layout_above="@+id/sticks"
-        android:layout_centerHorizontal="true"/>
-
     <ImageView
         android:layout_width="210dp"
         android:layout_height="300dp"

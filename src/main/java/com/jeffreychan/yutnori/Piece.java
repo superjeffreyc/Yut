@@ -1,26 +1,23 @@
 package com.jeffreychan.yutnori;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class Piece {
 
-	int location = -1;
-	
-	static Set<Integer> specialTiles = new TreeSet<>();
+	private int location = -1;
+	private int value = 1;
 
-	public Piece(){
-		specialTiles.add(0);
-		specialTiles.add(1);
-		specialTiles.add(5);
-		specialTiles.add(10);
-		specialTiles.add(20);
-		specialTiles.add(21);
-		specialTiles.add(22);
-		specialTiles.add(23);
-		specialTiles.add(24);
-	}
 
+	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 20, 21, 22, 23, 24));
+
+	/**
+	 * Processes the current rolls and returns move locations with respective move distances
+	 *
+	 * @param moves array of rolls
+	 * @return 2d array containing move locations in first column and move distances in second column
+	 */
 	public int[][] calculateMoveset(int[] moves){
 
 		int[][] possibleMoves = new int[moves.length][2]; // [location][move distance]
@@ -28,8 +25,7 @@ public class Piece {
 
 		for (int i = 0; i < moves.length; i++) {
 			if (moves[i] != 0) {
-
-				if (specialTiles.contains(Integer.valueOf(location))) {
+				if (specialTiles.contains(location)) {
 					if (location == 0) {
 						if (moves[i] >= 1) {
 							location = 32;
@@ -43,8 +39,12 @@ public class Piece {
 							location--;
 						}
 					} else if (location == 10) {
-						if (moves[i] >= 1) {
+						if (moves[i] == 1 || moves[i] == 2) {
 							location = 24 + moves[i];
+						} else if (moves[i] == 3) {
+							location = 22;
+						} else if (moves[i] == 4 || moves[i] == 5){
+							location = 23 + moves[i];
 						} else {
 							location--;
 						}
@@ -126,32 +126,6 @@ public class Piece {
 		return possibleMoves;
 	}
 
-	public int[] tempCalculateMoveset(int[] moves){
-
-		int[] possibleMoves = new int[moves.length];
-		int tempLocation = location;
-
-		for (int i = 0; i < moves.length; i++) {
-			if (moves[i] != 0) {
-
-				if (location == -1){
-					location++;
-				}
-
-				location += moves[i];
-
-				if (location >= 20) {
-					location = 0;
-				}
-				possibleMoves[i] = location;
-			} else {
-				possibleMoves[i] = -1;
-			}
-			location = tempLocation;
-		}
-		return possibleMoves;
-	}
-
 	public int getLocation(){
 		return location;
 	}
@@ -159,4 +133,8 @@ public class Piece {
 	public void setLocation(int i){
 		location = i;
 	}
+
+	public int getValue() { return value; }
+
+	public void setValue(int v) { value = v; }
 }

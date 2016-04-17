@@ -10,8 +10,18 @@ public class Player {
 		}
 	}
 
+	public int findAvailablePiece(){
+		for (int i = 0; i < 4; i++){
+			if (pieces[i].getLocation() == -1){
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	public int getScore() {
 		return score;
 	}
 
+	public void addScore(int i){ score += i; }
 }
