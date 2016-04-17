@@ -9,6 +9,7 @@
                 tools:context="com.jeffreychan.yutnori.BoardActivity">
 
     <ImageView
+        android:contentDescription="@string/sticks"
         android:layout_width="210dp"
         android:layout_height="300dp"
         android:id="@+id/sticks"
@@ -31,42 +32,46 @@
             android:background="@color/DarkerBlue" >
 
             <ImageView
+                android:contentDescription="@string/seal_icon"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/seal_icon"
                 android:background="@drawable/seal_icon"
-                android:layout_margin="5dp"
-                android:layout_centerInParent="true"  />
+                android:layout_margin="5dp"  />
 
             <ImageView
+                android:contentDescription="@string/player1"
                 android:layout_width="0dp"
                 android:layout_weight="2"
                 android:layout_height="match_parent"
                 android:id="@+id/player1"
                 android:background="@drawable/player1"
-                android:layout_margin="10dp"
-                android:layout_centerInParent="true"  />
+                android:layout_margin="10dp"  />
 
             <ImageView
+                android:contentDescription="@string/seal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/seal1"
                 android:background="@drawable/seal1"/>
             <ImageView
+                android:contentDescription="@string/seal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/seal2"
                 android:background="@drawable/seal1" />
             <ImageView
+                android:contentDescription="@string/seal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/seal3"
                 android:background="@drawable/seal1"/>
             <ImageView
+                android:contentDescription="@string/seal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -98,6 +103,7 @@
             android:weightSum="5" >
 
             <ImageView
+                android:contentDescription="@string/rollSlot"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -106,6 +112,7 @@
                 android:layout_margin="10dp"  />
 
             <ImageView
+                android:contentDescription="@string/rollSlot"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -114,6 +121,7 @@
                 android:layout_margin="10dp" />
 
             <ImageView
+                android:contentDescription="@string/rollSlot"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -121,6 +129,7 @@
                 android:layout_margin="10dp"
                 android:background="@drawable/white_marker"/>
             <ImageView
+                android:contentDescription="@string/rollSlot"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -128,6 +137,7 @@
                 android:layout_margin="10dp"
                 android:background="@drawable/white_marker" />
             <ImageView
+                android:contentDescription="@string/rollSlot"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -147,42 +157,46 @@
             android:background="@color/LighterBlue">
 
             <ImageView
+                android:contentDescription="@string/penguin_icon"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/penguin_icon"
                 android:background="@drawable/penguin_icon"
-                android:layout_margin="5dp"
-                android:layout_centerInParent="true"  />
+                android:layout_margin="5dp" />
 
             <ImageView
+                android:contentDescription="@string/player2"
                 android:layout_width="0dp"
                 android:layout_weight="2"
                 android:layout_height="match_parent"
                 android:id="@+id/player2"
                 android:layout_margin="10dp"
-                android:background="@drawable/player2"
-                android:layout_centerInParent="true"  />
+                android:background="@drawable/player2" />
 
             <ImageView
+                android:contentDescription="@string/penguin"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/penguin1"
                 android:background="@drawable/penguin1"/>
             <ImageView
+                android:contentDescription="@string/penguin"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/penguin2"
                 android:background="@drawable/penguin1" />
             <ImageView
+                android:contentDescription="@string/penguin"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/penguin3"
                 android:background="@drawable/penguin1"/>
             <ImageView
+                android:contentDescription="@string/penguin"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -218,6 +232,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="2"/>
             <ImageView
+                android:contentDescription="@string/seal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -225,10 +240,15 @@
                 android:background="@drawable/seal1"
                 android:visibility="invisible"
                 />
-            <Space
+            <ImageView
+                android:contentDescription="@string/finish"
                 android:layout_width="0dp"
+                android:layout_weight="2"
                 android:layout_height="match_parent"
-                android:layout_weight="2"/>
+                android:id="@+id/finish"
+                android:background="@drawable/finish"
+                android:visibility="invisible"
+                />
         </LinearLayout>
 
         <Space

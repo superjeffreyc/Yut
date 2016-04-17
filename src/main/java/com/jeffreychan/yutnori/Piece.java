@@ -10,7 +10,7 @@ public class Piece {
 	private int value = 1;
 
 
-	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 20, 21, 22, 23, 24));
+	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 20, 21, 22, 23, 24, 25, 26, 27));
 
 	/**
 	 * Processes the current rolls and returns move locations with respective move distances
@@ -90,6 +90,36 @@ public class Piece {
 						} else if (moves[i] == -1) {
 							location--;
 						}
+					} else if (location == 25) {
+						if (moves[i] == 1) {
+							location = 26;
+						} else if (moves[i] == 2) {
+							location = 22;
+						} else if (moves[i] == 3 || moves[i] == 4) {
+							location = 24 + moves[i];
+						} else if (moves[i] == 5){
+							location = 0;
+						} else {
+							location = 10;
+						}
+					} else if (location == 26) {
+						if (moves[i] == 1) {
+							location = 22;
+						} else if (moves[i] == 2 || moves[i] == 3) {
+							location = 25 + moves[i];
+						} else if (moves[i] == 4){
+							location = 0;
+						} else if (moves[i] == 5) {
+							location = 32;
+						} else {
+							location--;
+						}
+					} else if (location == 27) {
+						if (moves[i] >= 1) {
+							location += moves[i];
+						} else {
+							location = 22;
+						}
 					}
 
 				} else if (location >= 15 && location <= 19){
@@ -137,4 +167,7 @@ public class Piece {
 	public int getValue() { return value; }
 
 	public void setValue(int v) { value = v; }
+
+	public void addValue(int v) { value += v; }
+
 }
