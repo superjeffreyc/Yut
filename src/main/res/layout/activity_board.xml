@@ -12,47 +12,6 @@
         android:layout_width="210dp"
         android:layout_height="300dp"
         android:id="@+id/sticks"
-        android:layout_centerInParent="true"  />
-
-    <ImageView
-        android:layout_width="210dp"
-        android:layout_height="300dp"
-        android:id="@+id/move1"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"  />
-
-    <ImageView
-        android:layout_width="210dp"
-        android:layout_height="300dp"
-        android:id="@+id/move2"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"  />
-
-    <ImageView
-        android:layout_width="210dp"
-        android:layout_height="300dp"
-        android:id="@+id/move3"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"  />
-
-    <ImageView
-        android:layout_width="210dp"
-        android:layout_height="300dp"
-        android:id="@+id/move4"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"  />
-
-    <ImageView
-        android:layout_width="210dp"
-        android:layout_height="300dp"
-        android:id="@+id/move5"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"  />
-
-    <ImageView
-        android:layout_width="210dp"
-        android:layout_height="300dp"
-        android:id="@+id/moveminus1"
         android:visibility="invisible"
         android:layout_centerInParent="true"  />
 
