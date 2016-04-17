@@ -32,7 +32,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Piece currentPiece;
 
 	Button rollButton;
-	ImageView sticks, offBoardPiece, p1_currentChar, p2_currentChar, finish;
+	ImageView sticks, offBoardPiece, p1_currentChar, p2_currentChar, finish, board_lines;
 	AnimationDrawable fallingSticks, rollFlash, offBoardPieceAnimation;
 
 	AnimationDrawable[] tilesAnimation;
@@ -135,6 +135,20 @@ public class BoardActivity extends Activity implements OnClickListener{
 				tiles[i].setY((float) (height * 0.4 - tileSize / 2 + (j - 27) * ((tiles[0].getY() - (height * 0.4 - tileSize / 2))) / 3));
 			}
 			rl.addView(tiles[i]);
+		}
+
+		board_lines = new ImageView(this);
+		board_lines.setBackgroundResource(R.drawable.board_lines);
+		int dim = (int) (boardSize - 2 * padding - tileSize);   // Width of board lines on screen
+		float line_width = (float) (11.0/500) * dim;  // Thickness of line is 11 pixels in a 500x500 image
+		dim += line_width;  // Account for left shift of image
+		board_lines.setLayoutParams(new RelativeLayout.LayoutParams(dim, dim));
+		board_lines.setX((float) (tiles[10].getX() + tileSize/2 - line_width/2));
+		board_lines.setY((float) (tiles[10].getY() + tileSize/2 - line_width/2));
+		rl.addView(board_lines);
+
+		for(int i = 0; i < tiles.length; i++) {
+			tiles[i].bringToFront();
 		}
 
 		/* END BOARD SETUP
