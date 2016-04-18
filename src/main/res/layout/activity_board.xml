@@ -227,10 +227,15 @@
             android:layout_weight="1"
             android:gravity="center"
             android:weightSum="5" >
-            <Space
+            <ImageView
+                android:contentDescription="@string/cancel"
                 android:layout_width="0dp"
+                android:layout_weight="2"
                 android:layout_height="match_parent"
-                android:layout_weight="2"/>
+                android:id="@+id/cancel"
+                android:background="@drawable/cancel"
+                android:visibility="invisible"
+                />
             <ImageView
                 android:contentDescription="@string/seal"
                 android:layout_width="0dp"
