@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
@@ -40,9 +41,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView[][] playerOnBoardImages, playerOffBoardImages;
 	LinearLayout topBar, bottomBar;
 	RelativeLayout rl;
+//	MediaPlayer mp;
 
 	boolean isRollDone, canRoll = true, isEndTurn, moveDone, capture, isGameOver;
-	int rollAmount, turn = 0, oppTurn = 1, counter = 0, width, height, MAX_TILES = 29;
+	int rollAmount, turn = 0, oppTurn = 1, counter = 0, width, height, MAX_TILES = 29, mpPos;
 	boolean[] isMarked;
 	int[][] moveSet;
 
@@ -87,6 +89,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		isMarked = new boolean[MAX_TILES];
 		tilesAnimation = new AnimationDrawable[MAX_TILES];
+
+//		mp = MediaPlayer.create(this, R.raw.test);
+//		mp.setLooping(true);
+//		mp.start();
 
 		/* BOARD SETUP
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -209,6 +215,31 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) { return super.onOptionsItemSelected(item);	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+//		if (mp.isPlaying()) {
+//			mp.pause();
+//			mpPos = mp.getCurrentPosition();
+//		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+//		mp.seekTo(mpPos);
+//		mp.start();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+//		if (mp.isPlaying()) {
+//			mp.stop();
+//			mp.release();
+//		}
+	}
 
 	@Override
 	public void onBackPressed() {
