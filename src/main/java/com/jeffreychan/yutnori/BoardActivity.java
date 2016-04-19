@@ -32,18 +32,17 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Piece currentPiece;
 
 	Button rollButton;
-	ImageView sticks, offBoardPiece, currentPieceImage, cancel, finish, board_lines;
+	ImageView sticks, offBoardPiece, currentPieceImage, finish, board_lines;
 	AnimationDrawable fallingSticks, rollFlash, offBoardPieceAnimation;
-
 	AnimationDrawable[] tilesAnimation;
-	ImageView[] rollSlot, tiles, p1_images, p2_images;
-	ImageView[][] playerOnBoardImages;
+	AnimationDrawable[][] playerAnimation;
+	ImageView[] rollSlot, tiles;
+	ImageView[][] playerOnBoardImages, playerOffBoardImages;
 	LinearLayout topBar, bottomBar;
 	RelativeLayout rl;
 
 	boolean isRollDone, canRoll = true, isEndTurn, moveDone, capture, isGameOver;
-	int rollAmount, turn = 0, counter = 0, width, height, playerOneCurrentPiece = 0, playerTwoCurrentPiece = 0, MAX_TILES = 29;
-
+	int rollAmount, turn = 0, oppTurn = 1, counter = 0, width, height, MAX_TILES = 29;
 	boolean[] isMarked;
 	int[][] moveSet;
 
@@ -65,6 +64,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		height = size.y;
 
 		rl = (RelativeLayout) findViewById(R.id.rl);
+		rl.setOnClickListener(this);
 
 		players = new Player[2];
 		players[0] = new Player();
@@ -74,9 +74,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 		board = new Board();
 
 		offBoardPiece = (ImageView) findViewById(R.id.playerIcon);
-		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
+		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimationclick);
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
 		offBoardPiece.setOnClickListener(this);
+
+		currentPieceImage = offBoardPiece;
 
 		topBar = (LinearLayout) findViewById(R.id.topBar);
 		bottomBar = (LinearLayout) findViewById(R.id.bottomBar);
@@ -172,20 +174,17 @@ public class BoardActivity extends Activity implements OnClickListener{
 		finish = (ImageView) findViewById(R.id.finish);
 		finish.setOnClickListener(this);
 
-		cancel = (ImageView) findViewById(R.id.cancel);
-		cancel.setOnClickListener(this);
+		playerOffBoardImages = new ImageView[2][4];
+		playerOffBoardImages[0][0] = (ImageView) findViewById(R.id.seal1);
+		playerOffBoardImages[0][1] = (ImageView) findViewById(R.id.seal2);
+		playerOffBoardImages[0][2] = (ImageView) findViewById(R.id.seal3);
+		playerOffBoardImages[0][3] = (ImageView) findViewById(R.id.seal4);
+		playerOffBoardImages[1][0] = (ImageView) findViewById(R.id.penguin1);
+		playerOffBoardImages[1][1] = (ImageView) findViewById(R.id.penguin2);
+		playerOffBoardImages[1][2] = (ImageView) findViewById(R.id.penguin3);
+		playerOffBoardImages[1][3] = (ImageView) findViewById(R.id.penguin4);
 
-		p1_images = new ImageView[4];
-		p2_images = new ImageView[4];
-		p1_images[0] = (ImageView) findViewById(R.id.seal1);
-		p1_images[1] = (ImageView) findViewById(R.id.seal2);
-		p1_images[2] = (ImageView) findViewById(R.id.seal3);
-		p1_images[3] = (ImageView) findViewById(R.id.seal4);
-		p2_images[0] = (ImageView) findViewById(R.id.penguin1);
-		p2_images[1] = (ImageView) findViewById(R.id.penguin2);
-		p2_images[2] = (ImageView) findViewById(R.id.penguin3);
-		p2_images[3] = (ImageView) findViewById(R.id.penguin4);
-
+		playerAnimation = new AnimationDrawable[2][4];
 		// Set up player characters
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -197,8 +196,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 				player_ids.add(playerOnBoardImages[i][j].getId());
 				rl.addView(playerOnBoardImages[i][j]);
 
-				if (i == 0) playerOnBoardImages[i][j].setBackgroundResource(R.drawable.seal1);
-				else playerOnBoardImages[i][j].setBackgroundResource(R.drawable.penguin1);
+				if (i == 0) playerOnBoardImages[i][j].setBackgroundResource(R.drawable.sealmoveanimation);
+				else playerOnBoardImages[i][j].setBackgroundResource(R.drawable.penguinjumpanimation);
+
+				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
 	}
@@ -238,14 +239,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		if (isGameOver) return;
 
-		int oppTurn = (turn + 1) % 2;
-
 		if (v.getId() == R.id.rollButton) {
 			handleRoll();
-		}
-		else if (v.getId() == R.id.cancel) {
-			cancel.setVisibility(View.INVISIBLE);
-			hidePossibleTiles();
 		}
 		else if (v.getId() == R.id.finish) {
 			players[turn].addScore(currentPiece.getValue());
@@ -259,7 +254,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 		else if (v.getId() == R.id.playerIcon && isRollDone) {
 			int p = players[turn].findAvailablePiece();
 			showPossibleTiles(p);
-			cancel.setVisibility(View.VISIBLE);
 		}
 		else if (tile_ids.contains(v.getId())){    // Activates on tile click
 			for (int i = 0; i < MAX_TILES; i++){
@@ -273,7 +267,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			for (int i = 0; i < 4; i++){
 				if (v.getId() == playerOnBoardImages[turn][i].getId() && isRollDone && !isMarked[players[turn].pieces[i].getLocation()]) {
 					showPossibleTiles(i);
-					cancel.setVisibility(View.VISIBLE);
 				}
 				// SAME TEAM
 				else if (v.getId() == playerOnBoardImages[turn][i].getId() && isMarked[players[turn].pieces[i].getLocation()]){
@@ -285,25 +278,34 @@ public class BoardActivity extends Activity implements OnClickListener{
 							playerOnBoardImages[turn][j].setX(-width);
 							players[turn].pieces[j].setLocation(-1);
 							players[turn].pieces[j].setValue(1);
-							if (turn == 0) playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.seal1);
-							else playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.penguin1);
+
+							if (turn == 0) playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.sealmoveanimation);
+							else playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
+
+							playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
 						}
 					}
 
 					switch (currentPiece.getValue()) {
 						case 2:
-							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.seal2);
-							else currentPieceImage.setBackgroundResource(R.drawable.penguin2);
+							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation2);
+							else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation2);
 							break;
 						case 3:
-							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.seal3);
-							else currentPieceImage.setBackgroundResource(R.drawable.penguin3);
+							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation3);
+							else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation3);
 							break;
 						case 4:
-							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.seal4);
-							else currentPieceImage.setBackgroundResource(R.drawable.penguin4);
+							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation4);
+							else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation4);
 							break;
 						default:
+					}
+
+					for (int j = 0; j < 4; j++){
+						if (currentPieceImage == playerOnBoardImages[turn][j]){
+							playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+						}
 					}
 
 					moveDone = true;
@@ -315,16 +317,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 						if (players[oppTurn].pieces[j].getLocation() == currentPiece.getLocation()) {
 							playerOnBoardImages[oppTurn][j].setX(-width);
 							players[oppTurn].pieces[j].setLocation(-1);
+							players[oppTurn].numPieces -= players[oppTurn].pieces[j].getValue();
 							players[oppTurn].pieces[j].setValue(1);
 
-							if (turn == 0) {
-								playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguin1);
-								playerTwoCurrentPiece -= players[oppTurn].pieces[j].getValue();
-							}
-							else {
-								playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.seal1);
-								playerOneCurrentPiece -= players[oppTurn].pieces[j].getValue();
-							}
+							if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
+							else playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.sealmoveanimation);
+
+							playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
 						}
 					}
 					rollButton.setVisibility(View.VISIBLE);
@@ -333,11 +332,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 				}
 			}
 		}
+		else {
+			hidePossibleTiles();
+		}
 
 		// Clean-up after move is done
 		if (moveDone) {
 			moveDone = false;
-			cancel.setVisibility(View.INVISIBLE);
 			int value = 0;
 			for (int[] i : moveSet) {
 				if (i[0] == currentPiece.getLocation()) {
@@ -347,9 +348,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 			removeRoll(value);
 
-			if ((turn == 0 && playerOneCurrentPiece == 4) || (turn == 1 && playerTwoCurrentPiece == 4)){
+			if (players[turn].numPieces == 4){
 				offBoardPiece.setVisibility(View.INVISIBLE);
 				offBoardPieceAnimation.stop();
+				offBoardPieceAnimation.selectDrawable(0);
 			}
 
 			if (!capture) {
@@ -371,10 +373,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 				if (posCount == 0 && isRollDone) {
 					offBoardPiece.setVisibility(View.INVISIBLE);
 					offBoardPieceAnimation.stop();
+					offBoardPieceAnimation.selectDrawable(0);
 				}
 			} else {
 				offBoardPiece.setVisibility(View.INVISIBLE);
 				offBoardPieceAnimation.stop();
+				offBoardPieceAnimation.selectDrawable(0);
 				isRollDone = false;
 				canRoll = true;
 			}
@@ -383,17 +387,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 			hidePossibleTiles();
 
 			// Hide pieces that are on the board or completed
-			for (int i = 0; i < 4; i++){
-				if (i < playerOneCurrentPiece) {    // Player 1 updates
-					p1_images[i].setVisibility(View.INVISIBLE);
-				} else {
-					p1_images[i].setVisibility(View.VISIBLE);
-				}
-
-				if (i < playerTwoCurrentPiece) {    // Player 2 updates
-					p2_images[i].setVisibility(View.INVISIBLE);
-				} else {
-					p2_images[i].setVisibility(View.VISIBLE);
+			for (int i = 0; i < 2; i++) {
+				for (int j = 0; j < 4; j++) {
+					if (j < players[i].numPieces) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
+					else playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -443,8 +440,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	private void movePiece(int i){
 
-		if (turn == 0 && currentPiece.getLocation() == -1) playerOneCurrentPiece++;
-		if (turn == 1 && currentPiece.getLocation() == -1) playerTwoCurrentPiece++;
+		if (currentPiece.getLocation() == -1) players[turn].numPieces++;
 
 		currentPiece.setLocation(i);
 
@@ -495,8 +491,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				showRoll(rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && counter < 4) counter++;
-				else if (rollAmount == -1 && counter == 0 && turn == 0 && playerOneCurrentPiece == players[0].getScore()) isEndTurn = true;
-				else if (rollAmount == -1 && counter == 0 && turn == 1 && playerTwoCurrentPiece == players[1].getScore()) isEndTurn = true;
+				else if (rollAmount == -1 && counter == 0 && players[turn].numPieces == players[0].getScore()) isEndTurn = true;
 				else {
 					canRoll = false;
 					isRollDone = true;
@@ -523,9 +518,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 						}
 					}
 
-					if (((turn == 0 && playerOneCurrentPiece < 4) || (turn == 1 && playerTwoCurrentPiece < 4)) && posCount > 0) {
+					if (players[turn].numPieces < 4 && posCount > 0) {
 						offBoardPiece.setVisibility(View.VISIBLE);
 						offBoardPieceAnimation.start();
+					}
+
+					for (int j = 0; j < 4; j++){
+						playerAnimation[turn][j].start();
 					}
 				}
 			}
@@ -550,11 +549,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	private void reset(){
 		turn = board.getPlayerTurn();
+		oppTurn = (turn + 1) % 2;
+
 		offBoardPiece.setVisibility(View.INVISIBLE);
 		offBoardPieceAnimation.stop();
+		offBoardPieceAnimation.selectDrawable(0);
 
 		if (turn == 1) {
-			offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
+			offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimationclick);
 			offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
 
 			bottomBar.setBackgroundResource(R.color.DarkerBlue);
@@ -562,7 +564,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			topBar.setBackgroundResource(R.color.LighterBlue);
 			topBar.setAlpha(0.5f);
 		} else {
-			offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
+			offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimationclick);
 			offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
 
 			topBar.setBackgroundResource(R.color.DarkerBlue);
@@ -573,6 +575,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		for (int i = 0; i < 5; i++) {
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+		}
+
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				playerAnimation[i][j].stop();
+				playerAnimation[i][j].selectDrawable(0);
+			}
 		}
 
 		board.resetRollArray();

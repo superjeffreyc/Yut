@@ -3,6 +3,7 @@ package com.jeffreychan.yutnori;
 public class Player {
 	private int score = 0;
 	public Piece[] pieces = new Piece[4];
+	public int numPieces = 0;
 	
 	public Player() {
 		for (int i = 0; i < pieces.length; i++) {
