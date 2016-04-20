@@ -55,8 +55,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ArrayList<Integer> tile_ids = new ArrayList<>();
 	ArrayList<Integer> player_ids = new ArrayList<>();
 
-	private AdView mAdView;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -64,7 +62,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_board);
 
-		mAdView = (AdView) findViewById(R.id.ad_view);
+		AdView mAdView = (AdView) findViewById(R.id.ad_view);
 		AdRequest adRequest = new AdRequest.Builder()
 				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 				.build();
@@ -182,11 +180,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 */
 
-		rollSlot[0] = (ImageView) findViewById(R.id.rollSlot1);
-		rollSlot[1] = (ImageView) findViewById(R.id.rollSlot2);
-		rollSlot[2] = (ImageView) findViewById(R.id.rollSlot3);
-		rollSlot[3] = (ImageView) findViewById(R.id.rollSlot4);
-		rollSlot[4] = (ImageView) findViewById(R.id.rollSlot5);
+		// Set up roll slots
+		padding = 30;
+		int rollSize = (int) (height/10.0 - padding);
+		int spacing = (int) (width - 5 * rollSize - padding)/4;
+		for (int i = 0; i < 5; i++){
+			rollSlot[i] = new ImageView(this);
+			rollSlot[i].setId(View.generateViewId());
+			rollSlot[i].setLayoutParams(new RelativeLayout.LayoutParams(rollSize, rollSize));
+			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+			rollSlot[i].setX((float) (0.5*padding + i * spacing + i * rollSize));
+			rollSlot[i].setY((float) (8.0*height/10.0 + 0.5*padding));
+			rl.addView(rollSlot[i]);
+		}
 
 		sticks = (ImageView) findViewById(R.id.sticks);
 
@@ -355,6 +361,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 					for (int j = 0; j < 4; j++){
 						if (currentPieceImage == playerOnBoardImages[turn][j]){
 							playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+							playerAnimation[turn][j].start();
 						}
 					}
 
@@ -373,8 +380,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 							if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
 							else playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.sealmoveanimation);
 
-							playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+
 						}
+
+						playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+						playerAnimation[turn][j].start();
 					}
 					rollButton.setVisibility(View.VISIBLE);
 					capture = true;

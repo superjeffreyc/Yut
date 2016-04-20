@@ -107,61 +107,13 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
-
             />
 
-
-        <LinearLayout
+        <Space
             android:id="@+id/rollBar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:weightSum="5" >
-
-            <ImageView
-                android:contentDescription="@string/rollSlot"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/rollSlot1"
-                android:background="@drawable/white_marker"
-                android:layout_margin="10dp"  />
-
-            <ImageView
-                android:contentDescription="@string/rollSlot"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/rollSlot2"
-                android:background="@drawable/white_marker"
-                android:layout_margin="10dp" />
-
-            <ImageView
-                android:contentDescription="@string/rollSlot"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/rollSlot3"
-                android:layout_margin="10dp"
-                android:background="@drawable/white_marker"/>
-            <ImageView
-                android:contentDescription="@string/rollSlot"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/rollSlot4"
-                android:layout_margin="10dp"
-                android:background="@drawable/white_marker" />
-            <ImageView
-                android:contentDescription="@string/rollSlot"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/rollSlot5"
-                android:layout_margin="10dp"
-                android:background="@drawable/white_marker"/>
-
-        </LinearLayout>
+            android:layout_weight="1" />
 
         <LinearLayout
             android:id="@+id/bottomBar"
@@ -244,14 +196,10 @@
             android:layout_weight="1"
             android:gravity="center"
             android:weightSum="5" >
-            <ImageView
-                android:contentDescription="@string/cancel"
+            <Space
                 android:layout_width="0dp"
                 android:layout_weight="2"
                 android:layout_height="match_parent"
-                android:id="@+id/cancel"
-                android:background="@drawable/cancel"
-                android:visibility="invisible"
                 />
             <ImageView
                 android:contentDescription="@string/seal"
