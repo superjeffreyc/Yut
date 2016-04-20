@@ -2,6 +2,7 @@ package com.jeffreychan.yutnori;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
@@ -35,6 +36,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Player[] players;
 	Piece currentPiece;
 
+	TextView rollAgain;
 	Button rollButton;
 	ImageView sticks, offBoardPiece, currentPieceImage, finish, board_lines;
 	AnimationDrawable fallingSticks, rollFlash, offBoardPieceAnimation;
@@ -233,6 +235,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
+
+		// Set up text for indicating player turn
+		rollAgain = new TextView(this);
+		rollAgain.setId(View.generateViewId());
+		rollAgain.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2/10.0)));
+		rollAgain.setY((int) (height * 3/10.0));
+		rollAgain.setGravity(Gravity.CENTER);
+		String text = "Player 1's Turn";
+		rollAgain.setText(text);
+		rollAgain.setTextColor(Color.WHITE);
+		rollAgain.setTextSize(50f);
+		rollAgain.setBackgroundColor(Color.BLACK);
+		rl.addView(rollAgain);
 	}
 
 	@Override
@@ -457,6 +472,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void handleRoll(){
 		rollAmount = board.throwSticks();
 		rollButton.setVisibility(View.INVISIBLE);
+		rollAgain.setVisibility(View.INVISIBLE);
 
 		switch (rollAmount) {
 			case -1:
@@ -493,7 +509,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 			public void run() {
 				showRoll(rollAmount);
 
-				if ((rollAmount == 4 || rollAmount == 5) && counter < 4) counter++;
+				if ((rollAmount == 4 || rollAmount == 5) && counter < 4) {
+					counter++;
+					String text = "Player " + (turn+1) + "\nRoll Again!";
+					rollAgain.setText(text);
+					rollAgain.setVisibility(View.VISIBLE);
+				}
 				else if (rollAmount == -1 && counter == 0 && players[turn].numPieces == players[0].getScore()) isEndTurn = true;
 				else {
 					canRoll = false;
@@ -543,6 +564,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void hideSticks(){
 		sticks.setVisibility(View.INVISIBLE);
 		fallingSticks.setVisible(false, false);
+		rollAgain.setVisibility(View.INVISIBLE);
 	}
 
 	private void cleanUp(){
@@ -592,6 +614,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 				offBoardPieceAnimation.selectDrawable(0);
 			}
 		} else {
+			String text = "Player " + (turn+1) + "\nRoll Again!";
+			rollAgain.setText(text);
+			rollAgain.setVisibility(View.VISIBLE);
+
 			offBoardPiece.setVisibility(View.INVISIBLE);
 			offBoardPieceAnimation.stop();
 			offBoardPieceAnimation.selectDrawable(0);
@@ -631,7 +657,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			bottomBar.setBackgroundResource(R.color.DarkerBlue);
 			bottomBar.setAlpha(1.0f);
 			topBar.setBackgroundResource(R.color.LighterBlue);
-			topBar.setAlpha(0.5f);
+			topBar.setAlpha(0.25f);
 		} else {
 			if (players[turn].numPieces == 0) offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimationclick);
 			else offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
@@ -639,7 +665,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			topBar.setBackgroundResource(R.color.DarkerBlue);
 			topBar.setAlpha(1.0f);
 			bottomBar.setBackgroundResource(R.color.LighterBlue);
-			bottomBar.setAlpha(0.5f);
+			bottomBar.setAlpha(0.25f);
 		}
 
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
@@ -663,6 +689,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		canRoll = true;
 		isEndTurn = false;
 		rollButton.setVisibility(View.VISIBLE);
+
+		String text = "Player " + (turn+1) + "'s Turn";
+		rollAgain.setText(text);
+		rollAgain.setVisibility(View.VISIBLE);
 	}
 
 	private void removeRoll(int i) {

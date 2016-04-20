@@ -90,11 +90,11 @@
                 android:background="@drawable/seal1"/>
         </LinearLayout>
 
+
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="6"
-            />
+            android:layout_weight="6"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -120,7 +120,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:alpha="0.5"
+            android:alpha="0.25"
             android:weightSum="7"
             android:background="@color/LighterBlue">
 
