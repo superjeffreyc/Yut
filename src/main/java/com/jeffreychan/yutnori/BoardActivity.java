@@ -22,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeSet;
@@ -52,6 +55,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ArrayList<Integer> tile_ids = new ArrayList<>();
 	ArrayList<Integer> player_ids = new ArrayList<>();
 
+	private AdView mAdView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,11 +64,25 @@ public class BoardActivity extends Activity implements OnClickListener{
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_board);
 
+		mAdView = (AdView) findViewById(R.id.ad_view);
+		AdRequest adRequest = new AdRequest.Builder()
+				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+				.build();
+		mAdView.loadAd(adRequest);
+
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
 		width = size.x;
 		height = size.y;
+
+		int adHeight;
+
+		if (height <= 400) adHeight = 32;
+		else if (height > 400 && height <= 720) adHeight = 50;
+		else adHeight = 90;
+
+		height -= adHeight;
 
 		rl = (RelativeLayout) findViewById(R.id.rl);
 		rl.setOnClickListener(this);
@@ -367,64 +386,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			hidePossibleTiles();
 		}
 
-		// Clean-up after move is done
-		if (moveDone) {
-			moveDone = false;
-			int value = 0;
-			for (int[] i : moveSet) {
-				if (i[0] == currentPiece.getLocation()) {
-					value = i[1];
-					break;
-				}
-			}
-			removeRoll(value);
-
-			if (players[turn].numPieces == 4){
-				offBoardPiece.setVisibility(View.INVISIBLE);
-				offBoardPieceAnimation.stop();
-				offBoardPieceAnimation.selectDrawable(0);
-			}
-
-			if (!capture) {
-				int count = 0;
-				int posCount = 0;
-				for (int i : board.rollArray) {
-					if (i != 0) {
-						count++;
-						break;
-					}
-				}
-				for (int i : board.rollArray) {
-					if (i != 0 && i != -1) {
-						posCount++;
-						break;
-					}
-				}
-				if (count == 0 && isRollDone) endTurn();
-				if (posCount == 0 && isRollDone) {
-					offBoardPiece.setVisibility(View.INVISIBLE);
-					offBoardPieceAnimation.stop();
-					offBoardPieceAnimation.selectDrawable(0);
-				}
-			} else {
-				offBoardPiece.setVisibility(View.INVISIBLE);
-				offBoardPieceAnimation.stop();
-				offBoardPieceAnimation.selectDrawable(0);
-				isRollDone = false;
-				canRoll = true;
-			}
-
-			capture = false;
-			hidePossibleTiles();
-
-			// Hide pieces that are on the board or completed
-			for (int i = 0; i < 2; i++) {
-				for (int j = 0; j < 4; j++) {
-					if (j < players[i].numPieces) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
-					else playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
-				}
-			}
-		}
+		if (moveDone) cleanUp();
 	}
 
 	private void showPossibleTiles(int pi){
@@ -573,6 +535,72 @@ public class BoardActivity extends Activity implements OnClickListener{
 		fallingSticks.setVisible(false, false);
 	}
 
+	private void cleanUp(){
+		moveDone = false;
+		int value = 0;
+		for (int[] i : moveSet) {
+			if (i[0] == currentPiece.getLocation()) {
+				value = i[1];
+				break;
+			}
+		}
+		removeRoll(value);
+
+		if (players[turn].numPieces == 4){
+			offBoardPiece.setVisibility(View.INVISIBLE);
+			offBoardPieceAnimation.stop();
+			offBoardPieceAnimation.selectDrawable(0);
+		} else if (players[turn].numPieces > 0){
+			offBoardPieceAnimation.stop();
+
+			if (turn == 0) offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
+			else offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
+
+			offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
+			offBoardPieceAnimation.start();
+		}
+
+		if (!capture) {
+			int count = 0;
+			int posCount = 0;
+			for (int i : board.rollArray) {
+				if (i != 0) {
+					count++;
+					break;
+				}
+			}
+			for (int i : board.rollArray) {
+				if (i != 0 && i != -1) {
+					posCount++;
+					break;
+				}
+			}
+			if (count == 0 && isRollDone) endTurn();
+			if (posCount == 0 && isRollDone) {
+				offBoardPiece.setVisibility(View.INVISIBLE);
+				offBoardPieceAnimation.stop();
+				offBoardPieceAnimation.selectDrawable(0);
+			}
+		} else {
+			offBoardPiece.setVisibility(View.INVISIBLE);
+			offBoardPieceAnimation.stop();
+			offBoardPieceAnimation.selectDrawable(0);
+			isRollDone = false;
+			canRoll = true;
+		}
+
+		capture = false;
+		hidePossibleTiles();
+
+		// Hide pieces that are on the board or completed
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (j < players[i].numPieces) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
+				else playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
 	private void endTurn(){
 		board.endTurn();
 		reset();
@@ -587,22 +615,24 @@ public class BoardActivity extends Activity implements OnClickListener{
 		offBoardPieceAnimation.selectDrawable(0);
 
 		if (turn == 1) {
-			offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimationclick);
-			offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
+			if (players[turn].numPieces == 0) offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimationclick);
+			else offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
 
 			bottomBar.setBackgroundResource(R.color.DarkerBlue);
 			bottomBar.setAlpha(1.0f);
 			topBar.setBackgroundResource(R.color.LighterBlue);
 			topBar.setAlpha(0.5f);
 		} else {
-			offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimationclick);
-			offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
+			if (players[turn].numPieces == 0) offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimationclick);
+			else offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
 
 			topBar.setBackgroundResource(R.color.DarkerBlue);
 			topBar.setAlpha(1.0f);
 			bottomBar.setBackgroundResource(R.color.LighterBlue);
 			bottomBar.setAlpha(0.5f);
 		}
+
+		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
 
 		for (int i = 0; i < 5; i++) {
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
