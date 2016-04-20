@@ -8,6 +8,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -36,7 +37,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Player[] players;
 	Piece currentPiece;
 
-	TextView rollAgain;
+	TextView rollAgain, tips;
 	Button rollButton;
 	ImageView sticks, offBoardPiece, currentPieceImage, finish, board_lines;
 	AnimationDrawable fallingSticks, rollFlash, offBoardPieceAnimation;
@@ -95,7 +96,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		board = new Board();
 
 		offBoardPiece = (ImageView) findViewById(R.id.playerIcon);
-		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimationclick);
+		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
 		offBoardPiece.setOnClickListener(this);
 
@@ -236,7 +237,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		}
 
-		// Set up text for indicating player turn
+		// Set up TextView for indicating player turn
 		rollAgain = new TextView(this);
 		rollAgain.setId(View.generateViewId());
 		rollAgain.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2/10.0)));
@@ -246,8 +247,21 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rollAgain.setText(text);
 		rollAgain.setTextColor(Color.WHITE);
 		rollAgain.setTextSize(50f);
-		rollAgain.setBackgroundColor(Color.BLACK);
+		rollAgain.setBackgroundColor(ContextCompat.getColor(this, R.color.DarkerBlue));
 		rl.addView(rollAgain);
+
+		//Set up TextView for guiding player
+		tips = new TextView(this);
+		tips.setId(View.generateViewId());
+		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height/20.0)));
+		tips.setY((int) (height * 7.7/10.0));
+		tips.setGravity(Gravity.CENTER);
+		String tipText = "Click Me!";
+		tips.setText(tipText);
+		tips.setTextColor(Color.BLACK);
+		tips.setTextSize(18f);
+		tips.setVisibility(View.INVISIBLE);
+		rl.addView(tips);
 	}
 
 	@Override
@@ -417,6 +431,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void showPossibleTiles(int pi){
 
 		hidePossibleTiles();
+		tips.setText("Click a yellow tile to move");
 
 		currentPiece = players[turn].pieces[pi];
 		currentPieceImage = playerOnBoardImages[turn][pi];
@@ -443,6 +458,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void hidePossibleTiles() {
 
 		finish.setVisibility(View.INVISIBLE);
+
+		if (players[turn].numPieces == 0) tips.setText("Click Me!");
+		else {
+			if (turn == 0) tips.setText("Click any seal");
+			else tips.setText("Click any penguin");
+		}
 
 		for (int i = 0; i < MAX_TILES; i++) {
 			isMarked[i] = false;
@@ -542,9 +563,16 @@ public class BoardActivity extends Activity implements OnClickListener{
 						}
 					}
 
+					tips.setVisibility(View.VISIBLE);
+
 					if (players[turn].numPieces < 4 && posCount > 0) {
 						offBoardPiece.setVisibility(View.VISIBLE);
 						offBoardPieceAnimation.start();
+
+						if (players[turn].numPieces == 0) tips.setText("Click Me!");
+					} else if (players[turn].numPieces == 4){
+						if (turn == 0) tips.setText("Click any seal");
+						else tips.setText("Click any penguin");
 					}
 
 					for (int j = 0; j < 4; j++){
@@ -582,14 +610,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			offBoardPiece.setVisibility(View.INVISIBLE);
 			offBoardPieceAnimation.stop();
 			offBoardPieceAnimation.selectDrawable(0);
-		} else if (players[turn].numPieces > 0){
-			offBoardPieceAnimation.stop();
-
-			if (turn == 0) offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
-			else offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
-
-			offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
-			offBoardPieceAnimation.start();
 		}
 
 		if (!capture) {
@@ -617,6 +637,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			String text = "Player " + (turn+1) + "\nRoll Again!";
 			rollAgain.setText(text);
 			rollAgain.setVisibility(View.VISIBLE);
+			tips.setVisibility(View.INVISIBLE);
 
 			offBoardPiece.setVisibility(View.INVISIBLE);
 			offBoardPieceAnimation.stop();
@@ -650,17 +671,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 		offBoardPieceAnimation.stop();
 		offBoardPieceAnimation.selectDrawable(0);
 
+		tips.setVisibility(View.INVISIBLE);
+
 		if (turn == 1) {
-			if (players[turn].numPieces == 0) offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimationclick);
-			else offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
+			offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
+			tips.setText("Click any penguin");
 
 			bottomBar.setBackgroundResource(R.color.DarkerBlue);
 			bottomBar.setAlpha(1.0f);
 			topBar.setBackgroundResource(R.color.LighterBlue);
 			topBar.setAlpha(0.25f);
 		} else {
-			if (players[turn].numPieces == 0) offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimationclick);
-			else offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
+			offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
+			tips.setText("Click any seal");
 
 			topBar.setBackgroundResource(R.color.DarkerBlue);
 			topBar.setAlpha(1.0f);
