@@ -15,14 +15,17 @@
         android:layout_width="170dp"
         android:layout_height="170dp"
         android:id="@+id/penguinjumpimageview"
-        android:layout_alignParentStart="true" />
+        android:background="@drawable/penguinjumpanimation"
+        android:layout_alignTop="@+id/sealmoveimageview"
+        android:layout_alignParentStart="true"/>
     
     <ImageView
         android:layout_width="170dp"
         android:layout_height="170dp"
         android:id="@+id/sealmoveimageview"
-        android:layout_alignTop="@+id/penguinjumpimageview"
-        android:layout_alignParentStart="true" />
+        android:background="@drawable/sealmoveanimation"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"/>
 
  <TextView
         android:layout_width="wrap_content"

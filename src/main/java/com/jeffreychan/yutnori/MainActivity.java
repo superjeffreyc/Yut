@@ -1,24 +1,31 @@
 package com.jeffreychan.yutnori;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.content.Intent;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-	boolean firstTime = true;
 	ImageView penguinJumpImageView, sealJumpImageView;
 	AnimationDrawable penguinJumpAnimation, sealJumpAnimation;
 	Button startButton, helpButton, settingsButton;
@@ -35,12 +42,10 @@ public class MainActivity extends Activity implements OnClickListener {
 		rl = (RelativeLayout) findViewById(R.id.rl);
 
 		penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
-		penguinJumpImageView.setBackgroundResource(R.drawable.penguinjumpanimation);
 		penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
 		penguinJumpAnimation.start();
 
 		sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
-		sealJumpImageView.setBackgroundResource(R.drawable.sealmoveanimation);
 		sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
 		sealJumpAnimation.start();
 
@@ -81,22 +86,6 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-
-		if (firstTime){
-
-			sealJumpImageView.setX(2.75f * width / 5.0f);
-			sealJumpImageView.setY(0.9f * height / 2.0f);
-
-			penguinJumpImageView.setX(0);
-			penguinJumpImageView.setY(0.9f * height / 2.0f);
-
-			firstTime = false;
-		}
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return true;
 	}
@@ -111,6 +100,59 @@ public class MainActivity extends Activity implements OnClickListener {
 		if(v.getId() == startButton.getId()) {
 			Intent intent = new Intent(this, BoardActivity.class);
 			startActivity(intent);
+		}
+		else if (v.getId() == helpButton.getId()){
+			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			WebView wv = new WebView(this);
+			wv.loadUrl("https://en.wikipedia.org/wiki/Yut");
+			wv.setVerticalScrollBarEnabled(true);
+			wv.getSettings().setJavaScriptEnabled(true);
+			wv.setWebViewClient(new WebViewClient() {
+				@Override
+				public boolean shouldOverrideUrlLoading(WebView view, String url) {
+					view.loadUrl(url);
+					return true;
+				}
+			});
+			final Activity activity = this;
+			wv.setWebChromeClient(new WebChromeClient() {
+				private ProgressDialog mProgress;
+
+				@Override
+				public void onProgressChanged(WebView view, int progress) {
+					if (mProgress == null) {
+						mProgress = new ProgressDialog(activity);
+						mProgress.show();
+					}
+					mProgress.setMessage("Loading " + String.valueOf(progress) + "%");
+					if (progress == 100) {
+						mProgress.dismiss();
+						mProgress = null;
+					}
+				}
+			});
+			adb.setView(wv);
+			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.cancel();
+				}
+			});
+			adb.show();
+		}
+		else if (v.getId() == settingsButton.getId()){
+			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			TextView tv = new TextView(this);
+			tv.setPadding(0, 40, 0, 40);
+			tv.setText("Coming soon!");
+			tv.setTextSize(20f);
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			adb.setView(tv);
+			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.cancel();
+				}
+			});
+			adb.show();
 		}
 	}
 }
