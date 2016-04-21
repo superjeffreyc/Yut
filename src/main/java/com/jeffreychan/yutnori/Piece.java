@@ -1,5 +1,6 @@
 package com.jeffreychan.yutnori;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
@@ -10,7 +11,7 @@ public class Piece {
 	private int value = 1;
 
 
-	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 20, 21, 22, 23, 24, 25, 26, 27));
+	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 15, 20, 21, 22, 23, 24, 25, 26, 27));
 
 	/**
 	 * Processes the current rolls and returns move locations with respective move distances
@@ -18,9 +19,9 @@ public class Piece {
 	 * @param moves array of rolls
 	 * @return 2d array containing move locations in first column and move distances in second column
 	 */
-	public int[][] calculateMoveset(int[] moves){
+	public Integer[][] calculateMoveset(int[] moves){
 
-		int[][] possibleMoves = new int[moves.length][2]; // [location][move distance]
+		ArrayList<Integer[]> moveSet = new ArrayList<>();
 		int tempLocation = location;
 
 		for (int i = 0; i < moves.length; i++) {
@@ -29,6 +30,17 @@ public class Piece {
 					if (location == 0) {
 						if (moves[i] >= 1) {
 							location = 32;
+						} else {
+							location = 19;
+
+							/* Rolling a -1 on the bottom right tile gives you two possible choices.
+							 * This covers the second case.
+							 * The first case is covered at the end of the loop
+							 */
+							Integer[] secondMove = new Integer[2];
+							secondMove[0] = 28;
+							secondMove[1] = moves[i];
+							moveSet.add(secondMove);
 						}
 					} else if (location == 1) {
 						location = 1 + moves[i];
@@ -47,6 +59,21 @@ public class Piece {
 							location = 23 + moves[i];
 						} else {
 							location--;
+						}
+					} else if (location == 15) {
+						if (moves[i] > 0) {
+							location += moves[i];
+						} else {
+							location--;
+
+							/* Rolling a -1 on the bottom left tile gives you two possible choices.
+							 * This covers the second case.
+							 * The first case is covered at the end of the loop
+							 */
+							Integer[] secondMove = new Integer[2];
+							secondMove[0] = 24;
+							secondMove[1] = moves[i];
+							moveSet.add(secondMove);
 						}
 					} else if (location == 20) {
 						if (moves[i] >= 1 && moves[i] <= 4) {
@@ -73,6 +100,15 @@ public class Piece {
 							location = 32;
 						} else {
 							location = 21;
+
+							/* Rolling a -1 on center tile gives you two possible choices.
+							 * This covers the second case.
+							 * The first case is covered at the end of the loop
+							 */
+							Integer[] secondMove = new Integer[2];
+							secondMove[0] = 26;
+							secondMove[1] = moves[i];
+							moveSet.add(secondMove);
 						}
 					} else if (location == 23) {
 						if (moves[i] == 1) {
@@ -121,7 +157,6 @@ public class Piece {
 							location = 22;
 						}
 					}
-
 				} else if (location >= 15 && location <= 19){
 					if (location + moves[i] == 20){
 						location = 0;
@@ -148,12 +183,14 @@ public class Piece {
 				location = 32;
 			}
 
-			possibleMoves[i][0] = location;
-			possibleMoves[i][1] = moves[i];
+			Integer[] possibleMoves = new Integer[2];
+			possibleMoves[0] = location;
+			possibleMoves[1] = moves[i];
+			moveSet.add(possibleMoves);
 			location = tempLocation;
 		}
 
-		return possibleMoves;
+		return moveSet.toArray(new Integer[moveSet.size()][2]);
 	}
 
 	public int getLocation(){

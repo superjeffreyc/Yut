@@ -52,7 +52,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	boolean isRollDone, canRoll = true, isEndTurn, moveDone, capture, isGameOver;
 	int rollAmount, turn = 0, oppTurn = 1, counter = 0, width, height, MAX_TILES = 29, mpPos;
 	boolean[] isMarked;
-	int[][] moveSet;
+	Integer[][] moveSet;
 
 	TreeSet<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 5, 10, 15, 22));
 	ArrayList<Integer> tile_ids = new ArrayList<>();
@@ -241,7 +241,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rollAgain = new TextView(this);
 		rollAgain.setId(View.generateViewId());
 		rollAgain.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2/10.0)));
-		rollAgain.setY((int) (height * 3/10.0));
+		rollAgain.setY((int) (height * 2/10.0));
 		rollAgain.setGravity(Gravity.CENTER);
 		String text = "Player 1's Turn";
 		rollAgain.setText(text);
@@ -431,13 +431,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void showPossibleTiles(int pi){
 
 		hidePossibleTiles();
-		tips.setText("Click a yellow tile to move");
+		tips.setText(R.string.click_yellow);
 
 		currentPiece = players[turn].pieces[pi];
 		currentPieceImage = playerOnBoardImages[turn][pi];
 
 		moveSet = players[turn].pieces[pi].calculateMoveset(board.rollArray);
-		for (int[] move : moveSet) {
+		for (Integer[] move : moveSet) {
 			int location = move[0];
 			if (location == 32){
 				finish.setVisibility(View.VISIBLE);
@@ -459,10 +459,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		finish.setVisibility(View.INVISIBLE);
 
-		if (players[turn].numPieces == 0) tips.setText("Click Me!");
+		if (players[turn].numPieces == 0) tips.setText(R.string.click_me);
 		else {
-			if (turn == 0) tips.setText("Click any seal");
-			else tips.setText("Click any penguin");
+			if (turn == 0) tips.setText(R.string.any_seal);
+			else tips.setText(R.string.any_penguin);
 		}
 
 		for (int i = 0; i < MAX_TILES; i++) {
@@ -569,10 +569,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 						offBoardPiece.setVisibility(View.VISIBLE);
 						offBoardPieceAnimation.start();
 
-						if (players[turn].numPieces == 0) tips.setText("Click Me!");
+						if (players[turn].numPieces == 0) tips.setText(R.string.click_me);
 					} else if (players[turn].numPieces == 4){
-						if (turn == 0) tips.setText("Click any seal");
-						else tips.setText("Click any penguin");
+						if (turn == 0) tips.setText(R.string.any_seal);
+						else tips.setText(R.string.any_penguin);
 					}
 
 					for (int j = 0; j < 4; j++){
@@ -598,7 +598,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void cleanUp(){
 		moveDone = false;
 		int value = 0;
-		for (int[] i : moveSet) {
+		for (Integer[] i : moveSet) {
 			if (i[0] == currentPiece.getLocation()) {
 				value = i[1];
 				break;
@@ -675,7 +675,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		if (turn == 1) {
 			offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
-			tips.setText("Click any penguin");
+			tips.setText(R.string.any_penguin);
 
 			bottomBar.setBackgroundResource(R.color.DarkerBlue);
 			bottomBar.setAlpha(1.0f);
@@ -683,7 +683,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			topBar.setAlpha(0.25f);
 		} else {
 			offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
-			tips.setText("Click any seal");
+			tips.setText(R.string.any_seal);
 
 			topBar.setBackgroundResource(R.color.DarkerBlue);
 			topBar.setAlpha(1.0f);

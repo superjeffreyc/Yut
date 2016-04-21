@@ -14,6 +14,11 @@
     <string name="seal_icon">Seal Icon</string>
     <string name="penguin_icon">Penguin Icon</string>
     <string name="finish">Finish Button</string>
+    <string name="click_me">Click Me!</string>
+    <string name="click_yellow">Click a yellow tile to move</string>
+    <string name="any_seal">Click any seal</string>
+    <string name="any_penguin">Click any penguin</string>
+
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
 </resources>
