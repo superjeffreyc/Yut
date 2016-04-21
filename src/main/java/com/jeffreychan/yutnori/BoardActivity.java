@@ -1,7 +1,9 @@
 package com.jeffreychan.yutnori;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -49,7 +51,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	RelativeLayout rl;
 //	MediaPlayer mp;
 
-	boolean isRollDone, canRoll = true, isEndTurn, moveDone, capture, isGameOver;
+	boolean isRollDone, canRoll = true, isEndTurn, moveDone, capture, isGameOver, isComputerPlaying;
 	int rollAmount, turn = 0, oppTurn = 1, counter = 0, width, height, MAX_TILES = 29, mpPos;
 	boolean[] isMarked;
 	Integer[][] moveSet;
@@ -65,12 +67,17 @@ public class BoardActivity extends Activity implements OnClickListener{
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_board);
 
+		// Gets mode selected from MainActivity
+		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
+
+		// Set up ad at bottom of screen
 		AdView mAdView = (AdView) findViewById(R.id.ad_view);
 		AdRequest adRequest = new AdRequest.Builder()
 				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 				.build();
 		mAdView.loadAd(adRequest);
 
+		// ----- Get screen size and adjust based on ad size
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
@@ -78,12 +85,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		height = size.y;
 
 		int adHeight;
-
 		if (height <= 400) adHeight = 32;
 		else if (height > 400 && height <= 720) adHeight = 50;
 		else adHeight = 90;
 
 		height -= adHeight;
+		// ----- End of screen size setup
 
 		rl = (RelativeLayout) findViewById(R.id.rl);
 		rl.setOnClickListener(this);
@@ -297,17 +304,18 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public void onBackPressed() {
-
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);
 		TextView tv = new TextView(this);
 		tv.setPadding(0, 40, 0, 40);
 		tv.setText("Return to main menu?\nThe game will not be saved.");
 		tv.setTextSize(20f);
 		tv.setGravity(Gravity.CENTER_HORIZONTAL);
+		final Context context = this;
 		adb.setView(tv);
 		adb.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
-
 			public void onClick(DialogInterface dialog, int whichButton) {
+				Intent intent = new Intent(context, MainActivity.class);
+				startActivity(intent);
 				finish();
 			}
 		});
@@ -661,6 +669,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void endTurn(){
 		board.endTurn();
 		reset();
+		if (isComputerPlaying) handleComputerMove();
 	}
 
 	private void reset(){
@@ -755,6 +764,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 			default:
 				rollSlot[index].setBackgroundResource(R.drawable.white_marker);
 		}
+	}
+
+	private void handleComputerMove(){
+
 	}
 
 	private void endGame(){

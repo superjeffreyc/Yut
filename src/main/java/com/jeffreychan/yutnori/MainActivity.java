@@ -28,7 +28,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	ImageView penguinJumpImageView, sealJumpImageView;
 	AnimationDrawable penguinJumpAnimation, sealJumpAnimation;
-	Button startButton, helpButton, settingsButton;
+	Button startButton, helpButton, settingsButton, twoPlayerButton, onePlayerButton, backButton;
 	int width, height;
 	RelativeLayout rl;
 
@@ -82,7 +82,43 @@ public class MainActivity extends Activity implements OnClickListener {
 		settingsButton.setY(height * 8 / 10);
 		rl.addView(settingsButton);
 
+		twoPlayerButton = new Button(this);
+		twoPlayerButton.setBackgroundResource(R.drawable.two_player);
+		twoPlayerButton.setId(View.generateViewId());
+		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		twoPlayerButton.setOnClickListener(this);
+		twoPlayerButton.setX(startButton.getX());
+		twoPlayerButton.setY(startButton.getY());
+		twoPlayerButton.setVisibility(View.INVISIBLE);
+		rl.addView(twoPlayerButton);
 
+		onePlayerButton = new Button(this);
+		onePlayerButton.setBackgroundResource(R.drawable.one_player);
+		onePlayerButton.setId(View.generateViewId());
+		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		onePlayerButton.setOnClickListener(this);
+		onePlayerButton.setX(helpButton.getX());
+		onePlayerButton.setY(helpButton.getY());
+		onePlayerButton.setVisibility(View.INVISIBLE);
+		rl.addView(onePlayerButton);
+
+		backButton = new Button(this);
+		backButton.setBackgroundResource(R.drawable.back);
+		backButton.setId(View.generateViewId());
+		backButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		backButton.setOnClickListener(this);
+		backButton.setX(settingsButton.getX());
+		backButton.setY(settingsButton.getY());
+		backButton.setVisibility(View.INVISIBLE);
+		rl.addView(backButton);
+
+
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (backButton.getVisibility() == View.VISIBLE) showInitialButtons();
+		else finish();
 	}
 
 	@Override
@@ -97,9 +133,32 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		if(v.getId() == startButton.getId()) {
+		if(v.getId() == twoPlayerButton.getId()) {
 			Intent intent = new Intent(this, BoardActivity.class);
+			intent.putExtra("Computer", false);
 			startActivity(intent);
+			finish();
+		}
+		else if (v.getId() == startButton.getId()){
+			showModeButtons();
+		}
+		else if (v.getId() == backButton.getId()){
+			showInitialButtons();
+		}
+		else if (v.getId() == onePlayerButton.getId()){
+			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			TextView tv = new TextView(this);
+			tv.setPadding(0, 40, 0, 40);
+			tv.setText(R.string.soon);
+			tv.setTextSize(20f);
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			adb.setView(tv);
+			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.cancel();
+				}
+			});
+			adb.show();
 		}
 		else if (v.getId() == helpButton.getId()){
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
@@ -143,7 +202,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			TextView tv = new TextView(this);
 			tv.setPadding(0, 40, 0, 40);
-			tv.setText("Coming soon!");
+			tv.setText(R.string.soon);
 			tv.setTextSize(20f);
 			tv.setGravity(Gravity.CENTER_HORIZONTAL);
 			adb.setView(tv);
@@ -154,5 +213,25 @@ public class MainActivity extends Activity implements OnClickListener {
 			});
 			adb.show();
 		}
+	}
+
+	private void showInitialButtons(){
+		startButton.setVisibility(View.VISIBLE);
+		helpButton.setVisibility(View.VISIBLE);
+		settingsButton.setVisibility(View.VISIBLE);
+
+		twoPlayerButton.setVisibility(View.INVISIBLE);
+		onePlayerButton.setVisibility(View.INVISIBLE);
+		backButton.setVisibility(View.INVISIBLE);
+	}
+
+	private void showModeButtons(){
+		startButton.setVisibility(View.INVISIBLE);
+		helpButton.setVisibility(View.INVISIBLE);
+		settingsButton.setVisibility(View.INVISIBLE);
+
+		twoPlayerButton.setVisibility(View.VISIBLE);
+		onePlayerButton.setVisibility(View.VISIBLE);
+		backButton.setVisibility(View.VISIBLE);
 	}
 }
