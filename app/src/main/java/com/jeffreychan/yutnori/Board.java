@@ -87,6 +87,15 @@ public class Board {
 			}
 		}
 	}
+
+	public boolean rollEmpty(){
+		int count = 0;
+		for (int i = 0; i < 5; i++){
+			if (rollArray[i] != 0) count++;
+		}
+
+		return (count == 0);
+	}
 }
 
 

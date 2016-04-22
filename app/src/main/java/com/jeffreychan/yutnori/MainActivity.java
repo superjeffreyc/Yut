@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
@@ -33,6 +34,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	Button startButton, helpButton, settingsButton, twoPlayerButton, onePlayerButton, backButton;
 	int width, height;
 	RelativeLayout rl;
+	TextView loading;
+	Context context = this;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +117,18 @@ public class MainActivity extends Activity implements OnClickListener {
 		backButton.setVisibility(View.INVISIBLE);
 		rl.addView(backButton);
 
-
+		loading = new TextView(this);
+		loading.setId(View.generateViewId());
+		loading.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		loading.setOnClickListener(this);
+		loading.setGravity(Gravity.CENTER);
+		loading.setTextColor(Color.BLACK);
+		loading.setTextSize(20f);
+		loading.setX(backButton.getX());
+		loading.setY(backButton.getY());
+		loading.setText(R.string.loading);
+		loading.setVisibility(View.INVISIBLE);
+		rl.addView(loading);
 	}
 
 	@Override
@@ -135,14 +149,22 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		if(v.getId() == twoPlayerButton.getId()) {
-			final Context context = this;
+		if(v.getId() == onePlayerButton.getId() || v.getId() == twoPlayerButton.getId()) {
+			showLoading();
+
+			final int mode;
+			if (v.getId() == onePlayerButton.getId()) mode = 1;
+			else mode = 2;
+
 			Handler handler = new Handler();
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
 					Intent intent = new Intent(context, BoardActivity.class);
-					intent.putExtra("Computer", false);
+
+					if (mode == 1) intent.putExtra("Computer", true);
+					else intent.putExtra("Computer", false);
+
 					startActivity(intent);
 					finish();
 				}
@@ -154,7 +176,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		else if (v.getId() == backButton.getId()){
 			showInitialButtons();
 		}
-		else if (v.getId() == onePlayerButton.getId()){
+		else if (v.getId() == helpButton.getId()){
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			TextView tv = new TextView(this);
 			tv.setPadding(0, 40, 0, 40);
@@ -162,44 +184,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			tv.setTextSize(20f);
 			tv.setGravity(Gravity.CENTER_HORIZONTAL);
 			adb.setView(tv);
-			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.cancel();
-				}
-			});
-			adb.show();
-		}
-		else if (v.getId() == helpButton.getId()){
-			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			WebView wv = new WebView(this);
-			wv.loadUrl("https://en.wikipedia.org/wiki/Yut");
-			wv.setVerticalScrollBarEnabled(true);
-			wv.getSettings().setJavaScriptEnabled(true);
-			wv.setWebViewClient(new WebViewClient() {
-				@Override
-				public boolean shouldOverrideUrlLoading(WebView view, String url) {
-					view.loadUrl(url);
-					return true;
-				}
-			});
-			final Activity activity = this;
-			wv.setWebChromeClient(new WebChromeClient() {
-				private ProgressDialog mProgress;
-
-				@Override
-				public void onProgressChanged(WebView view, int progress) {
-					if (mProgress == null) {
-						mProgress = new ProgressDialog(activity);
-						mProgress.show();
-					}
-					mProgress.setMessage("Loading " + String.valueOf(progress) + "%");
-					if (progress == 100) {
-						mProgress.dismiss();
-						mProgress = null;
-					}
-				}
-			});
-			adb.setView(wv);
 			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					dialog.cancel();
@@ -242,5 +226,13 @@ public class MainActivity extends Activity implements OnClickListener {
 		twoPlayerButton.setVisibility(View.VISIBLE);
 		onePlayerButton.setVisibility(View.VISIBLE);
 		backButton.setVisibility(View.VISIBLE);
+	}
+
+	private void showLoading(){
+		twoPlayerButton.setVisibility(View.INVISIBLE);
+		onePlayerButton.setVisibility(View.INVISIBLE);
+		backButton.setVisibility(View.INVISIBLE);
+
+		loading.setVisibility(View.VISIBLE);
 	}
 }

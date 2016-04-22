@@ -37,61 +37,14 @@
         android:layout_above="@id/ad_view"
         android:weightSum="10" >
 
-        <LinearLayout
+        <ImageView
+            android:contentDescription="@string/topBar"
             android:id="@+id/topBar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:weightSum="7"
             android:background="@color/DarkerBlue" >
-
-            <ImageView
-                android:contentDescription="@string/seal_icon"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/seal_icon"
-                android:background="@drawable/seal_icon"
-                android:layout_margin="5dp"  />
-
-            <ImageView
-                android:contentDescription="@string/player1"
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="match_parent"
-                android:id="@+id/player1"
-                android:background="@drawable/player1"
-                android:layout_margin="10dp"  />
-
-            <ImageView
-                android:contentDescription="@string/seal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/seal1"
-                android:background="@drawable/seal1"/>
-            <ImageView
-                android:contentDescription="@string/seal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/seal2"
-                android:background="@drawable/seal1" />
-            <ImageView
-                android:contentDescription="@string/seal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/seal3"
-                android:background="@drawable/seal1"/>
-            <ImageView
-                android:contentDescription="@string/seal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/seal4"
-                android:background="@drawable/seal1"/>
-        </LinearLayout>
+        </ImageView>
 
 
         <Space
@@ -120,122 +73,15 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <LinearLayout
+        <ImageView
+            android:contentDescription="@string/bottomBar"
             android:id="@+id/bottomBar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:alpha="0.25"
-            android:weightSum="7"
             android:background="@color/LighterBlue">
-
-            <ImageView
-                android:contentDescription="@string/penguin_icon"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/penguin_icon"
-                android:background="@drawable/penguin_icon"
-                android:layout_margin="5dp" />
-
-            <ImageView
-                android:contentDescription="@string/player2"
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="match_parent"
-                android:id="@+id/player2"
-                android:layout_margin="10dp"
-                android:background="@drawable/player2" />
-
-            <ImageView
-                android:contentDescription="@string/penguin"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/penguin1"
-                android:background="@drawable/penguin1"/>
-            <ImageView
-                android:contentDescription="@string/penguin"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/penguin2"
-                android:background="@drawable/penguin1" />
-            <ImageView
-                android:contentDescription="@string/penguin"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/penguin3"
-                android:background="@drawable/penguin1"/>
-            <ImageView
-                android:contentDescription="@string/penguin"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/penguin4"
-                android:background="@drawable/penguin1"/>
-        </LinearLayout>
+        </ImageView>
 
     </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:id="@+id/secondLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/ad_view"
-        android:gravity="center"
-        android:weightSum="10" >
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="7"/>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:id="@+id/internalSecondLayout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:weightSum="5" >
-            <Space
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="match_parent"
-                />
-            <ImageView
-                android:contentDescription="@string/seal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/playerIcon"
-                android:background="@drawable/sealmoveanimation"
-                android:visibility="invisible"
-                android:clickable="true"
-                android:onClick="onClick"
-                />
-            <ImageView
-                android:contentDescription="@string/finish"
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="match_parent"
-                android:id="@+id/finish"
-                android:background="@drawable/finish"
-                android:visibility="invisible"
-                android:clickable="true"
-                android:onClick="onClick"
-                />
-        </LinearLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"/>
-
-
-    </LinearLayout>
-
 </RelativeLayout>
