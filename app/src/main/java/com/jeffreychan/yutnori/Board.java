@@ -86,8 +86,6 @@ public class Board {
 				rollArray[index] = 0;
 			}
 		}
-
-		System.out.println(Arrays.toString(rollArray));
 	}
 }
 

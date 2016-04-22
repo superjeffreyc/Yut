@@ -25,4 +25,8 @@ public class Player {
 	}
 
 	public void addScore(int i){ score += i; }
+
+	public boolean hasWon(){
+		return (score == 4);
+	}
 }

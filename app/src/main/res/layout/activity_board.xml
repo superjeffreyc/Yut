@@ -7,7 +7,10 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:background="@drawable/board_clear"
-                tools:context="com.jeffreychan.yutnori.BoardActivity">
+                android:clickable="true"
+                android:onClick="onClick"
+                tools:context="com.jeffreychan.yutnori.BoardActivity"
+                >
 
     <ImageView
         android:contentDescription="@string/sticks"
@@ -100,13 +103,15 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:id="@+id/rollButton"
-            android:background="@drawable/rollbutton"
+            android:background="@drawable/rollflashanimation"
             android:layout_weight="1"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
+            android:clickable="true"
+            android:onClick="onClick"
             />
 
         <Space
@@ -207,8 +212,10 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:id="@+id/playerIcon"
-                android:background="@drawable/seal1"
+                android:background="@drawable/sealmoveanimation"
                 android:visibility="invisible"
+                android:clickable="true"
+                android:onClick="onClick"
                 />
             <ImageView
                 android:contentDescription="@string/finish"
@@ -218,6 +225,8 @@
                 android:id="@+id/finish"
                 android:background="@drawable/finish"
                 android:visibility="invisible"
+                android:clickable="true"
+                android:onClick="onClick"
                 />
         </LinearLayout>
 

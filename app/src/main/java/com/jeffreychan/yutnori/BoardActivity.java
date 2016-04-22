@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -33,32 +34,66 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeSet;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class BoardActivity extends Activity implements OnClickListener{
 
-	Board board;
-	Player[] players;
+	boolean isRollDone;         // Did the stick throwing animation finish
+	boolean canRoll = true;     // Did the user roll 4 or 5
+	boolean isEndTurn;
+	boolean moveDone;           // Did user make a move
+	boolean capture;            // Did previous move eat enemy piece
+	boolean isGameOver;
+	boolean isComputerPlaying;  // One player mode
+
+	int rollAmount;
+	int turn = 0;
+	int oppTurn = 1;
+	int counter = 0;
+	static int MAX_TILES = 29;
+	int mpPos;
+
+	Board board = new Board();
+	Player[] players = new Player[2];
 	Piece currentPiece;
 
-	TextView rollAgain, tips;
-	Button rollButton;
-	ImageView sticks, offBoardPiece, currentPieceImage, finish, board_lines;
-	AnimationDrawable fallingSticks, rollFlash, offBoardPieceAnimation;
-	AnimationDrawable[] tilesAnimation;
-	AnimationDrawable[][] playerAnimation;
-	ImageView[] rollSlot, tiles;
-	ImageView[][] playerOnBoardImages, playerOffBoardImages;
-	LinearLayout topBar, bottomBar;
-	RelativeLayout rl;
-//	MediaPlayer mp;
+	TextView turnText;
+	TextView tips;
 
-	boolean isRollDone, canRoll = true, isEndTurn, moveDone, capture, isGameOver, isComputerPlaying;
-	int rollAmount, turn = 0, oppTurn = 1, counter = 0, width, height, MAX_TILES = 29, mpPos;
-	boolean[] isMarked;
+	AnimationDrawable fallingSticks;
+	AnimationDrawable offBoardPieceAnimation;
+
+	AnimationDrawable[] tilesAnimation = new AnimationDrawable[MAX_TILES];
+
+	AnimationDrawable[][] playerAnimation = new AnimationDrawable[2][4];
+
+	ImageView[] rollSlot = new ImageView[5];
+	ImageView[] tiles = new ImageView[MAX_TILES];
+
+	ImageView[][] playerOnBoardImages = new ImageView[2][4];
+	ImageView[][] playerOffBoardImages = new ImageView[2][4];
+
+	@Bind(R.id.rollButton)  Button rollButton;
+	@Bind(R.id.sticks)      ImageView sticks;
+	@Bind(R.id.playerIcon)  ImageView offBoardPiece;
+	@Bind(R.id.finish)      ImageView finish;
+	@Bind(R.id.topBar)      LinearLayout topBar;
+	@Bind(R.id.bottomBar)   LinearLayout bottomBar;
+	@Bind(R.id.rl)          RelativeLayout rl;
+
+	ImageView currentPieceImage = offBoardPiece;
+
+//	private MediaPlayer mp;
+
+	boolean[] isMarked = new boolean[MAX_TILES];
+
 	Integer[][] moveSet;
 
 	TreeSet<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 5, 10, 15, 22));
 	ArrayList<Integer> tile_ids = new ArrayList<>();
 	ArrayList<Integer> player_ids = new ArrayList<>();
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +101,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_board);
+		ButterKnife.bind(this);
 
 		// Gets mode selected from MainActivity
 		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
@@ -81,41 +117,25 @@ public class BoardActivity extends Activity implements OnClickListener{
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		width = size.x;
-		height = size.y;
+		int width = size.x;
+		int height = size.y - AdSize.SMART_BANNER.getHeightInPixels(this);
 
-		int adHeight;
-		if (height <= 400) adHeight = 32;
-		else if (height > 400 && height <= 720) adHeight = 50;
-		else adHeight = 90;
-
-		height -= adHeight;
-		// ----- End of screen size setup
-
-		rl = (RelativeLayout) findViewById(R.id.rl);
-		rl.setOnClickListener(this);
-
-		players = new Player[2];
 		players[0] = new Player();
 		players[1] = new Player();
 
-		rollSlot = new ImageView[5];
-		board = new Board();
-
-		offBoardPiece = (ImageView) findViewById(R.id.playerIcon);
-		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
-		offBoardPiece.setOnClickListener(this);
 
-		currentPieceImage = offBoardPiece;
+		AnimationDrawable rollFlash = (AnimationDrawable) rollButton.getBackground();
+		rollFlash.start();
 
-		topBar = (LinearLayout) findViewById(R.id.topBar);
-		bottomBar = (LinearLayout) findViewById(R.id.bottomBar);
-
-		playerOnBoardImages = new ImageView[2][4];
-
-		isMarked = new boolean[MAX_TILES];
-		tilesAnimation = new AnimationDrawable[MAX_TILES];
+		playerOffBoardImages[0][0] = (ImageView) findViewById(R.id.seal1);
+		playerOffBoardImages[0][1] = (ImageView) findViewById(R.id.seal2);
+		playerOffBoardImages[0][2] = (ImageView) findViewById(R.id.seal3);
+		playerOffBoardImages[0][3] = (ImageView) findViewById(R.id.seal4);
+		playerOffBoardImages[1][0] = (ImageView) findViewById(R.id.penguin1);
+		playerOffBoardImages[1][1] = (ImageView) findViewById(R.id.penguin2);
+		playerOffBoardImages[1][2] = (ImageView) findViewById(R.id.penguin3);
+		playerOffBoardImages[1][3] = (ImageView) findViewById(R.id.penguin4);
 
 //		mp = MediaPlayer.create(this, R.raw.test);
 //		mp.setLooping(true);
@@ -172,7 +192,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 
 		// Set up lines behind the tiles
-		board_lines = new ImageView(this);
+		ImageView board_lines = new ImageView(this);
 		board_lines.setBackgroundResource(R.drawable.board_lines);
 		int dim = (int) (boardSize - 2 * padding - tileSize);   // Width of board lines on screen
 		float line_width = (float) (11.0/500) * dim;  // Thickness of line is 11 pixels in a 500x500 image
@@ -185,10 +205,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 		for(ImageView iv : tiles) {
 			iv.bringToFront();
 		}
-
-		/* END BOARD SETUP
-		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-		 */
 
 		// Set up roll slots
 		padding = 30;
@@ -204,28 +220,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 			rl.addView(rollSlot[i]);
 		}
 
-		sticks = (ImageView) findViewById(R.id.sticks);
+		/* END BOARD SETUP
+		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+		 */
 
-		rollButton = (Button) findViewById(R.id.rollButton);
-		rollButton.setBackgroundResource(R.drawable.rollflashanimation);
-		rollButton.setOnClickListener(this);
-		rollFlash = (AnimationDrawable) rollButton.getBackground();
-		rollFlash.start();
-
-		finish = (ImageView) findViewById(R.id.finish);
-		finish.setOnClickListener(this);
-
-		playerOffBoardImages = new ImageView[2][4];
-		playerOffBoardImages[0][0] = (ImageView) findViewById(R.id.seal1);
-		playerOffBoardImages[0][1] = (ImageView) findViewById(R.id.seal2);
-		playerOffBoardImages[0][2] = (ImageView) findViewById(R.id.seal3);
-		playerOffBoardImages[0][3] = (ImageView) findViewById(R.id.seal4);
-		playerOffBoardImages[1][0] = (ImageView) findViewById(R.id.penguin1);
-		playerOffBoardImages[1][1] = (ImageView) findViewById(R.id.penguin2);
-		playerOffBoardImages[1][2] = (ImageView) findViewById(R.id.penguin3);
-		playerOffBoardImages[1][3] = (ImageView) findViewById(R.id.penguin4);
-
-		playerAnimation = new AnimationDrawable[2][4];
 		// Set up player characters
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -245,17 +243,17 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 
 		// Set up TextView for indicating player turn
-		rollAgain = new TextView(this);
-		rollAgain.setId(View.generateViewId());
-		rollAgain.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2/10.0)));
-		rollAgain.setY((int) (height * 2/10.0));
-		rollAgain.setGravity(Gravity.CENTER);
+		turnText = new TextView(this);
+		turnText.setId(View.generateViewId());
+		turnText.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2/10.0)));
+		turnText.setY((int) (height * 2/10.0));
+		turnText.setGravity(Gravity.CENTER);
 		String text = "Player 1's Turn";
-		rollAgain.setText(text);
-		rollAgain.setTextColor(Color.WHITE);
-		rollAgain.setTextSize(50f);
-		rollAgain.setBackgroundColor(ContextCompat.getColor(this, R.color.DarkerBlue));
-		rl.addView(rollAgain);
+		turnText.setText(text);
+		turnText.setTextColor(Color.WHITE);
+		turnText.setTextSize(50f);
+		turnText.setBackgroundColor(ContextCompat.getColor(this, R.color.DarkerBlue));
+		rl.addView(turnText);
 
 		//Set up TextView for guiding player
 		tips = new TextView(this);
@@ -310,13 +308,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		tv.setText("Return to main menu?\nThe game will not be saved.");
 		tv.setTextSize(20f);
 		tv.setGravity(Gravity.CENTER_HORIZONTAL);
-		final Context context = this;
 		adb.setView(tv);
 		adb.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				Intent intent = new Intent(context, MainActivity.class);
-				startActivity(intent);
-				finish();
+				quit();
 			}
 		});
 		adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -336,25 +331,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 			handleRoll();
 		}
 		else if (v.getId() == R.id.finish) {
-			players[turn].addScore(currentPiece.getValue());
-			currentPieceImage.setX(-width);
 			movePiece(32); // finish location
-			hidePossibleTiles();
-			moveDone = true;
-
-			if (players[turn].getScore() == 4) endGame();
 		}
-		else if (v.getId() == R.id.playerIcon && isRollDone) {
-			int p = players[turn].findAvailablePiece();
-			showPossibleTiles(p);
+		else if (v.getId() == R.id.playerIcon) {
+			showPossibleTiles(players[turn].findAvailablePiece());
 		}
 		else if (tile_ids.contains(v.getId())){    // Activates on tile click
-			for (int i = 0; i < MAX_TILES; i++){
-				if (v.getId() == tiles[i].getId() && isMarked[i]){
+			for (int i = 0; i < MAX_TILES; i++)
+				if (v.getId() == tiles[i].getId() && isMarked[i])
 					movePiece(i);
-					moveDone = true;
-				}
-			}
 		}
 		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
 			for (int i = 0; i < 4; i++){
@@ -368,7 +353,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 					for (int j = 0; j < 4; j++) {
 						if (players[turn].pieces[j].getLocation() == currentPiece.getLocation() && currentPiece != players[turn].pieces[j]) {
 							currentPiece.addValue(players[turn].pieces[j].getValue());
-							playerOnBoardImages[turn][j].setX(-width);
+							playerOnBoardImages[turn][j].setX(-currentPieceImage.getWidth());
 							players[turn].pieces[j].setLocation(-1);
 							players[turn].pieces[j].setValue(1);
 
@@ -401,15 +386,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 							playerAnimation[turn][j].start();
 						}
 					}
-
-					moveDone = true;
 				}
 				// OPPOSITE TEAM
 				else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && isMarked[players[oppTurn].pieces[i].getLocation()]) {
 					movePiece(players[oppTurn].pieces[i].getLocation());
 					for (int j = 0; j < 4; j++) {
 						if (players[oppTurn].pieces[j].getLocation() == currentPiece.getLocation()) {
-							playerOnBoardImages[oppTurn][j].setX(-width);
+							playerOnBoardImages[oppTurn][j].setX(-currentPieceImage.getWidth());
 							players[oppTurn].pieces[j].setLocation(-1);
 							players[oppTurn].numPieces -= players[oppTurn].pieces[j].getValue();
 							players[oppTurn].pieces[j].setValue(1);
@@ -425,7 +408,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 					}
 					rollButton.setVisibility(View.VISIBLE);
 					capture = true;
-					moveDone = true;
 				}
 			}
 		}
@@ -490,18 +472,25 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (currentPiece.getLocation() == -1) players[turn].numPieces++;
 
 		currentPiece.setLocation(i);
+		moveDone = true;
 
 		// Move image to tile i
 		if (i != 32) {
 			currentPieceImage.setX(tiles[i].getX());
 			currentPieceImage.setY(tiles[i].getY());
+		} else {
+			players[turn].addScore(currentPiece.getValue());
+			currentPieceImage.setX(-currentPieceImage.getWidth());
+			hidePossibleTiles();
+
+			if (players[turn].hasWon()) endGame();
 		}
 	}
 
 	private void handleRoll(){
 		rollAmount = board.throwSticks();
 		rollButton.setVisibility(View.INVISIBLE);
-		rollAgain.setVisibility(View.INVISIBLE);
+		turnText.setVisibility(View.INVISIBLE);
 
 		switch (rollAmount) {
 			case -1:
@@ -541,8 +530,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 				if ((rollAmount == 4 || rollAmount == 5) && counter < 4) {
 					counter++;
 					String text = "Player " + (turn+1) + "\nRoll Again!";
-					rollAgain.setText(text);
-					rollAgain.setVisibility(View.VISIBLE);
+					turnText.setText(text);
+					turnText.setVisibility(View.VISIBLE);
 				}
 				else if (rollAmount == -1 && counter == 0 && players[turn].numPieces == players[0].getScore()) isEndTurn = true;
 				else {
@@ -600,7 +589,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void hideSticks(){
 		sticks.setVisibility(View.INVISIBLE);
 		fallingSticks.setVisible(false, false);
-		rollAgain.setVisibility(View.INVISIBLE);
+		turnText.setVisibility(View.INVISIBLE);
 	}
 
 	private void cleanUp(){
@@ -613,6 +602,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		}
 		removeRoll(value);
+
+		if (isGameOver) return;
 
 		if (players[turn].numPieces == 4){
 			offBoardPiece.setVisibility(View.INVISIBLE);
@@ -643,8 +634,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		} else {
 			String text = "Player " + (turn+1) + "\nRoll Again!";
-			rollAgain.setText(text);
-			rollAgain.setVisibility(View.VISIBLE);
+			turnText.setText(text);
+			turnText.setVisibility(View.VISIBLE);
 			tips.setVisibility(View.INVISIBLE);
 
 			offBoardPiece.setVisibility(View.INVISIBLE);
@@ -723,8 +714,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rollButton.setVisibility(View.VISIBLE);
 
 		String text = "Player " + (turn+1) + "'s Turn";
-		rollAgain.setText(text);
-		rollAgain.setVisibility(View.VISIBLE);
+		turnText.setText(text);
+		turnText.setVisibility(View.VISIBLE);
 	}
 
 	private void removeRoll(int i) {
@@ -774,12 +765,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		isGameOver = true;
 		rollButton.setVisibility(View.INVISIBLE);
+		turnText.setVisibility(View.INVISIBLE);
+		tips.setVisibility(View.INVISIBLE);
 
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);
 		TextView tv = new TextView(this);
 		tv.setPadding(0, 40, 0, 40);
 
-		if (players[0].getScore() == 4)	tv.setText("Player 1 wins!\nPlay again?");
+		if (players[0].hasWon()) tv.setText("Player 1 wins!\nPlay again?");
 		else tv.setText("Player 2 wins!\nPlay again?");
 
 		tv.setTextSize(20f);
@@ -792,9 +785,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 		});
 		adb.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				finish();
+				quit();
 			}
 		});
 		adb.show();
+	}
+
+	private void quit(){
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
+		finish();
 	}
 }
