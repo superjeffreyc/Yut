@@ -3,10 +3,12 @@ package com.jeffreychan.yutnori;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -87,8 +89,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		twoPlayerButton.setId(View.generateViewId());
 		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		twoPlayerButton.setOnClickListener(this);
-		twoPlayerButton.setX(startButton.getX());
-		twoPlayerButton.setY(startButton.getY());
+		twoPlayerButton.setX(helpButton.getX());
+		twoPlayerButton.setY(helpButton.getY());
 		twoPlayerButton.setVisibility(View.INVISIBLE);
 		rl.addView(twoPlayerButton);
 
@@ -97,8 +99,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		onePlayerButton.setId(View.generateViewId());
 		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		onePlayerButton.setOnClickListener(this);
-		onePlayerButton.setX(helpButton.getX());
-		onePlayerButton.setY(helpButton.getY());
+		onePlayerButton.setX(startButton.getX());
+		onePlayerButton.setY(startButton.getY());
 		onePlayerButton.setVisibility(View.INVISIBLE);
 		rl.addView(onePlayerButton);
 
@@ -134,10 +136,17 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if(v.getId() == twoPlayerButton.getId()) {
-			Intent intent = new Intent(this, BoardActivity.class);
-			intent.putExtra("Computer", false);
-			startActivity(intent);
-			finish();
+			final Context context = this;
+			Handler handler = new Handler();
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					Intent intent = new Intent(context, BoardActivity.class);
+					intent.putExtra("Computer", false);
+					startActivity(intent);
+					finish();
+				}
+			});
 		}
 		else if (v.getId() == startButton.getId()){
 			showModeButtons();

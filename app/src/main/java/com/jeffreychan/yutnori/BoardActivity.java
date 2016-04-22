@@ -54,6 +54,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	static int MAX_TILES = 29;
 	int mpPos;
 
+	Context context = this;
 	Board board = new Board();
 	Player[] players = new Player[2];
 	Piece currentPiece;
@@ -106,19 +107,65 @@ public class BoardActivity extends Activity implements OnClickListener{
 		// Gets mode selected from MainActivity
 		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
 
-		// Set up ad at bottom of screen
-		AdView mAdView = (AdView) findViewById(R.id.ad_view);
-		AdRequest adRequest = new AdRequest.Builder()
-				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-				.build();
-		mAdView.loadAd(adRequest);
-
 		// ----- Get screen size and adjust based on ad size
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		int width = size.x;
-		int height = size.y - AdSize.SMART_BANNER.getHeightInPixels(this);
+		final int width = size.x;
+		final int height = size.y - AdSize.SMART_BANNER.getHeightInPixels(this);
+
+		Handler handler = new Handler();
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				// Set up ad at bottom of screen
+				AdView mAdView = (AdView) findViewById(R.id.ad_view);
+				AdRequest adRequest = new AdRequest.Builder()
+						.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+						.build();
+				mAdView.loadAd(adRequest);
+
+				// Set up roll slots
+				int padding = 30;
+				int rollSize = (int) (height/10.0 - padding);
+				int spacing = (width - 5 * rollSize - padding)/4;
+				for (int i = 0; i < 5; i++){
+					rollSlot[i] = new ImageView(context);
+					rollSlot[i].setId(View.generateViewId());
+					rollSlot[i].setLayoutParams(new RelativeLayout.LayoutParams(rollSize, rollSize));
+					rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+					rollSlot[i].setX((float) (0.5*padding + i * spacing + i * rollSize));
+					rollSlot[i].setY((float) (8.0*height/10.0 + 0.5*padding));
+					rl.addView(rollSlot[i]);
+				}
+
+				// Set up TextView for indicating player turn
+				turnText = new TextView(context);
+				turnText.setId(View.generateViewId());
+				turnText.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2/10.0)));
+				turnText.setY((int) (height * 2/10.0));
+				turnText.setGravity(Gravity.CENTER);
+				String text = "Player 1's Turn";
+				turnText.setText(text);
+				turnText.setTextColor(Color.WHITE);
+				turnText.setTextSize(50f);
+				turnText.setBackgroundColor(ContextCompat.getColor(context, R.color.DarkerBlue));
+				rl.addView(turnText);
+
+				//Set up TextView for guiding player
+				tips = new TextView(context);
+				tips.setId(View.generateViewId());
+				tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height/20.0)));
+				tips.setY((int) (height * 7.7/10.0));
+				tips.setGravity(Gravity.CENTER);
+				String tipText = "Click Me!";
+				tips.setText(tipText);
+				tips.setTextColor(Color.BLACK);
+				tips.setTextSize(18f);
+				tips.setVisibility(View.INVISIBLE);
+				rl.addView(tips);
+			}
+		});
 
 		players[0] = new Player();
 		players[1] = new Player();
@@ -144,6 +191,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		/* BOARD SETUP
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 */
+
 		double padding = 20;
 		double space = 40;
 		double boardSize = height*0.6;
@@ -206,20 +254,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			iv.bringToFront();
 		}
 
-		// Set up roll slots
-		padding = 30;
-		int rollSize = (int) (height/10.0 - padding);
-		int spacing = (int) (width - 5 * rollSize - padding)/4;
-		for (int i = 0; i < 5; i++){
-			rollSlot[i] = new ImageView(this);
-			rollSlot[i].setId(View.generateViewId());
-			rollSlot[i].setLayoutParams(new RelativeLayout.LayoutParams(rollSize, rollSize));
-			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
-			rollSlot[i].setX((float) (0.5*padding + i * spacing + i * rollSize));
-			rollSlot[i].setY((float) (8.0*height/10.0 + 0.5*padding));
-			rl.addView(rollSlot[i]);
-		}
-
 		/* END BOARD SETUP
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 */
@@ -241,32 +275,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
-
-		// Set up TextView for indicating player turn
-		turnText = new TextView(this);
-		turnText.setId(View.generateViewId());
-		turnText.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2/10.0)));
-		turnText.setY((int) (height * 2/10.0));
-		turnText.setGravity(Gravity.CENTER);
-		String text = "Player 1's Turn";
-		turnText.setText(text);
-		turnText.setTextColor(Color.WHITE);
-		turnText.setTextSize(50f);
-		turnText.setBackgroundColor(ContextCompat.getColor(this, R.color.DarkerBlue));
-		rl.addView(turnText);
-
-		//Set up TextView for guiding player
-		tips = new TextView(this);
-		tips.setId(View.generateViewId());
-		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height/20.0)));
-		tips.setY((int) (height * 7.7/10.0));
-		tips.setGravity(Gravity.CENTER);
-		String tipText = "Click Me!";
-		tips.setText(tipText);
-		tips.setTextColor(Color.BLACK);
-		tips.setTextSize(18f);
-		tips.setVisibility(View.INVISIBLE);
-		rl.addView(tips);
 	}
 
 	@Override
@@ -399,8 +407,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 							if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
 							else playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.sealmoveanimation);
-
-
 						}
 
 						playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
@@ -412,7 +418,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		}
 		else {
-			hidePossibleTiles();
+			hidePossibleTiles();    // Cancel move by clicking anything else
 		}
 
 		if (moveDone) cleanUp();
@@ -429,9 +435,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 		moveSet = players[turn].pieces[pi].calculateMoveset(board.rollArray);
 		for (Integer[] move : moveSet) {
 			int location = move[0];
-			if (location == 32){
-				finish.setVisibility(View.VISIBLE);
-			}
+
+			if (location == 32) finish.setVisibility(View.VISIBLE);
 			else if (location != -1) {
 				if (specialTiles.contains(location)){
 					tiles[location].setBackgroundResource(R.drawable.orangemarkerflash);
