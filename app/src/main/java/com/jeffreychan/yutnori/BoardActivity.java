@@ -669,7 +669,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void endTurn(){
 		board.endTurn();
 		reset();
-		if (isComputerPlaying) handleComputerMove();
+		if (isComputerPlaying && turn == 1) handleComputerMove();
 	}
 
 	private void reset(){
