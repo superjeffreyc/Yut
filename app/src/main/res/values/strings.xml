@@ -3,6 +3,7 @@
 
     <string name="app_name">Yut</string>
     <string name="loading">Loading...</string>
+    <string name="computer">Computer is making a move...</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="sticks">Stick animation</string>
@@ -19,6 +20,7 @@
     <string name="soon">Coming Soon!</string>
     <string name="click_me">Press me!</string>
     <string name="click_yellow">Press a yellow tile to move</string>
+    <string name="click_finish">Press finish to complete current piece</string>
     <string name="any_seal">Press any jumping seal</string>
     <string name="any_penguin">Press any jumping penguin</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>

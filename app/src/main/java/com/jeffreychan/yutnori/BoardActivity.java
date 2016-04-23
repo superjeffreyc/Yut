@@ -259,7 +259,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 			playerNum[i].setLayoutParams(new RelativeLayout.LayoutParams(2 * iconSize, iconSize));
 
 			if (i == 0) playerNum[i].setBackgroundResource(R.drawable.player1);
-			else playerNum[i].setBackgroundResource(R.drawable.player2);
+			else if (i == 1 && !isComputerPlaying) playerNum[i].setBackgroundResource(R.drawable.player2);
+			else playerNum[i].setBackgroundResource(R.drawable.computer);
 
 			playerNum[i].setX((float) (0.5 * padding + iconSize + spacing));
 
@@ -408,9 +409,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public void onClick(View v) {
-
 		if (isGameOver) return;
+		else if (turn == 0 || !isComputerPlaying) handleClick(v);
+	}
 
+	private void handleClick(View v){
 		if (v.getId() == R.id.rollButton) {
 			handleRoll();
 		}
@@ -488,7 +491,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 						playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
 						playerAnimation[turn][j].start();
 					}
-					rollButton.setVisibility(View.VISIBLE);
+					if (turn == 0 || !isComputerPlaying) rollButton.setVisibility(View.VISIBLE);
 					capture = true;
 				}
 			}
@@ -503,7 +506,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void showPossibleTiles(int pi){
 
 		hidePossibleTiles();
-		tips.setText(R.string.click_yellow);
 
 		currentPiece = players[turn].pieces[pi];
 		currentPieceImage = playerOnBoardImages[turn][pi];
@@ -524,6 +526,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 				isMarked[location] = true;
 			}
 		}
+
+		if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
+		else tips.setText(R.string.click_yellow);
 	}
 
 	private void hidePossibleTiles() {
@@ -533,7 +538,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (players[turn].numPieces == 0) tips.setText(R.string.click_me);
 		else {
 			if (turn == 0) tips.setText(R.string.any_seal);
-			else tips.setText(R.string.any_penguin);
+			else if (turn == 1 && !isComputerPlaying) tips.setText(R.string.any_penguin);
 		}
 
 		for (int i = 0; i < MAX_TILES; i++) {
@@ -609,7 +614,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 				if ((rollAmount == 4 || rollAmount == 5) && counter < 4) {
 					counter++;
-					String text = "Player " + (turn+1) + "\nRoll Again!";
+					String text;
+					if (isComputerPlaying && turn == 1) text = "Computer\nRoll Again!";
+					else text = "Player " + (turn+1) + "\nRoll Again!";
+
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
 				}
@@ -630,8 +638,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 				if (isEndTurn) endTurn();
 				else if (canRoll) {
-					rollButton.setVisibility(View.VISIBLE);
-					if (isComputerPlaying && turn == 1) rollButton.performClick();
+					if (turn == 0 || !isComputerPlaying) rollButton.setVisibility(View.VISIBLE);
+					else handleComputerRoll();
 				}
 				else {
 					int posCount = 0;
@@ -642,8 +650,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 						}
 					}
 
-					if (isComputerPlaying && turn == 1) tips.setVisibility(View.INVISIBLE);
-					else tips.setVisibility(View.VISIBLE);
+					tips.setVisibility(View.VISIBLE);
 
 					if (players[turn].numPieces < 4 && posCount > 0) {
 						offBoardPiece.setVisibility(View.VISIBLE);
@@ -659,7 +666,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 						playerAnimation[turn][j].start();
 					}
 
-					if (isComputerPlaying && turn == 1) handleComputerMove();
+					if (isComputerPlaying && turn == 1) {
+						tips.setText(R.string.computer);
+						handleComputerMove();
+					}
 				}
 			}
 		}, 1990);
@@ -674,7 +684,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void hideSticks(){
 		sticks.setVisibility(View.INVISIBLE);
 		fallingSticks.setVisible(false, false);
-		turnText.setVisibility(View.INVISIBLE);
 	}
 
 	private void cleanUp(){
@@ -718,7 +727,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 				offBoardPieceAnimation.selectDrawable(0);
 			}
 		} else {
-			String text = "Player " + (turn+1) + "\nRoll Again!";
+			String text;
+			if (isComputerPlaying && turn == 1) text = "Computer\nRoll Again!";
+			else text = "Player " + (turn+1) + "\nRoll Again!";
+
 			turnText.setText(text);
 			turnText.setVisibility(View.VISIBLE);
 			tips.setVisibility(View.INVISIBLE);
@@ -730,7 +742,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			canRoll = true;
 		}
 
-		capture = false;
 		hidePossibleTiles();
 
 		// Hide pieces that are on the board or completed
@@ -741,8 +752,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		}
 
-		if (rollButton.getVisibility() == View.VISIBLE && isComputerPlaying && turn == 1) rollButton.performClick();
+		if (capture && isComputerPlaying && turn == 1) handleComputerRoll();
 		else if (!board.rollEmpty() && isComputerPlaying && turn == 1) handleComputerMove();
+
+		capture = false;
 	}
 
 	private void removeRoll(int i) {
@@ -787,7 +800,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void endTurn(){
 		board.endTurn();
 		reset();
-		if (isComputerPlaying && turn == 1) rollButton.performClick();
+		if (isComputerPlaying && turn == 1) handleComputerRoll();
 	}
 
 	private void reset(){
@@ -838,9 +851,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		isRollDone = false;
 		canRoll = true;
 		isEndTurn = false;
-		rollButton.setVisibility(View.VISIBLE);
+		if (turn == 0 || !isComputerPlaying) rollButton.setVisibility(View.VISIBLE);
 
-		String text = "Player " + (turn+1) + "'s Turn";
+		String text;
+		if (isComputerPlaying && turn == 1) text = "Computer's Turn";
+		else text = "Player " + (turn+1) + "'s Turn";
+
 		turnText.setText(text);
 		turnText.setVisibility(View.VISIBLE);
 	}
@@ -881,44 +897,56 @@ public class BoardActivity extends Activity implements OnClickListener{
 		finish();
 	}
 
+	private void handleComputerRoll(){
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				handleRoll();
+			}
+		}, 1000);
+	}
+
 	private void handleComputerMove(){
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable(){
 			@Override
 			public void run() {
 				if (offBoardPiece.getVisibility() == View.VISIBLE) {
-					offBoardPiece.performClick();
+					handleClick(offBoardPiece);
 				} else {
 					for (int i = 0; i < 4; i++) {
 						if (players[1].pieces[i].getLocation() != -1 && players[1].pieces[i].getLocation() != 32) {
-							playerOnBoardImages[1][i].performClick();
+							handleClick(playerOnBoardImages[1][i]);
 							break;
 						}
 					}
 				}
+
+				tips.setText(R.string.computer);
 
 				Handler handler1 = new Handler();
 				handler1.postDelayed(new Runnable() {
 					@Override
 					public void run(){
 						if (finish.getVisibility() == View.VISIBLE){
-							finish.performClick();
+							handleClick(finish);
 						} else {
 							for (int i = 0; i < MAX_TILES; i++) {
 								if (isMarked[i]) {
 									boolean found = false;
 									for (int j = 0; j < 4; j++) {
 										if (players[0].pieces[j].getLocation() == i) {
-											playerOnBoardImages[0][j].performClick();
+											handleClick(playerOnBoardImages[0][j]);
 											found = true;
 										} else if (players[1].pieces[j].getLocation() == i) {
-											playerOnBoardImages[1][j].performClick();
+											handleClick(playerOnBoardImages[1][j]);
 											found = true;
 										}
 									}
 
 									if (!found) {
-										tiles[i].performClick();
+										handleClick(tiles[i]);
 									}
 
 									break;
@@ -927,6 +955,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 						}
 					}
 				}, 1000);
+
+				tips.setText(R.string.computer);
 			}
 		}, 1000);
 	}
