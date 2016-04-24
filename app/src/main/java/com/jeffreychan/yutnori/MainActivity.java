@@ -2,7 +2,6 @@ package com.jeffreychan.yutnori;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -17,9 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -70,7 +66,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		rl.addView(startButton);
 
 		helpButton = new Button(this);
-		helpButton.setBackgroundResource(R.drawable.helpbutton);
+		helpButton.setBackgroundResource(R.drawable.howtoplay);
 		helpButton.setId(View.generateViewId());
 		helpButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		helpButton.setOnClickListener(this);
@@ -88,7 +84,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		rl.addView(settingsButton);
 
 		twoPlayerButton = new Button(this);
-		twoPlayerButton.setBackgroundResource(R.drawable.two_player);
+		twoPlayerButton.setBackgroundResource(R.drawable.twoplayer);
 		twoPlayerButton.setId(View.generateViewId());
 		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		twoPlayerButton.setOnClickListener(this);
@@ -98,7 +94,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		rl.addView(twoPlayerButton);
 
 		onePlayerButton = new Button(this);
-		onePlayerButton.setBackgroundResource(R.drawable.one_player);
+		onePlayerButton.setBackgroundResource(R.drawable.oneplayer);
 		onePlayerButton.setId(View.generateViewId());
 		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		onePlayerButton.setOnClickListener(this);
