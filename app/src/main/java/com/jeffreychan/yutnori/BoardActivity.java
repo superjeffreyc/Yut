@@ -410,7 +410,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		if (isGameOver) return;
-		else if (turn == 0 || !isComputerPlaying) handleClick(v);
+		if (turn == 0 || !isComputerPlaying) handleClick(v);
 	}
 
 	private void handleClick(View v){
@@ -873,7 +873,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 		tv.setPadding(0, 40, 0, 40);
 
 		if (players[0].hasWon()) tv.setText("Player 1 wins!\nPlay again?");
-		else tv.setText("Player 2 wins!\nPlay again?");
+		else if (!isComputerPlaying) tv.setText("Player 2 wins!\nPlay again?");
+		else tv.setText("Computer wins!\nPlay again?");
 
 		tv.setTextSize(20f);
 		tv.setGravity(Gravity.CENTER_HORIZONTAL);
