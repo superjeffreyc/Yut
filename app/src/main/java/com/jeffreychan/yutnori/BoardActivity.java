@@ -621,7 +621,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
 				}
-				else if (rollAmount == -1 && counter == 0 && players[turn].numPieces == players[0].getScore()) isEndTurn = true;
+				else if (rollAmount == -1 && counter == 0 && players[turn].numPieces == players[turn].getScore()) isEndTurn = true;
 				else {
 					canRoll = false;
 					isRollDone = true;
