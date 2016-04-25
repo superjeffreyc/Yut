@@ -95,7 +95,7 @@ public class Computer {
 		// #5 Priority: Take first available move----------------------------------------
 		ArrayList<Integer> rolls = new ArrayList<>();
 		for (int i : rollArray){
-			if (i != 0) rolls.add(rollArray[i]);
+			if (i != 0) rolls.add(i);
 		}
 
 		// Check for single -1 roll (cannot use off board pieces)
