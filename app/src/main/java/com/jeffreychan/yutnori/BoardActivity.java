@@ -10,7 +10,6 @@ import android.graphics.drawable.AnimationDrawable;
 //import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.ContextCompat;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -69,7 +68,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	AnimationDrawable[][] playerAnimation = new AnimationDrawable[2][4];
 
 	ImageView offBoardPiece;
-	ImageView currentPieceImage = offBoardPiece;
+	ImageView currentPieceImage;
 	ImageView finish;
 
 	ImageView[] playerLogo = new ImageView[2];
@@ -317,6 +316,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		offBoardPiece.setVisibility(View.INVISIBLE);
 		rl.addView(offBoardPiece);
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
+		currentPieceImage = offBoardPiece;
 
 		// Roll button animation
 		AnimationDrawable rollFlash = (AnimationDrawable) rollButton.getBackground();
@@ -343,7 +343,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		turnText.setText(text);
 		turnText.setTextColor(Color.WHITE);
 		turnText.setTextSize(40f);
-		turnText.setBackgroundColor(ContextCompat.getColor(context, R.color.DarkerBlue));
+		turnText.setBackgroundColor(Color.parseColor("#56AFC1"));
 		rl.addView(turnText);
 
 		/* <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -418,15 +418,29 @@ public class BoardActivity extends Activity implements OnClickListener{
 			handleRoll();
 		}
 		else if (v.getId() == finish.getId()) {
-			movePiece(32); // finish location
+			movePiece(32, Move.NORMAL); // finish location
 		}
 		else if (v.getId() == offBoardPiece.getId()) {
 			showPossibleTiles(players[turn].findAvailablePiece());
 		}
 		else if (tile_ids.contains(v.getId())){    // Activates on tile click
-			for (int i = 0; i < MAX_TILES; i++)
-				if (v.getId() == tiles[i].getId() && isMarked[i])
-					movePiece(i);
+			Move m = Move.NORMAL;
+			for (int i = 0; i < MAX_TILES; i++) {
+				if (v.getId() == tiles[i].getId() && isMarked[i]) {
+					for (int j = 0; j < 4; j++){
+						if (players[turn].pieces[j].getLocation() == i){
+							m = Move.STACK;
+							break;
+						} else if (players[oppTurn].pieces[j].getLocation() == i){
+							m = Move.CAPTURE;
+							break;
+						}
+					}
+
+					movePiece(i, m);
+					break;
+				}
+			}
 		}
 		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
 			for (int i = 0; i < 4; i++){
@@ -435,64 +449,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 				}
 				// SAME TEAM
 				else if (v.getId() == playerOnBoardImages[turn][i].getId() && isMarked[players[turn].pieces[i].getLocation()]){
-					movePiece(players[turn].pieces[i].getLocation());
-
-					for (int j = 0; j < 4; j++) {
-						if (players[turn].pieces[j].getLocation() == currentPiece.getLocation() && currentPiece != players[turn].pieces[j]) {
-							currentPiece.addValue(players[turn].pieces[j].getValue());
-							playerOnBoardImages[turn][j].setX(-currentPieceImage.getWidth());
-							players[turn].pieces[j].setLocation(-1);
-							players[turn].pieces[j].setValue(1);
-
-							if (turn == 0) playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.sealmoveanimation);
-							else playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
-
-							playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
-						}
-					}
-
-					switch (currentPiece.getValue()) {
-						case 2:
-							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation2);
-							else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation2);
-							break;
-						case 3:
-							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation3);
-							else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation3);
-							break;
-						case 4:
-							if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation4);
-							else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation4);
-							break;
-						default:
-					}
-
-					for (int j = 0; j < 4; j++){
-						if (currentPieceImage == playerOnBoardImages[turn][j]){
-							playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
-							playerAnimation[turn][j].start();
-						}
-					}
+					movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
 				}
 				// OPPOSITE TEAM
 				else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && isMarked[players[oppTurn].pieces[i].getLocation()]) {
-					movePiece(players[oppTurn].pieces[i].getLocation());
-					for (int j = 0; j < 4; j++) {
-						if (players[oppTurn].pieces[j].getLocation() == currentPiece.getLocation()) {
-							playerOnBoardImages[oppTurn][j].setX(-currentPieceImage.getWidth());
-							players[oppTurn].pieces[j].setLocation(-1);
-							players[oppTurn].numPieces -= players[oppTurn].pieces[j].getValue();
-							players[oppTurn].pieces[j].setValue(1);
-
-							if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
-							else playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.sealmoveanimation);
-						}
-
-						playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
-						playerAnimation[turn][j].start();
-					}
-					if (turn == 0 || !isComputerPlaying) rollButton.setVisibility(View.VISIBLE);
-					capture = true;
+					movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
 				}
 			}
 		}
@@ -552,7 +513,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 	}
 
-	private void movePiece(int i){
+	private void movePiece(int i, Move m){
 
 		if (currentPiece.getLocation() == -1) players[turn].numPieces++;
 
@@ -570,6 +531,67 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 			if (players[turn].hasWon()) endGame();
 		}
+
+		if (m == Move.STACK) stack();
+		else if (m == Move.CAPTURE) capture();
+	}
+
+	private void stack(){
+		for (int j = 0; j < 4; j++) {
+			if (players[turn].pieces[j].getLocation() == currentPiece.getLocation() && currentPiece != players[turn].pieces[j]) {
+				currentPiece.addValue(players[turn].pieces[j].getValue());
+				playerOnBoardImages[turn][j].setX(-currentPieceImage.getWidth());
+				players[turn].pieces[j].setLocation(-1);
+				players[turn].pieces[j].setValue(1);
+
+				if (turn == 0) playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.sealmoveanimation);
+				else playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
+
+				playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+			}
+		}
+
+		switch (currentPiece.getValue()) {
+			case 2:
+				if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation2);
+				else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation2);
+				break;
+			case 3:
+				if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation3);
+				else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation3);
+				break;
+			case 4:
+				if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation4);
+				else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation4);
+				break;
+			default:
+		}
+
+		for (int j = 0; j < 4; j++){
+			if (currentPieceImage == playerOnBoardImages[turn][j]){
+				playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+				playerAnimation[turn][j].start();
+			}
+		}
+	}
+
+	private void capture(){
+		for (int j = 0; j < 4; j++) {
+			if (players[oppTurn].pieces[j].getLocation() == currentPiece.getLocation()) {
+				playerOnBoardImages[oppTurn][j].setX(-currentPieceImage.getWidth());
+				players[oppTurn].pieces[j].setLocation(-1);
+				players[oppTurn].numPieces -= players[oppTurn].pieces[j].getValue();
+				players[oppTurn].pieces[j].setValue(1);
+
+				if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
+				else playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.sealmoveanimation);
+			}
+
+			playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+			playerAnimation[turn][j].start();
+		}
+		if (turn == 0 || !isComputerPlaying) rollButton.setVisibility(View.VISIBLE);
+		capture = true;
 	}
 
 	private void handleRoll(){
@@ -913,16 +935,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		handler.postDelayed(new Runnable(){
 			@Override
 			public void run() {
-				if (offBoardPiece.getVisibility() == View.VISIBLE) {
-					handleClick(offBoardPiece);
-				} else {
-					for (int i = 0; i < 4; i++) {
-						if (players[1].pieces[i].getLocation() != -1 && players[1].pieces[i].getLocation() != 32) {
-							handleClick(playerOnBoardImages[1][i]);
-							break;
-						}
-					}
-				}
+				int[] move = Computer.selectMove(players, board.rollArray);
+				int piece = move[0];
+				final int i = move[1];
+
+				if (piece == -1) handleClick(offBoardPiece);
+				else handleClick(playerOnBoardImages[1][piece]);
 
 				tips.setText(R.string.computer);
 
@@ -930,34 +948,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 				handler1.postDelayed(new Runnable() {
 					@Override
 					public void run(){
-						if (finish.getVisibility() == View.VISIBLE){
-							handleClick(finish);
-						} else {
-							for (int i = 0; i < MAX_TILES; i++) {
-								if (isMarked[i]) {
-									boolean found = false;
-									for (int j = 0; j < 4; j++) {
-										if (players[0].pieces[j].getLocation() == i) {
-											handleClick(playerOnBoardImages[0][j]);
-											found = true;
-										} else if (players[1].pieces[j].getLocation() == i) {
-											handleClick(playerOnBoardImages[1][j]);
-											found = true;
-										}
-									}
-
-									if (!found) {
-										handleClick(tiles[i]);
-									}
-
-									break;
-								}
-							}
-						}
+						if (i == 32) handleClick(finish);
+						else handleClick(tiles[i]);
 					}
 				}, 1000);
-
-				tips.setText(R.string.computer);
 			}
 		}, 1000);
 	}
