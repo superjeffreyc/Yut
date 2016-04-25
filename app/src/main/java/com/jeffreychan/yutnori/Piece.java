@@ -61,8 +61,10 @@ public class Piece {
 							location--;
 						}
 					} else if (location == 15) {
-						if (moves[i] > 0) {
+						if (moves[i] > 0 && moves[i] < 5) {
 							location += moves[i];
+						} else if (moves[i] == 5){
+							location = 0;
 						} else {
 							location--;
 
