@@ -141,10 +141,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		 */
 
 		// Set up tiles
-		double padding = 20;
-		double space = 40;
 		double boardSize = height*0.6;
 		if(height*0.6 > width) boardSize = width;
+		double padding = boardSize/50.0;
+		double space = boardSize/25.0;
 		double tileSize = (boardSize - padding*2 - space*5) / 6;
 
 		tiles = new ImageView[MAX_TILES];
@@ -234,15 +234,18 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rl.addView(start);
 
 		// Set up roll slots
-		padding = 30;
-		int spacing = 50;
-		int rollSize = (int) ((width - padding - 4 * spacing)/5.0);
+		double rollSize = (int) ((width - padding - 4 * space)/5.0);
+		double spaceSize = space;
+		if (height/10.0 - padding < rollSize) {
+			rollSize = height/10.0 - padding;
+			spaceSize = (width - 5 * rollSize - padding)/4.0;
+		}
 		for (int i = 0; i < 5; i++) {
 			rollSlot[i] = new ImageView(context);
 			rollSlot[i].setId(View.generateViewId());
-			rollSlot[i].setLayoutParams(new RelativeLayout.LayoutParams(rollSize, rollSize));
+			rollSlot[i].setLayoutParams(new RelativeLayout.LayoutParams((int) rollSize, (int) rollSize));
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
-			rollSlot[i].setX((float) (0.5 * padding + i * spacing + i * rollSize));
+			rollSlot[i].setX((float) (0.5 * padding + i * spaceSize + i * rollSize));
 			rollSlot[i].setY((float) (8.5 * height / 10.0 - 0.5 * rollSize));
 			rl.addView(rollSlot[i]);
 		}
@@ -251,7 +254,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		tips = new TextView(context);
 		tips.setId(View.generateViewId());
 		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height / 20.0)));
-		tips.setY((int) (height * 7.7 / 10.0));
+		tips.setY((int) (height * 7.6 / 10.0));
 		tips.setGravity(Gravity.CENTER);
 		String tipText = "Click Me!";
 		tips.setText(tipText);
@@ -261,9 +264,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rl.addView(tips);
 
 		// Set up player bars
-		padding = 20;
-		spacing = 30;
-		int iconSize = (int) ((width- padding - 5 * spacing)/7.0);
+		int iconSize = (int) ((width- padding - 5 * space)/7.0);
 		for (int i = 0; i < 2; i++) {
 			// ----------------------------------------------------------Player Logo
 			playerLogo[i] = new ImageView(context);
@@ -289,7 +290,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			else if (i == 1 && !isComputerPlaying) playerNum[i].setBackgroundResource(R.drawable.player2);
 			else playerNum[i].setBackgroundResource(R.drawable.computer);
 
-			playerNum[i].setX((float) (0.5 * padding + iconSize + spacing));
+			playerNum[i].setX((float) (0.5 * padding + iconSize + space));
 
 			if (i == 0) playerNum[i].setY((float) (0.5 * height / 10.0 - 0.5 * iconSize));
 			else playerNum[i].setY((float) (9.5 * height / 10.0 - 0.5 * iconSize));
@@ -306,7 +307,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				if (i == 0) playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal1);
 				else playerOffBoardImages[i][j].setBackgroundResource(R.drawable.penguin1);
 
-				playerOffBoardImages[i][j].setX((float) (0.5*padding + 3 * iconSize + 2 * spacing + j * spacing + j * iconSize));
+				playerOffBoardImages[i][j].setX((float) (0.5*padding + 3 * iconSize + 2 * space + j * space + j * iconSize));
 
 				if (i == 0) playerOffBoardImages[i][j].setY((float) (0.5 * height / 10.0 - 0.5 * iconSize));
 				else playerOffBoardImages[i][j].setY((float) (9.5 * height / 10.0 - 0.5 * iconSize));
@@ -339,7 +340,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		offBoardPiece.setId(View.generateViewId());
 		offBoardPiece.setLayoutParams(new RelativeLayout.LayoutParams((int) (width/5.0), (int) (height/10.0)));
 		offBoardPiece.setX((float) (width/2.0 - width/10.0));
-		offBoardPiece.setY((float) (7.0*height/10.0));
+		offBoardPiece.setY((float) (6.9*height/10.0));
 		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
 		offBoardPiece.setVisibility(View.INVISIBLE);
 		rl.addView(offBoardPiece);
@@ -356,7 +357,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		finish.setId(View.generateViewId());
 		finish.setLayoutParams(new RelativeLayout.LayoutParams((int) (width/2.5), (int) (height/10.0)));
 		finish.setX((float) (width - width/2.5));
-		finish.setY((float) (7.0*height/10.0));
+		finish.setY((float) (6.9*height/10.0));
 		finish.setBackgroundResource(R.drawable.finish);
 		finish.setVisibility(View.INVISIBLE);
 		rl.addView(finish);

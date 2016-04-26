@@ -24,5 +24,17 @@
     <string name="any_seal">Press any jumping seal</string>
     <string name="any_penguin">Press any jumping penguin</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="guide">
+        Yut is a traditional Korean board game.\n\n
+        OBJECTIVE\n\n
+        The first player to move all 4 of his or her pieces around the board wins.\n\n
+        ROLL PHASE\n\n
+        During your turn, you will be prompted to throw the sticks with the roll button.\n\n
+        If you roll a 4 or 5, you get to roll again. In addition, if you land on an opponent\'s piece, you get to roll again.\n\n
+        MOVE PHASE\n\n
+        Your possible moves are shown in the 5 circles near the bottom.\n\n
+        To move, click any one of your available pieces (the jumping pieces) and select a yellow tile, which indicate possible locations you can move to with that piece.
+    </string>
+
 
 </resources>

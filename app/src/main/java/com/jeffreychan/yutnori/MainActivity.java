@@ -21,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.content.Intent;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -174,12 +175,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 		else if (v.getId() == helpButton.getId()){
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			ScrollView sv = new ScrollView(this);
 			TextView tv = new TextView(this);
 			tv.setPadding(0, 40, 0, 40);
-			tv.setText(R.string.soon);
+			tv.setText(R.string.guide);
 			tv.setTextSize(20f);
 			tv.setGravity(Gravity.CENTER_HORIZONTAL);
-			adb.setView(tv);
+			sv.addView(tv);
+			adb.setView(sv);
 			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					dialog.cancel();
