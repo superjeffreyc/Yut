@@ -414,6 +414,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 //		}
 	}
 
+	/*
+	 * Shown an AlertDialog warning the user that the current game will not be saved upon exit.
+	 */
 	@Override
 	public void onBackPressed() {
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);
@@ -442,6 +445,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (turn == 0 || !isComputerPlaying) handleClick(v);
 	}
 
+	/**
+	 * Handles the onClick actions. This allows the computer AI to call these actions while
+	 * preventing the user from interfering with the computer's moves.
+	 *
+	 * @param v The view being clicked on
+	 */
 	private void handleClick(View v){
 		if (v.getId() == R.id.rollButton) {
 			handleRoll();
@@ -493,6 +502,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (moveDone) cleanUp();
 	}
 
+	/**
+	 * Highlight possible move locations for the currently selected piece.
+	 *
+	 * @param pi The piece to be moved
+	 */
 	private void showPossibleTiles(int pi){
 
 		hidePossibleTiles();
@@ -521,6 +535,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 		else tips.setText(R.string.click_yellow);
 	}
 
+	/**
+	 * Stop all tiles from flashing yellow and prompt user to select a piece
+	 */
 	private void hidePossibleTiles() {
 
 		finish.setVisibility(View.INVISIBLE);
@@ -542,6 +559,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	/**
+	 * Moves the currently selected piece to a new location.
+	 * Additional actions are required if the move involved stacking your own piece or capturing an enemy piece
+	 *
+	 * @param i The location to move to
+	 * @param m The type of Move: STACK, CAPTURE, NORMAL
+	 */
 	private void movePiece(int i, Move m){
 
 		if (currentPiece.getLocation() == -1) players[turn].numPieces++;
@@ -565,6 +589,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 		else if (m == Move.CAPTURE) capture();
 	}
 
+	/**
+	 * Land on your own piece.
+	 *
+	 * Sends all your other pieces at that location off the board but increases the value of the current piece.
+	 */
 	private void stack(){
 		for (int j = 0; j < 4; j++) {
 			if (players[turn].pieces[j].getLocation() == currentPiece.getLocation() && currentPiece != players[turn].pieces[j]) {
@@ -604,6 +633,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	/**
+	 * Land on an opponent's piece.
+	 *
+	 * Send all their pieces off the board and roll again.
+	 */
 	private void capture(){
 		for (int j = 0; j < 4; j++) {
 			if (players[oppTurn].pieces[j].getLocation() == currentPiece.getLocation()) {
@@ -623,6 +657,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 		capture = true;
 	}
 
+	/**
+	 * Handles the determination of the amount rolled when the roll button is clicked
+	 * Decides what should happen next based on roll.
+	 * Ex: Rolling 4 or 5 allows the user to roll again. Rolling -1 with no pieces on the board ends the turn.
+	 *
+	 * Once the rolling phase is completed, prompt the user to make a move with an appropriate message
+	 */
 	private void handleRoll(){
 		rollAmount = board.throwSticks();
 		rollButton.setVisibility(View.INVISIBLE);
@@ -726,6 +767,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}, 1990);
 	}
 
+	/**
+	 * Update the board's rollArray and update the roll slot images
+	 * @param rollAmount The roll to be added
+	 */
 	private void showRoll(int rollAmount){
 		board.addRoll(rollAmount);
 		updateRollSlots(counter, rollAmount);
@@ -737,6 +782,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		fallingSticks.setVisible(false, false);
 	}
 
+	/**
+	 * If the user made a move (STACK, CAPTURE, or NORMAL),
+	 * prepare the board for another move or end the turn
+	 */
 	private void cleanUp(){
 		moveDone = false;
 		int value = 0;
@@ -809,6 +858,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		capture = false;
 	}
 
+	/**
+	 * Removes the first occurrence of a roll from the roll slots
+	 * @param i The roll to remove
+	 */
 	private void removeRoll(int i) {
 		board.removeRoll(i);
 		int count = 0;
@@ -823,6 +876,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	/**
+	 * Update the images in the roll slots near the bottom
+	 *
+	 * @param index The slot to update
+	 * @param roll The roll amount
+	 */
 	private void updateRollSlots(int index, int roll){
 		switch (roll) {
 			case -1:
@@ -848,12 +907,18 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	/**
+	 * End the current player's turn
+	 */
 	private void endTurn(){
 		board.endTurn();
 		reset();
 		if (isComputerPlaying && turn == 1) handleComputerRoll();
 	}
 
+	/**
+	 * Prepares the board for the next player's turn
+	 */
 	private void reset(){
 		turn = board.getPlayerTurn();
 		oppTurn = (turn + 1) % 2;
@@ -912,6 +977,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		turnText.setVisibility(View.VISIBLE);
 	}
 
+	/**
+	 * Displays an AlertDialog with the winner and asks if the user wants to play again.
+	 * Prevents buttons and text from appearing.
+	 */
 	private void endGame(){
 
 		isGameOver = true;
@@ -943,12 +1012,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 		adb.show();
 	}
 
+	/**
+	 * Exits this activity
+	 */
 	private void quit(){
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 		finish();
 	}
 
+	/**
+	 * Handles the computer call to throw the sticks.
+	 * Adds a delay of 1s to play at a reasonable speed.
+	 */
 	private void handleComputerRoll(){
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
@@ -959,6 +1035,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}, 1000);
 	}
 
+	/**
+	 * Handles how the computer will move the pieces
+	 * Adds 2 delays of 1s each to show computer moves being made
+	 */
 	private void handleComputerMove(){
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable(){

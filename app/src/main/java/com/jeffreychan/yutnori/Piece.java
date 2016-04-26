@@ -7,10 +7,10 @@ import java.util.TreeSet;
 
 public class Piece {
 
-	private int location = -1;
-	private int value = 1;
+	private int location = -1;  // Current location on the board. -1 indicates off the board.
+	private int value = 1;      // Current number of pieces stacked
 
-
+	// These tiles must be handled differently. You cannot simply add moves to these tiles to calculate move locations.
 	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 15, 20, 21, 22, 23, 24, 25, 26, 27));
 
 	/**

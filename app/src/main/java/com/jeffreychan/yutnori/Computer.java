@@ -7,11 +7,18 @@ import java.util.TreeSet;
 
 public class Computer {
 
-	static Set<Integer> shortcuts = new TreeSet<>(Arrays.asList(0, 5, 10, 22));
+	static Set<Integer> shortcuts = new TreeSet<>(Arrays.asList(0, 5, 10, 22)); // Used for Priority #3 in selectMove
 
+	/**
+	 * Calculates all possible moves for all pieces.
+	 * The moves are stored in a 2d ArrayList, where the row indicates the piece associated with that move.
+	 *
+	 * @param players The two players in the game
+	 * @param rollArray The current rolls available
+	 * @return An int array of 2 elements: The best piece to move and the best location to move to with that piece. [piece, move]
+	 */
 	public static int[] selectMove(Player[] players, int[] rollArray){
 
-		// Calculate all possible moves for all pieces
 		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
 
 		for (int i = 0; i < 4; i++){

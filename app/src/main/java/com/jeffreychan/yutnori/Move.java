@@ -1,5 +1,10 @@
 package com.jeffreychan.yutnori;
 
+/*
+ * Indicates the type of move being made
+ */
 public enum Move {
-	NORMAL, STACK, CAPTURE
+	STACK,      // Stacking team pieces
+	CAPTURE,    // Capture opponent's pieces
+	NORMAL      // Neither stack nor capture
 }

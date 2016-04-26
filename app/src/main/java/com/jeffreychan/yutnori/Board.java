@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Board {
 
-	public int[] rollArray = new int[5];
+	public int[] rollArray = new int[5];    // Max number of rolls that can be stored is 5
 	int rollIndex = 0;
 	int playerTurn = 0;
 
@@ -51,6 +51,9 @@ public class Board {
 		}
 	}
 
+	/*
+	 * Set all rolls to 0
+	 */
 	public void resetRollArray(){
 		rollIndex = 0;
 		for (int i = 0; i < 5; i++){
@@ -62,6 +65,9 @@ public class Board {
 		return playerTurn;
 	}
 
+	/*
+	 * Ends the current turn by switching playerTurn and clearing rollArray
+	 */
 	public void endTurn(){
 		playerTurn = (playerTurn + 1) % 2;
 		resetRollArray();
@@ -88,6 +94,10 @@ public class Board {
 		}
 	}
 
+	/**
+	 * Checks if rollArray is empty.
+	 * @return true if rollArray is empty, false otherwise
+	 */
 	public boolean rollEmpty(){
 		int count = 0;
 		for (int i = 0; i < 5; i++){
