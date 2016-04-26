@@ -415,7 +415,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	}
 
 	/*
-	 * Shown an AlertDialog warning the user that the current game will not be saved upon exit.
+	 * Shows an AlertDialog warning the user that the current game will not be saved upon exit.
 	 */
 	@Override
 	public void onBackPressed() {

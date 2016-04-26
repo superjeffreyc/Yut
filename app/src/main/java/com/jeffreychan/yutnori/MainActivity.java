@@ -16,6 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,11 +30,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	ImageView penguinJumpImageView, sealJumpImageView;
 	AnimationDrawable penguinJumpAnimation, sealJumpAnimation;
-	Button startButton, helpButton, settingsButton, twoPlayerButton, onePlayerButton, backButton;
+	Button startButton, helpButton, quitButton, twoPlayerButton, onePlayerButton, backButton;
 	int width, height;
 	RelativeLayout rl;
 	TextView loading;
 	Context context = this;
+	TranslateAnimation leftToRight, rightToLeft;
+	boolean isLeft = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,43 +79,40 @@ public class MainActivity extends Activity implements OnClickListener {
 		helpButton.setY(height * 7 / 10);
 		rl.addView(helpButton);
 
-		settingsButton = new Button(this);
-		settingsButton.setBackgroundResource(R.drawable.settings);
-		settingsButton.setId(View.generateViewId());
-		settingsButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
-		settingsButton.setOnClickListener(this);
-		settingsButton.setX(width / 2 - settingsButton.getLayoutParams().width / 2);
-		settingsButton.setY(height * 8 / 10);
-		rl.addView(settingsButton);
-
-		twoPlayerButton = new Button(this);
-		twoPlayerButton.setBackgroundResource(R.drawable.twoplayer);
-		twoPlayerButton.setId(View.generateViewId());
-		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
-		twoPlayerButton.setOnClickListener(this);
-		twoPlayerButton.setX(helpButton.getX());
-		twoPlayerButton.setY(helpButton.getY());
-		twoPlayerButton.setVisibility(View.INVISIBLE);
-		rl.addView(twoPlayerButton);
+		quitButton = new Button(this);
+		quitButton.setBackgroundResource(R.drawable.quit);
+		quitButton.setId(View.generateViewId());
+		quitButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		quitButton.setOnClickListener(this);
+		quitButton.setX(width / 2 - quitButton.getLayoutParams().width / 2);
+		quitButton.setY(height * 8 / 10);
+		rl.addView(quitButton);
 
 		onePlayerButton = new Button(this);
 		onePlayerButton.setBackgroundResource(R.drawable.oneplayer);
 		onePlayerButton.setId(View.generateViewId());
 		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		onePlayerButton.setOnClickListener(this);
-		onePlayerButton.setX(startButton.getX());
+		onePlayerButton.setX(width + startButton.getX());
 		onePlayerButton.setY(startButton.getY());
-		onePlayerButton.setVisibility(View.INVISIBLE);
 		rl.addView(onePlayerButton);
+
+		twoPlayerButton = new Button(this);
+		twoPlayerButton.setBackgroundResource(R.drawable.twoplayer);
+		twoPlayerButton.setId(View.generateViewId());
+		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		twoPlayerButton.setOnClickListener(this);
+		twoPlayerButton.setX(width + helpButton.getX());
+		twoPlayerButton.setY(helpButton.getY());
+		rl.addView(twoPlayerButton);
 
 		backButton = new Button(this);
 		backButton.setBackgroundResource(R.drawable.back);
 		backButton.setId(View.generateViewId());
 		backButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		backButton.setOnClickListener(this);
-		backButton.setX(settingsButton.getX());
-		backButton.setY(settingsButton.getY());
-		backButton.setVisibility(View.INVISIBLE);
+		backButton.setX(width + quitButton.getX());
+		backButton.setY(quitButton.getY());
 		rl.addView(backButton);
 
 		loading = new TextView(this);
@@ -126,11 +127,112 @@ public class MainActivity extends Activity implements OnClickListener {
 		loading.setText(R.string.loading);
 		loading.setVisibility(View.INVISIBLE);
 		rl.addView(loading);
+
+		int ANIMATION_DURATION = 600;
+		rightToLeft = new TranslateAnimation(0, -width, 0, 0);
+		rightToLeft.setDuration(ANIMATION_DURATION);
+		rightToLeft.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				setInitialButtonClickable(false);
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				shiftButtonsLeft();
+				setModeButtonClickable(true);
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// Do nothing
+			}
+		});
+
+		leftToRight = new TranslateAnimation(0, width, 0, 0);
+		leftToRight.setDuration(ANIMATION_DURATION);
+		leftToRight.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				setModeButtonClickable(false);
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				shiftButtonsRight();
+				setInitialButtonClickable(true);
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// Do nothing
+			}
+		});
+	}
+
+	/*
+	 * Set the starting buttons to be un-clickable to prevent multiple clicks
+	 */
+	private void setInitialButtonClickable(boolean b){
+		startButton.setClickable(b);
+		helpButton.setClickable(b);
+		quitButton.setClickable(b);
+	}
+
+	/*
+	 * Set the mode buttons to be un-clickable to prevent multiple clicks
+	 */
+	private void setModeButtonClickable(boolean b){
+		onePlayerButton.setClickable(b);
+		twoPlayerButton.setClickable(b);
+		backButton.setClickable(b);
+	}
+
+	/*
+	 * Sets the new locations of the buttons after the right to left animation ends.
+	 * Sets the mode buttons clickable
+	 */
+	private void shiftButtonsLeft(){
+		if (!isLeft) {
+			isLeft = true;
+			onePlayerButton.setX(width / 2 - startButton.getLayoutParams().width / 2);
+			twoPlayerButton.setX(width / 2 - startButton.getLayoutParams().width / 2);
+			backButton.setX(width / 2 - startButton.getLayoutParams().width / 2);
+
+			onePlayerButton.setClickable(true);
+			twoPlayerButton.setClickable(true);
+			backButton.setClickable(true);
+
+			startButton.setX(width / 2 - startButton.getLayoutParams().width / 2 - width);
+			helpButton.setX(width / 2 - startButton.getLayoutParams().width / 2 - width);
+			quitButton.setX(width / 2 - startButton.getLayoutParams().width / 2 - width);
+		}
+	}
+
+	/*
+	 * Sets the new locations of the buttons after the left to right animation ends.
+	 * Sets the starting buttons clickable
+	 */
+	private void shiftButtonsRight(){
+		if (isLeft){
+			isLeft = false;
+			startButton.setX(width/2 - startButton.getLayoutParams().width / 2);
+			helpButton.setX(width/2 - startButton.getLayoutParams().width / 2);
+			quitButton.setX(width/2 - startButton.getLayoutParams().width / 2);
+
+			startButton.setClickable(true);
+			helpButton.setClickable(true);
+			quitButton.setClickable(true);
+
+			onePlayerButton.setX(width + width/2 - startButton.getLayoutParams().width / 2);
+			twoPlayerButton.setX(width + width/2 - startButton.getLayoutParams().width / 2);
+			backButton.setX(width + width/2 - startButton.getLayoutParams().width / 2);
+		}
 	}
 
 	@Override
 	public void onBackPressed() {
-		if (backButton.getVisibility() == View.VISIBLE) showInitialButtons();
+		if (isLeft) showInitialButtons();
 		else finish();
 	}
 
@@ -170,7 +272,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		else if (v.getId() == startButton.getId()){
 			showModeButtons();
 		}
-		else if (v.getId() == backButton.getId()){
+		else if (v.getId() == backButton.getId()) {
 			showInitialButtons();
 		}
 		else if (v.getId() == helpButton.getId()){
@@ -190,41 +292,29 @@ public class MainActivity extends Activity implements OnClickListener {
 			});
 			adb.show();
 		}
-		else if (v.getId() == settingsButton.getId()){
-			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			TextView tv = new TextView(this);
-			tv.setPadding(0, 40, 0, 40);
-			tv.setText(R.string.soon);
-			tv.setTextSize(20f);
-			tv.setGravity(Gravity.CENTER_HORIZONTAL);
-			adb.setView(tv);
-			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.cancel();
-				}
-			});
-			adb.show();
+		else if (v.getId() == quitButton.getId()){
+			finish();
 		}
 	}
 
 	private void showInitialButtons(){
-		startButton.setVisibility(View.VISIBLE);
-		helpButton.setVisibility(View.VISIBLE);
-		settingsButton.setVisibility(View.VISIBLE);
+		startButton.startAnimation(leftToRight);
+		helpButton.startAnimation(leftToRight);
+		quitButton.startAnimation(leftToRight);
 
-		twoPlayerButton.setVisibility(View.INVISIBLE);
-		onePlayerButton.setVisibility(View.INVISIBLE);
-		backButton.setVisibility(View.INVISIBLE);
+		twoPlayerButton.startAnimation(leftToRight);
+		onePlayerButton.startAnimation(leftToRight);
+		backButton.startAnimation(leftToRight);
 	}
 
 	private void showModeButtons(){
-		startButton.setVisibility(View.INVISIBLE);
-		helpButton.setVisibility(View.INVISIBLE);
-		settingsButton.setVisibility(View.INVISIBLE);
+		startButton.startAnimation(rightToLeft);
+		helpButton.startAnimation(rightToLeft);
+		quitButton.startAnimation(rightToLeft);
 
-		twoPlayerButton.setVisibility(View.VISIBLE);
-		onePlayerButton.setVisibility(View.VISIBLE);
-		backButton.setVisibility(View.VISIBLE);
+		twoPlayerButton.startAnimation(rightToLeft);
+		onePlayerButton.startAnimation(rightToLeft);
+		backButton.startAnimation(rightToLeft);
 	}
 
 	private void showLoading(){
