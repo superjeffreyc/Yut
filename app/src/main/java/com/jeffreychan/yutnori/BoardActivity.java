@@ -204,11 +204,39 @@ public class BoardActivity extends Activity implements OnClickListener{
 			iv.bringToFront();
 		}
 
+		// Set up arrows
+		ImageView[] arrows = new ImageView[5];
+		int arrowSize = (int) (3.0*tileSize/5.0);
+		int pad = (int) (tileSize/5.0);
+		int[] arr = new int[]{0, 5, 10, 22, 15}; // tiles with arrows
+		for (int i = 0; i < 5; i++){
+			arrows[i] = new ImageView(this);
+			arrows[i].setBackgroundResource(R.drawable.arrow);
+			arrows[i].setLayoutParams(new RelativeLayout.LayoutParams(arrowSize, arrowSize));
+			arrows[i].setX(tiles[arr[i]].getX() + pad);
+			arrows[i].setY(tiles[arr[i]].getY() + pad);
+
+			if (i == 0) arrows[i].setRotation(-90f);
+			else if (i == 1) arrows[i].setRotation(135f);
+			else if (i == 2 || i == 3) arrows[i].setRotation(45f);
+
+			rl.addView(arrows[i]);
+		}
+
+		// Set up start text
+		ImageView start = new ImageView(this);
+		int startSize = (int) (3.0*tileSize/4.0);
+		pad = (int) (tileSize/8.0);
+		start.setBackgroundResource(R.drawable.start_tile);
+		start.setLayoutParams(new RelativeLayout.LayoutParams(startSize, startSize));
+		start.setX(tiles[0].getX() + pad);
+		start.setY(tiles[0].getY() + pad);
+		rl.addView(start);
+
 		// Set up roll slots
 		padding = 30;
 		int spacing = 50;
 		int rollSize = (int) ((width - padding - 4 * spacing)/5.0);
-
 		for (int i = 0; i < 5; i++) {
 			rollSlot[i] = new ImageView(context);
 			rollSlot[i].setId(View.generateViewId());
