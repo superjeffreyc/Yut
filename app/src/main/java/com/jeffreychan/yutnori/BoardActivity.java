@@ -53,7 +53,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 //	int mpPos;
 
 	Context context = this;
-	Board board = new Board();
+	static Board board = new Board();
 	Player[] players = new Player[2];
 	Piece currentPiece;
 
@@ -439,6 +439,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 		adb.show();
 	}
 
+	/**
+	 * Click actions are not directly handled here. They are handled in the handleClick method.
+	 *
+	 * Once a player has won, prevent any further click events
+	 * Otherwise, call the handleClick method if it is not the computer's turn
+	 *
+	 * @param v The view being clicked on
+	 */
 	@Override
 	public void onClick(View v) {
 		if (isGameOver) return;
@@ -600,7 +608,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				currentPiece.addValue(players[turn].pieces[j].getValue());
 				playerOnBoardImages[turn][j].setX(-currentPieceImage.getWidth());
 				players[turn].pieces[j].setLocation(-1);
-				players[turn].pieces[j].setValue(1);
+				players[turn].pieces[j].resetValue();
 
 				if (turn == 0) playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.sealmoveanimation);
 				else playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
@@ -644,7 +652,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				playerOnBoardImages[oppTurn][j].setX(-currentPieceImage.getWidth());
 				players[oppTurn].pieces[j].setLocation(-1);
 				players[oppTurn].numPieces -= players[oppTurn].pieces[j].getValue();
-				players[oppTurn].pieces[j].setValue(1);
+				players[oppTurn].pieces[j].resetValue();
 
 				if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
 				else playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.sealmoveanimation);
@@ -769,6 +777,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	/**
 	 * Update the board's rollArray and update the roll slot images
+	 *
 	 * @param rollAmount The roll to be added
 	 */
 	private void showRoll(int rollAmount){
@@ -860,6 +869,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	/**
 	 * Removes the first occurrence of a roll from the roll slots
+	 *
 	 * @param i The roll to remove
 	 */
 	private void removeRoll(int i) {

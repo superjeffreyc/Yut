@@ -122,8 +122,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		loading.setGravity(Gravity.CENTER);
 		loading.setTextColor(Color.BLACK);
 		loading.setTextSize(20f);
-		loading.setX(backButton.getX());
-		loading.setY(backButton.getY());
+		loading.setX(helpButton.getX());
+		loading.setY(helpButton.getY());
 		loading.setText(R.string.loading);
 		loading.setVisibility(View.INVISIBLE);
 		rl.addView(loading);
@@ -251,19 +251,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		if(v.getId() == onePlayerButton.getId() || v.getId() == twoPlayerButton.getId()) {
 			showLoading();
 
-			final int mode;
-			if (v.getId() == onePlayerButton.getId()) mode = 1;
-			else mode = 2;
+			final boolean isOnePlayer = (v.getId() == onePlayerButton.getId());
 
 			Handler handler = new Handler();
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
 					Intent intent = new Intent(context, BoardActivity.class);
-
-					if (mode == 1) intent.putExtra("Computer", true);
-					else intent.putExtra("Computer", false);
-
+					intent.putExtra("Computer", isOnePlayer);
 					startActivity(intent);
 					finish();
 				}
@@ -318,6 +313,9 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	private void showLoading(){
+		startButton.setVisibility(View.INVISIBLE);
+		helpButton.setVisibility(View.INVISIBLE);
+		quitButton.setVisibility(View.INVISIBLE);
 		twoPlayerButton.setVisibility(View.INVISIBLE);
 		onePlayerButton.setVisibility(View.INVISIBLE);
 		backButton.setVisibility(View.INVISIBLE);
