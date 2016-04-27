@@ -157,6 +157,8 @@ public class Board {
 	 * Only a roll of -1 on tiles 0, 15, and 22 will return 2 Integer arrays in the ArrayList
 	 * All other locations and rolls will only return 1 Integer array
 	 *
+	 * Rolling a -1 with no pieces on the board will skip the current turn
+	 *
 	 * @param move The roll amount
 	 * @param location The starting location
 	 * @return An ArrayList<Integer[]> containing pairs as follows: [Destination, roll amount]

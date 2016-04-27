@@ -40,7 +40,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	boolean isRollDone;         // Did the stick throwing animation finish
 	boolean canRoll = true;     // Did the user roll 4 or 5
 	boolean isEndTurn;
-	boolean moveDone;           // Did user make a move
+	boolean moveWasMade;           // Did user make a move
 	boolean capture;            // Did previous move eat enemy piece
 	boolean isGameOver;
 	boolean isComputerPlaying;  // One player mode
@@ -53,7 +53,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 //	int mpPos;
 
 	Context context = this;
-	static Board board = new Board();
+	Board board = new Board();
 	Player[] players = new Player[2];
 	Piece currentPiece;
 
@@ -103,7 +103,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		setContentView(R.layout.activity_board);
 		ButterKnife.bind(this);
 
-		// Gets mode selected from MainActivity
+		// Gets mode selected from TitleScreenActivity
 		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
 
 		// Get screen size and adjust based on ad size
@@ -298,7 +298,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			rl.addView(playerNum[i]);
 		}
 
-		// ----------------------------------------------------------Player pieces not on the board yet
+		// -----------------------------Player pieces indicating how many unfinished pieces are left
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
 				playerOffBoardImages[i][j] = new ImageView(context);
@@ -454,60 +454,34 @@ public class BoardActivity extends Activity implements OnClickListener{
 	}
 
 	/**
+	 * This method contains the main logic of the game.
+	 *
 	 * Handles the onClick actions. This allows the computer AI to call these actions while
 	 * preventing the user from interfering with the computer's moves.
 	 *
 	 * @param v The view being clicked on
 	 */
 	private void handleClick(View v){
-		if (v.getId() == R.id.rollButton) {
+		if (v.getId() == R.id.rollButton) { // Called when user clicks roll
 			handleRoll();
 		}
 		else if (v.getId() == finish.getId()) {
-			movePiece(32, Move.NORMAL); // finish location
+			movePiece(32, Move.NORMAL); // 32 = finish location
 		}
-		else if (v.getId() == offBoardPiece.getId()) {
+		else if (v.getId() == offBoardPiece.getId()) {  // Image that represents both players' off board pieces
 			showPossibleTiles(players[turn].findAvailablePiece());
 		}
 		else if (tile_ids.contains(v.getId())){    // Activates on tile click
-			Move m = Move.NORMAL;
-			for (int i = 0; i < MAX_TILES; i++) {
-				if (v.getId() == tiles[i].getId() && isMarked[i]) {
-					for (int j = 0; j < 4; j++){
-						if (players[turn].pieces[j].getLocation() == i){
-							m = Move.STACK;
-							break;
-						} else if (players[oppTurn].pieces[j].getLocation() == i){
-							m = Move.CAPTURE;
-							break;
-						}
-					}
-
-					movePiece(i, m);
-					break;
-				}
-			}
+			handleTileClick(v);
 		}
 		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
-			for (int i = 0; i < 4; i++){
-				if (v.getId() == playerOnBoardImages[turn][i].getId() && isRollDone && !isMarked[players[turn].pieces[i].getLocation()]) {
-					showPossibleTiles(i);
-				}
-				// SAME TEAM
-				else if (v.getId() == playerOnBoardImages[turn][i].getId() && isMarked[players[turn].pieces[i].getLocation()]){
-					movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
-				}
-				// OPPOSITE TEAM
-				else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && isMarked[players[oppTurn].pieces[i].getLocation()]) {
-					movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
-				}
-			}
+			handlePlayerClick(v);
 		}
 		else {
 			hidePossibleTiles();    // Cancel move by clicking anything else
 		}
 
-		if (moveDone) cleanUp();
+		if (moveWasMade) cleanUp();
 	}
 
 	/**
@@ -568,6 +542,64 @@ public class BoardActivity extends Activity implements OnClickListener{
 	}
 
 	/**
+	 * Handles logic for tile clicks
+	 *
+	 * The STACK and CAPTURE moves here only applies to the computer because a user
+	 * would not be able to click the tile since having a piece on the tile
+	 * would cover the tile and make it un-clickable.
+	 *
+	 * However, the computer AI has access to the tile
+	 *
+	 * @param v The tile being clicked on
+	 */
+	private void handleTileClick(View v){
+		Move m = Move.NORMAL;
+		for (int i = 0; i < MAX_TILES; i++) {
+			if (v.getId() == tiles[i].getId() && isMarked[i]) {
+				for (int j = 0; j < 4; j++){
+					if (players[turn].pieces[j].getLocation() == i){
+						m = Move.STACK;
+						break;
+					} else if (players[oppTurn].pieces[j].getLocation() == i){
+						m = Move.CAPTURE;
+						break;
+					}
+				}
+
+				movePiece(i, m);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Handles the logic for player character clicks. There are three possible situations
+	 * when a player character is clicked:
+	 *
+	 * 1) User wants to see possible move locations
+	 * 2) User wants to stack multiple team piece(s)
+	 * 3) User wants to capture opponent's piece(s)
+	 *
+	 * @param v The player character being clicked on
+	 */
+	private void handlePlayerClick(View v){
+		for (int i = 0; i < 4; i++){
+			// Show possible move locations
+			if (v.getId() == playerOnBoardImages[turn][i].getId() && isRollDone && !isMarked[players[turn].pieces[i].getLocation()]) {
+				showPossibleTiles(i);
+			}
+			// Same team
+			else if (v.getId() == playerOnBoardImages[turn][i].getId() && isMarked[players[turn].pieces[i].getLocation()]){
+				movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
+			}
+			// Opponent's pieces
+			else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && isMarked[players[oppTurn].pieces[i].getLocation()]) {
+				movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
+			}
+		}
+	}
+
+	/**
 	 * Moves the currently selected piece to a new location.
 	 * Additional actions are required if the move involved stacking your own piece or capturing an enemy piece
 	 *
@@ -579,7 +611,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (currentPiece.getLocation() == -1) players[turn].numPieces++;
 
 		currentPiece.setLocation(i);
-		moveDone = true;
+		moveWasMade = true;
 
 		// Move image to tile i
 		if (i != 32) {
@@ -796,7 +828,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 * prepare the board for another move or end the turn
 	 */
 	private void cleanUp(){
-		moveDone = false;
+		moveWasMade = false;
 		int value = 0;
 		for (Integer[] i : moveSet) {
 			if (i[0] == currentPiece.getLocation()) {
@@ -1026,7 +1058,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 * Exits this activity
 	 */
 	private void quit(){
-		Intent intent = new Intent(this, MainActivity.class);
+		Intent intent = new Intent(this, TitleScreenActivity.class);
 		startActivity(intent);
 		finish();
 	}

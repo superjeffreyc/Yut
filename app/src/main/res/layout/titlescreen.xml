@@ -6,7 +6,7 @@
                 android:background="@drawable/background"
                 android:orientation="vertical"
                 android:id="@+id/rl"
-                tools:context="com.jeffreychan.yutnori.MainActivity">
+                tools:context=".TitleScreenActivity">
 
 
 
