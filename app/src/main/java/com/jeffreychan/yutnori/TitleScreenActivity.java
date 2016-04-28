@@ -1,5 +1,6 @@
 package com.jeffreychan.yutnori;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -65,16 +66,19 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.titlescreen);
 
-		rl = (RelativeLayout) findViewById(R.id.rl);
+		rl = (RelativeLayout) findViewById(R.id.rl);    // All views will be placed in this layout
 
+		// Create jumping penguin
 		penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
 		penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
 		penguinJumpAnimation.start();
 
+		// Create jumping seal
 		sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
 		sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
 		sealJumpAnimation.start();
 
+		// Get screen dimensions
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
@@ -97,7 +101,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		startButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		startButton.setOnClickListener(this);
 		startButton.setX(midX);
-		startButton.setY(height * 6 / 10);
+		startButton.setY((int) (height * 6.0 / 10.0));
 		rl.addView(startButton);
 
 		helpButton = new Button(this);
@@ -106,7 +110,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		helpButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		helpButton.setOnClickListener(this);
 		helpButton.setX(midX);
-		helpButton.setY(height * 7 / 10);
+		helpButton.setY((int) (height * 7.0 / 10.0));
 		rl.addView(helpButton);
 
 		quitButton = new Button(this);
@@ -115,7 +119,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		quitButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		quitButton.setOnClickListener(this);
 		quitButton.setX(midX);
-		quitButton.setY(height * 8 / 10);
+		quitButton.setY((int) (height * 8.0 / 10.0));
 		rl.addView(quitButton);
 
 		onePlayerButton = new Button(this);
@@ -241,6 +245,14 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	private void shiftButtonsLeft(){
 		if (!isLeft) {
 			isLeft = true;
+
+			startButton.clearAnimation();
+			helpButton.clearAnimation();
+			quitButton.clearAnimation();
+			onePlayerButton.clearAnimation();
+			twoPlayerButton.clearAnimation();
+			backButton.clearAnimation();
+
 			onePlayerButton.setX(midX);
 			twoPlayerButton.setX(midX);
 			backButton.setX(midX);
@@ -260,8 +272,16 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	private void shiftButtonsRight(){
 		if (isLeft){
 			isLeft = false;
-			helpButton.setX(midX);
+
+			startButton.clearAnimation();
+			helpButton.clearAnimation();
+			quitButton.clearAnimation();
+			onePlayerButton.clearAnimation();
+			twoPlayerButton.clearAnimation();
+			backButton.clearAnimation();
+
 			startButton.setX(midX);
+			helpButton.setX(midX);
 			quitButton.setX(midX);
 
 			onePlayerButton.setX(rightX);

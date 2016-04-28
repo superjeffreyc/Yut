@@ -524,7 +524,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		finish.setVisibility(View.INVISIBLE);
 
-		if (players[turn].numPieces == 0) tips.setText(R.string.click_me);
+		if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
 		else {
 			if (turn == 0) tips.setText(R.string.any_seal);
 			else if (turn == 1 && !isComputerPlaying) tips.setText(R.string.any_penguin);
@@ -608,7 +608,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 */
 	private void movePiece(int i, Move m){
 
-		if (currentPiece.getLocation() == -1) players[turn].numPieces++;
+		if (currentPiece.getLocation() == -1) players[turn].addNumPieces(1);
 
 		currentPiece.setLocation(i);
 		moveWasMade = true;
@@ -683,7 +683,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			if (players[oppTurn].pieces[j].getLocation() == currentPiece.getLocation()) {
 				playerOnBoardImages[oppTurn][j].setX(-currentPieceImage.getWidth());
 				players[oppTurn].pieces[j].setLocation(-1);
-				players[oppTurn].numPieces -= players[oppTurn].pieces[j].getValue();
+				players[oppTurn].subtractNumPieces(players[oppTurn].pieces[j].getValue());
 				players[oppTurn].pieces[j].resetValue();
 
 				if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
@@ -753,7 +753,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
 				}
-				else if (rollAmount == -1 && counter == 0 && players[turn].numPieces == players[turn].getScore()) isEndTurn = true;
+				else if (rollAmount == -1 && counter == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
 				else {
 					canRoll = false;
 					isRollDone = true;
@@ -784,12 +784,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 					tips.setVisibility(View.VISIBLE);
 
-					if (players[turn].numPieces < 4 && posCount > 0) {
+					if (players[turn].getNumPieces() < 4 && posCount > 0) {
 						offBoardPiece.setVisibility(View.VISIBLE);
 						offBoardPieceAnimation.start();
 
-						if (players[turn].numPieces == 0) tips.setText(R.string.click_me);
-					} else if (players[turn].numPieces == 4){
+						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
+					} else if (players[turn].hasAllPiecesOnBoard()){
 						if (turn == 0) tips.setText(R.string.any_seal);
 						else tips.setText(R.string.any_penguin);
 					}
@@ -840,7 +840,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		if (isGameOver) return;
 
-		if (players[turn].numPieces == 4){
+		if (players[turn].hasAllPiecesOnBoard()){
 			offBoardPiece.setVisibility(View.INVISIBLE);
 			offBoardPieceAnimation.stop();
 			offBoardPieceAnimation.selectDrawable(0);
@@ -888,7 +888,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		// Hide pieces that are on the board or completed
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
-				if (j < players[i].numPieces) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
+				if (j < players[i].getNumPieces()) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
 				else playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
 			}
 		}

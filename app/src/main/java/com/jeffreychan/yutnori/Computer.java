@@ -43,7 +43,7 @@ public class Computer {
 			for (int j : moves.get(i)){
 				for (int k = 0; k < 4; k++) {
 					if (players[0].pieces[k].getLocation() == j) {
-						if (players[1].numPieces < 4 && j <= 5){
+						if (players[1].getNumPieces() < 4 && j <= 5){
 							if (players[1].pieces[i].getLocation() == -1) {
 								return new int[]{-1, j};
 							}
@@ -61,7 +61,7 @@ public class Computer {
 			for (int j : moves.get(i)){
 				for (int k = 0; k < 4; k++) {
 					if (players[1].pieces[k].getLocation() == j) {
-						if (players[1].numPieces < 4 && j <= 5){
+						if (players[1].getNumPieces() < 4 && j <= 5){
 							if (players[1].pieces[i].getLocation() == -1) {
 								return new int[]{-1, j};
 							}
@@ -78,7 +78,7 @@ public class Computer {
 		for (int i = 0; i < moves.size(); i++){
 			for (int j : moves.get(i)){
 				if (shortcuts.contains(j)){
-					if (players[1].numPieces < 4 && j == 5){
+					if (players[1].getNumPieces() < 4 && j == 5){
 						if (players[1].pieces[i].getLocation() == -1) {
 							return new int[]{-1, j};
 						}
@@ -114,7 +114,7 @@ public class Computer {
 			}
 		}
 		// Use off board pieces
-		else if (players[1].numPieces < 4){
+		else if (players[1].getNumPieces() < 4){
 			for (int i = 0; i < 4; i++) {
 				if (players[1].pieces[i].getLocation() == -1)
 					return new int[]{-1, moves.get(i).get(0)};
