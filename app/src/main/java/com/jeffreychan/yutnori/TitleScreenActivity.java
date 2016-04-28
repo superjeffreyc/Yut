@@ -1,13 +1,12 @@
 package com.jeffreychan.yutnori;
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.AnimationDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
@@ -19,21 +18,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.ImageView;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.content.Intent;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class TitleScreenActivity extends Activity implements OnClickListener {
-
-	ImageView penguinJumpImageView;
-	ImageView sealJumpImageView;
-
-	AnimationDrawable penguinJumpAnimation;
-	AnimationDrawable sealJumpAnimation;
 
 	Button startButton;
 	Button helpButton;
@@ -44,18 +37,24 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	Button backButton;
 
 	RelativeLayout rl;
+	RelativeLayout rl1;
+	RelativeLayout rl2;
 
 	TextView loading;
+
+	ImageView title;
 
 	Context context = this;
 
 	TranslateAnimation leftToRight, rightToLeft;
 
+	private MediaPlayer mp;
+	private final static int MAX_VOLUME = 100;
+
 	int width;      // Screen width
 	int height;     // Screen height
-	int leftX;      // Off screen to the left (end of translate animation location)
 	int midX;       // Top left corner of a centered button
-	int rightX;     // Off screen to the right (end of translate animation location)
+	int mpPos = 0;
 
 	boolean isLeft = false;     // Are the initial buttons (Start, How To Play, Quit) off screen to the left
 
@@ -66,17 +65,20 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.titlescreen);
 
+		// Create media player for background song
+		mp = MediaPlayer.create(this, R.raw.song);
+		mp.setLooping(true);
+		if (getIntent().hasExtra("Song")) mpPos = getIntent().getExtras().getInt("Song");
+		mp.seekTo(mpPos);
+
+		// Formula to modify volume from https://stackoverflow.com/questions/5215459/android-mediaplayer-setvolume-function
+		int soundVolume = 75;
+		final float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
+		mp.setVolume(volume, volume);
+
+		mp.start();
+
 		rl = (RelativeLayout) findViewById(R.id.rl);    // All views will be placed in this layout
-
-		// Create jumping penguin
-		penguinJumpImageView = (ImageView) findViewById(R.id.penguinjumpimageview);
-		penguinJumpAnimation = (AnimationDrawable) penguinJumpImageView.getBackground();
-		penguinJumpAnimation.start();
-
-		// Create jumping seal
-		sealJumpImageView = (ImageView) findViewById(R.id.sealmoveimageview);
-		sealJumpAnimation = (AnimationDrawable) sealJumpImageView.getBackground();
-		sealJumpAnimation.start();
 
 		// Get screen dimensions
 		Display display = getWindowManager().getDefaultDisplay();
@@ -85,6 +87,13 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		width = size.x;
 		height = size.y;
 
+		title = new ImageView(this);
+		title.setLayoutParams(new RelativeLayout.LayoutParams((int) (height*4.0/10.0), (int) (height*3.0/10.0)));
+		title.setBackgroundResource(R.drawable.yut);
+		title.setX((int) (width/2.0 - height*2.0/10.0));
+		title.setY((int) (height/10.0));
+		rl.addView(title);
+
 		/*
 		 * #########################################################################################
 		 *                                Begin setup of title screen buttons
@@ -92,8 +101,14 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		 */
 
 		midX = width/4;         // Top left corner of a centered button
-		leftX = midX - width;   // Off screen to the left (end of translate animation location)
-		rightX = midX + width;  // Off screen to the right (end of translate animation location)
+
+		rl1 = new RelativeLayout(this);
+		rl1.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+		rl1.setX(0);
+
+		rl2 = new RelativeLayout(this);
+		rl2.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+		rl2.setX(width);
 
 		startButton = new Button(this);
 		startButton.setBackgroundResource(R.drawable.startbutton);
@@ -102,7 +117,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		startButton.setOnClickListener(this);
 		startButton.setX(midX);
 		startButton.setY((int) (height * 6.0 / 10.0));
-		rl.addView(startButton);
+		rl1.addView(startButton);
 
 		helpButton = new Button(this);
 		helpButton.setBackgroundResource(R.drawable.howtoplay);
@@ -111,7 +126,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		helpButton.setOnClickListener(this);
 		helpButton.setX(midX);
 		helpButton.setY((int) (height * 7.0 / 10.0));
-		rl.addView(helpButton);
+		rl1.addView(helpButton);
 
 		quitButton = new Button(this);
 		quitButton.setBackgroundResource(R.drawable.quit);
@@ -120,34 +135,37 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		quitButton.setOnClickListener(this);
 		quitButton.setX(midX);
 		quitButton.setY((int) (height * 8.0 / 10.0));
-		rl.addView(quitButton);
+		rl1.addView(quitButton);
 
 		onePlayerButton = new Button(this);
 		onePlayerButton.setBackgroundResource(R.drawable.oneplayer);
 		onePlayerButton.setId(View.generateViewId());
 		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		onePlayerButton.setOnClickListener(this);
-		onePlayerButton.setX(rightX);
+		onePlayerButton.setX(midX);
 		onePlayerButton.setY(startButton.getY());
-		rl.addView(onePlayerButton);
+		rl2.addView(onePlayerButton);
 
 		twoPlayerButton = new Button(this);
 		twoPlayerButton.setBackgroundResource(R.drawable.twoplayer);
 		twoPlayerButton.setId(View.generateViewId());
 		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		twoPlayerButton.setOnClickListener(this);
-		twoPlayerButton.setX(rightX);
+		twoPlayerButton.setX(midX);
 		twoPlayerButton.setY(helpButton.getY());
-		rl.addView(twoPlayerButton);
+		rl2.addView(twoPlayerButton);
 
 		backButton = new Button(this);
 		backButton.setBackgroundResource(R.drawable.back);
 		backButton.setId(View.generateViewId());
 		backButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		backButton.setOnClickListener(this);
-		backButton.setX(rightX);
+		backButton.setX(midX);
 		backButton.setY(quitButton.getY());
-		rl.addView(backButton);
+		rl2.addView(backButton);
+
+		rl.addView(rl1);
+		rl.addView(rl2);
 
 		// Sets up loading text (shown when BoardActivity is loading)
 		loading = new TextView(this);
@@ -246,20 +264,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		if (!isLeft) {
 			isLeft = true;
 
-			startButton.clearAnimation();
-			helpButton.clearAnimation();
-			quitButton.clearAnimation();
-			onePlayerButton.clearAnimation();
-			twoPlayerButton.clearAnimation();
-			backButton.clearAnimation();
+			rl1.clearAnimation();
+			rl2.clearAnimation();
 
-			onePlayerButton.setX(midX);
-			twoPlayerButton.setX(midX);
-			backButton.setX(midX);
 
-			helpButton.setX(leftX);
-			startButton.setX(leftX);
-			quitButton.setX(leftX);
+			rl1.setX(-width);
+			rl2.setX(0);
 
 			setModeButtonClickable(true);
 		}
@@ -273,22 +283,38 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		if (isLeft){
 			isLeft = false;
 
-			startButton.clearAnimation();
-			helpButton.clearAnimation();
-			quitButton.clearAnimation();
-			onePlayerButton.clearAnimation();
-			twoPlayerButton.clearAnimation();
-			backButton.clearAnimation();
+			rl1.clearAnimation();
+			rl2.clearAnimation();
 
-			startButton.setX(midX);
-			helpButton.setX(midX);
-			quitButton.setX(midX);
-
-			onePlayerButton.setX(rightX);
-			twoPlayerButton.setX(rightX);
-			backButton.setX(rightX);
+			rl1.setX(0);
+			rl2.setX(width);
 
 			setInitialButtonClickable(true);
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (mp.isPlaying()) {
+			mp.pause();
+			mpPos = mp.getCurrentPosition();
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		mp.seekTo(mpPos);
+		mp.start();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		if (mp.isPlaying()) {
+			mp.stop();
+			mp.release();
 		}
 	}
 
@@ -321,6 +347,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 				public void run() {
 					Intent intent = new Intent(context, BoardActivity.class);
 					intent.putExtra("Computer", isOnePlayer);
+					intent.putExtra("Song", mp.getCurrentPosition());
 					startActivity(intent);
 					finish();
 				}
@@ -355,23 +382,14 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	}
 
 	private void showInitialButtons(){
-		helpButton.startAnimation(leftToRight);
-		startButton.startAnimation(leftToRight);
-		quitButton.startAnimation(leftToRight);
+		rl1.startAnimation(leftToRight);
+		rl2.startAnimation(leftToRight);
 
-		twoPlayerButton.startAnimation(leftToRight);
-		onePlayerButton.startAnimation(leftToRight);
-		backButton.startAnimation(leftToRight);
 	}
 
 	private void showModeButtons(){
-		helpButton.startAnimation(rightToLeft);
-		startButton.startAnimation(rightToLeft);
-		quitButton.startAnimation(rightToLeft);
-
-		twoPlayerButton.startAnimation(rightToLeft);
-		onePlayerButton.startAnimation(rightToLeft);
-		backButton.startAnimation(rightToLeft);
+		rl1.startAnimation(rightToLeft);
+		rl2.startAnimation(rightToLeft);
 	}
 
 	private void showLoading(){

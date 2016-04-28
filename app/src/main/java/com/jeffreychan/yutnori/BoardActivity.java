@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
-//import android.media.MediaPlayer;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
@@ -50,7 +50,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	int oppTurn = 1;
 	int counter = 0;
 	int MAX_TILES = 29;
-//	int mpPos;
+	int mpPos;
 
 	Context context = this;
 	Board board = new Board();
@@ -85,7 +85,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Bind(R.id.bottomBar)   ImageView bottomBar;
 	@Bind(R.id.rl)          RelativeLayout rl;
 
-//	private MediaPlayer mp;
+	private MediaPlayer mp;
+	private final static int MAX_VOLUME = 100;
 
 	boolean[] isMarked = new boolean[MAX_TILES];
 
@@ -105,6 +106,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		// Gets mode selected from TitleScreenActivity
 		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
+		mpPos = getIntent().getExtras().getInt("Song");
+
+		// Create media player for background song
+		mp = MediaPlayer.create(this, R.raw.song);
+		mp.setLooping(true);
+		mp.seekTo(mpPos);
+
+		// Formula to modify volume from https://stackoverflow.com/questions/5215459/android-mediaplayer-setvolume-function
+		int soundVolume = 75;
+		final float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
+		mp.setVolume(volume, volume);
+
+		mp.start();
 
 		// Get screen size and adjust based on ad size
 		Display display = getWindowManager().getDefaultDisplay();
@@ -128,10 +142,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		players[0] = new Player();
 		players[1] = new Player();
-
-//		mp = MediaPlayer.create(this, R.raw.test);
-//		mp.setLooping(true);
-//		mp.start();
 
 		/* <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -392,26 +402,26 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public void onPause() {
 		super.onPause();
-//		if (mp.isPlaying()) {
-//			mp.pause();
-//			mpPos = mp.getCurrentPosition();
-//		}
+		if (mp.isPlaying()) {
+			mp.pause();
+			mpPos = mp.getCurrentPosition();
+		}
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-//		mp.seekTo(mpPos);
-//		mp.start();
+		mp.seekTo(mpPos);
+		mp.start();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-//		if (mp.isPlaying()) {
-//			mp.stop();
-//			mp.release();
-//		}
+		if (mp.isPlaying()) {
+			mp.stop();
+			mp.release();
+		}
 	}
 
 	/*
@@ -1043,7 +1053,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 		adb.setView(tv);
 		adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				recreate();
+				Intent intent = new Intent(context, BoardActivity.class);
+				intent.putExtra("Computer", isComputerPlaying);
+				intent.putExtra("Song", mp.getCurrentPosition());
+				startActivity(intent);
+				finish();
 			}
 		});
 		adb.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
@@ -1059,6 +1073,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 */
 	private void quit(){
 		Intent intent = new Intent(this, TitleScreenActivity.class);
+		intent.putExtra("Song", mp.getCurrentPosition());
 		startActivity(intent);
 		finish();
 	}

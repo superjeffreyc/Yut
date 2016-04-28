@@ -7,37 +7,4 @@
                 android:orientation="vertical"
                 android:id="@+id/rl"
                 tools:context=".TitleScreenActivity">
-
-
-
-
-    <ImageView
-        android:layout_width="170dp"
-        android:layout_height="170dp"
-        android:id="@+id/penguinjumpimageview"
-        android:background="@drawable/penguinjumpanimation"
-        android:layout_alignTop="@+id/sealmoveimageview"
-        android:layout_alignParentStart="true"/>
-    
-    <ImageView
-        android:layout_width="170dp"
-        android:layout_height="170dp"
-        android:id="@+id/sealmoveimageview"
-        android:background="@drawable/sealmoveanimation"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"/>
-
- <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Yut Nori!"
-        android:id="@+id/title"
-        android:layout_marginTop="39dp"
-        android:textColor="#19546D"
-        android:textSize="60sp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-   
-
-
 </RelativeLayout>

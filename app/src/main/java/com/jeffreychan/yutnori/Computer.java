@@ -74,7 +74,16 @@ public class Computer {
 			}
 		}
 
-		// #3 Priority: Try to take shortcuts----------------------------------------
+		// #3 Priority: Finish pieces----------------------------------------
+		for (int i = 0; i < moves.size(); i++){
+			for (int j : moves.get(i)){
+				if (j == 32){   // finish location
+					return new int[]{i,j};
+				}
+			}
+		}
+
+		// #4 Priority: Try to take shortcuts----------------------------------------
 		for (int i = 0; i < moves.size(); i++){
 			for (int j : moves.get(i)){
 				if (shortcuts.contains(j)){
@@ -86,15 +95,6 @@ public class Computer {
 					if (players[1].pieces[i].getLocation() != -1 && players[1].pieces[i].getLocation() != 32) {
 						return new int[]{i, j};
 					}
-				}
-			}
-		}
-
-		// #4 Priority: Finish pieces----------------------------------------
-		for (int i = 0; i < moves.size(); i++){
-			for (int j : moves.get(i)){
-				if (j == 32){   // finish location
-					return new int[]{i,j};
 				}
 			}
 		}
