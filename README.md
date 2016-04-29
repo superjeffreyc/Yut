@@ -1,5 +1,5 @@
-# HackBU-2016
-HackBU 2016 Project - Yut
+# Yut
+HackBU 2016 Project
 
 Yut (pronounced yoot) is a traditional Korean board game which plays similar to "Sorry!"
 
