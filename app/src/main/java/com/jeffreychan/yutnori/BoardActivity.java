@@ -39,10 +39,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	boolean isRollDone;         // Did the stick throwing animation finish
 	boolean canRoll = true;     // Did the user roll 4 or 5
-	boolean isEndTurn;
-	boolean moveWasMade;           // Did user make a move
+	boolean isEndTurn;          // Is it the end of the turn
+	boolean moveWasMade;        // Did user make a move
 	boolean capture;            // Did previous move eat enemy piece
-	boolean isGameOver;
+	boolean isGameOver;         // Is the game over
 	boolean isComputerPlaying;  // One player mode
 
 	int rollAmount;
@@ -50,7 +50,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	int oppTurn = 1;
 	int counter = 0;
 	int MAX_TILES = 29;
-	int mpPos;
+	int mpPos;  // Current position in the song (Updates when the activity is paused)
 
 	Context context = this;
 	Board board = new Board();
@@ -88,13 +88,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private MediaPlayer mp;
 	private final static int MAX_VOLUME = 100;
 
-	boolean[] isMarked = new boolean[MAX_TILES];
+	boolean[] isMarked = new boolean[MAX_TILES];    // Represents whether a tile is highlighted yellow or not
 
-	Integer[][] moveSet;
+	Integer[][] moveSet;    // Represents the current possible move set
 
-	TreeSet<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 5, 10, 15, 22));
-	ArrayList<Integer> tile_ids = new ArrayList<>();
-	ArrayList<Integer> player_ids = new ArrayList<>();
+	TreeSet<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 5, 10, 15, 22)); // These tiles are colored differently
+	ArrayList<Integer> tile_ids = new ArrayList<>();    // Contains the click ids for all tiles
+	ArrayList<Integer> player_ids = new ArrayList<>();  // Contains the click ids for all player pieces
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -399,6 +399,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) { return super.onOptionsItemSelected(item);	}
 
+	/*
+	 * If the activity is placed in the background, save the current position of the song
+	 */
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -408,6 +411,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	/*
+	 * When this activity resumes, return to the saved position in the song
+	 */
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -415,6 +421,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 		mp.start();
 	}
 
+	/*
+	 * When this activity is closed, stop the song
+	 */
 	@Override
 	public void onStop() {
 		super.onStop();

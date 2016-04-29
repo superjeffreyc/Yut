@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
@@ -31,7 +32,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	Button startButton;
 	Button helpButton;
 	Button quitButton;
-
+	Button settingsButton;
 	Button onePlayerButton;
 	Button twoPlayerButton;
 	Button backButton;
@@ -54,7 +55,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	int width;      // Screen width
 	int height;     // Screen height
 	int midX;       // Top left corner of a centered button
-	int mpPos = 0;
+	int mpPos = 0;  // Current position in the song (Updates when the activity is paused)
 
 	boolean isLeft = false;     // Are the initial buttons (Start, How To Play, Quit) off screen to the left
 
@@ -116,7 +117,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		startButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		startButton.setOnClickListener(this);
 		startButton.setX(midX);
-		startButton.setY((int) (height * 6.0 / 10.0));
+		startButton.setY((int) (height * 5.5 / 10.0));
 		rl1.addView(startButton);
 
 		helpButton = new Button(this);
@@ -125,8 +126,17 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		helpButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		helpButton.setOnClickListener(this);
 		helpButton.setX(midX);
-		helpButton.setY((int) (height * 7.0 / 10.0));
+		helpButton.setY((int) (height * 6.5 / 10.0));
 		rl1.addView(helpButton);
+
+		settingsButton = new Button(this);
+		settingsButton.setBackgroundResource(R.drawable.settings);
+		settingsButton.setId(View.generateViewId());
+		settingsButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		settingsButton.setOnClickListener(this);
+		settingsButton.setX(midX);
+		settingsButton.setY((int) (height * 7.5 / 10.0));
+		rl1.addView(settingsButton);
 
 		quitButton = new Button(this);
 		quitButton.setBackgroundResource(R.drawable.quit);
@@ -134,7 +144,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		quitButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		quitButton.setOnClickListener(this);
 		quitButton.setX(midX);
-		quitButton.setY((int) (height * 8.0 / 10.0));
+		quitButton.setY((int) (height * 8.5 / 10.0));
 		rl1.addView(quitButton);
 
 		onePlayerButton = new Button(this);
@@ -161,7 +171,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		backButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		backButton.setOnClickListener(this);
 		backButton.setX(midX);
-		backButton.setY(quitButton.getY());
+		backButton.setY(settingsButton.getY());
 		rl2.addView(backButton);
 
 		rl.addView(rl1);
@@ -267,7 +277,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 			rl1.clearAnimation();
 			rl2.clearAnimation();
 
-
 			rl1.setX(-width);
 			rl2.setX(0);
 
@@ -293,6 +302,9 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	/*
+	 * If the activity is placed in the background, save the current position of the song
+	 */
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -302,6 +314,9 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	/*
+	 * When this activity resumes, return to the saved position in the song
+	 */
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -309,6 +324,9 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		mp.start();
 	}
 
+	/*
+	 * When this activity is closed, stop the song
+	 */
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -318,6 +336,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	/*
+	 * If back is pressed while the mode buttons are displayed, shift the buttons right to show the initial buttons
+	 * Otherwise, quit the app
+	 */
 	@Override
 	public void onBackPressed() {
 		if (isLeft) showInitialButtons();
@@ -334,9 +356,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		return super.onOptionsItemSelected(item);
 	}
 
+	/*
+	 * Handles all clicks
+	 */
 	@Override
 	public void onClick(View v) {
-		if(v.getId() == onePlayerButton.getId() || v.getId() == twoPlayerButton.getId()) {
+		if(v.getId() == onePlayerButton.getId() || v.getId() == twoPlayerButton.getId()) {  // Start playing the game
 			showLoading();
 
 			final boolean isOnePlayer = (v.getId() == onePlayerButton.getId());
@@ -354,19 +379,20 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 			});
 		}
 		else if (v.getId() == startButton.getId()){
-			showModeButtons();
+			showModeButtons();  // start animation of right to left
 		}
 		else if (v.getId() == backButton.getId()) {
-			showInitialButtons();
+			showInitialButtons();   // start animation of left to right
 		}
-		else if (v.getId() == helpButton.getId()){
+		else if (v.getId() == helpButton.getId()){  // Bring up how to play dialog
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			adb.setTitle("How to play");
 			ScrollView sv = new ScrollView(this);
 			TextView tv = new TextView(this);
 			tv.setPadding(0, 40, 0, 40);
 			tv.setText(R.string.guide);
 			tv.setTextSize(20f);
-			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			tv.setGravity(Gravity.CENTER);
 			sv.addView(tv);
 			adb.setView(sv);
 			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
@@ -379,19 +405,66 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		else if (v.getId() == quitButton.getId()){
 			finish();
 		}
+		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
+			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			final CharSequence[] items = {"Share", "Credits", "Rate on Play Store", "Close"};
+			adb.setTitle("Settings");
+			adb.setItems(items, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int item) {
+					if (item == 0){
+						String message = "I am playing a board game called Yut! Try it out at https://play.google.com/store/apps/details?id=com.jeffreychan.yutnori";
+						Intent share = new Intent(Intent.ACTION_SEND);
+						share.setType("text/plain");
+						share.putExtra(Intent.EXTRA_TEXT, message);
+						startActivity(Intent.createChooser(share, "Share"));
+					}
+					else if (item == 1){
+						AlertDialog.Builder adb = new AlertDialog.Builder(context);
+						ScrollView sv = new ScrollView(context);
+						TextView tv = new TextView(context);
+						tv.setPadding(0, 40, 0, 40);
+						tv.setText(R.string.credits);
+						tv.setTextSize(20f);
+						tv.setGravity(Gravity.CENTER);
+						sv.addView(tv);
+						adb.setView(sv);
+						adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int whichButton) {
+								dialog.cancel();
+							}
+						});
+						adb.show();
+					}
+					else if (item == 2){
+						Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yutnori"));
+						startActivity(intent);
+					}
+				}
+			});
+			adb.show();
+		}
 	}
 
+	/*
+	 * Start animation to shift all buttons right (true X,Y locations do not change though)
+	 */
 	private void showInitialButtons(){
 		rl1.startAnimation(leftToRight);
 		rl2.startAnimation(leftToRight);
 
 	}
 
+	/*
+	 * Start animation to shift all buttons left (true X,Y locations do not change though)
+	 */
 	private void showModeButtons(){
 		rl1.startAnimation(rightToLeft);
 		rl2.startAnimation(rightToLeft);
 	}
 
+	/*
+	 * Hide all buttons and show the loading text
+	 */
 	private void showLoading(){
 		startButton.setVisibility(View.INVISIBLE);
 		helpButton.setVisibility(View.INVISIBLE);

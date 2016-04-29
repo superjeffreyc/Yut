@@ -36,5 +36,9 @@
         To move, click any one of your available pieces (the jumping pieces) and select a yellow tile, which indicate possible locations you can move to with that piece.
     </string>
 
+    <string name="credits">
+        DEVELOPERS\n\n
+    </string>
+
 
 </resources>
