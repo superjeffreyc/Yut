@@ -407,6 +407,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		turnText.setTextColor(Color.WHITE);
 		turnText.setTextSize(40f);
 		turnText.setBackgroundColor(Color.parseColor("#56AFC1"));
+		turnText.setAlpha(0.8f);    // Set slight transparency so users can see pieces behind it
 		rl.addView(turnText);
 
 		/* <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -765,6 +766,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 			else if (turn == 1 && !isComputerPlaying) tips.setText(R.string.any_penguin);
 		}
 
+		if (isComputerPlaying && turn == 1) {
+			tips.setText(R.string.computer);
+		}
+
 		for (int i = 0; i < MAX_TILES; i++) {
 			isMarked[i] = false;
 
@@ -818,18 +823,24 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 * @param v The player character being clicked on
 	 */
 	private void handlePlayerClick(View v){
-		for (int i = 0; i < 4; i++){
-			// Show possible move locations
-			if (v.getId() == playerOnBoardImages[turn][i].getId() && isRollDone && !isMarked[players[turn].pieces[i].getLocation()]) {
-				showPossibleTiles(i);
-			}
-			// Same team
-			else if (v.getId() == playerOnBoardImages[turn][i].getId() && isMarked[players[turn].pieces[i].getLocation()]){
-				movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
-			}
-			// Opponent's pieces
-			else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && isMarked[players[oppTurn].pieces[i].getLocation()]) {
-				movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
+		if (isRollDone) {
+			for (int i = 0; i < 4; i++) {
+				int location = players[turn].pieces[i].getLocation();
+
+				if (location != -1 && location != 32) {
+					// Show possible move locations
+					if (v.getId() == playerOnBoardImages[turn][i].getId() && !isMarked[players[turn].pieces[i].getLocation()]) {
+						showPossibleTiles(i);
+					}
+					// Same team
+					else if (v.getId() == playerOnBoardImages[turn][i].getId() && isMarked[players[turn].pieces[i].getLocation()]) {
+						movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
+					}
+					// Opponent's pieces
+					else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && isMarked[players[oppTurn].pieces[i].getLocation()]) {
+						movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
+					}
+				}
 			}
 		}
 	}
@@ -889,18 +900,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 		removeRoll(value);
 
-		if (board.numberOfRolls() != 0 && currentMoveType != Move.CAPTURE){
-			offBoardPiece.setVisibility(View.VISIBLE);
-			tips.setVisibility(View.VISIBLE);
-		}
-
-		// Move image to tile i
+		// Check for win
 		if (currentPiece.getLocation() == 32){
 			players[turn].addScore(currentPiece.getValue());
 			currentPieceImage.setX(-currentPieceImage.getX());
 			hidePossibleTiles();
 
 			if (players[turn].hasWon()) endGame();
+		}
+
+		// Set off board piece visible if not the end of game
+		if (!isGameOver && board.numberOfRolls() != 0 && currentMoveType != Move.CAPTURE){
+			offBoardPiece.setVisibility(View.VISIBLE);
+			tips.setVisibility(View.VISIBLE);
 		}
 
 		cleanUp();
@@ -1233,7 +1245,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void endTurn(){
 		board.endTurn();
 		reset();
-		System.err.println("P1: " + players[0].getScore() + " P2: " + players[1].getScore());
 		if (isComputerPlaying && turn == 1) handleComputerRoll();
 	}
 
@@ -1374,7 +1385,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				int piece = move[0];
 				final int i = move[1];
 
-				if (piece == -1) handleClick(offBoardPiece);
+				if (piece == -1 || players[1].pieces[piece].getLocation() == -1) handleClick(offBoardPiece);
 				else handleClick(playerOnBoardImages[1][piece]);
 
 				tips.setText(R.string.computer);

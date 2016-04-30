@@ -18,10 +18,8 @@ public class Player {
 				return i;
 			}
 		}
-		return -1;
+		return -1;  // Error
 	}
-
-	public int getScore() { return score; }
 
 	public void addScore(int i){ score += i; }
 

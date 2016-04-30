@@ -114,21 +114,19 @@ public class Computer {
 			}
 		}
 		// Use off board pieces
-		else if (players[1].getNumPieces() < 4){
+		if (players[1].getNumPieces() < 4){
 			for (int i = 0; i < 4; i++) {
-				if (players[1].pieces[i].getLocation() == -1)
-					return new int[]{-1, moves.get(i).get(0)};
+				if (players[1].pieces[i].getLocation() == -1 && moves.get(i).size() > 0)
+					return new int[]{-1, moves.get(i).get(0)};  // -1 indicates off board piece
 			}
 		}
 		// Use on board pieces
-		else {
-			for (int i = 0; i < 4; i++) {
-				if (players[1].pieces[i].getLocation() != -1 && players[1].pieces[i].getLocation() != 32){
-					return new int[] {i, moves.get(i).get(0)};
-				}
+		for (int i = 0; i < 4; i++) {
+			if (players[1].pieces[i].getLocation() != -1 && players[1].pieces[i].getLocation() != 32){
+				return new int[] {i, moves.get(i).get(0)};
 			}
 		}
 
-		return new int[] {-1, -1};  // Error while selecting piece and location
+		return new int[] {-2, -2};  // Error while selecting piece and location
 	}
 }
