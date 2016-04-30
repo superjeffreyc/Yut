@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -40,17 +42,27 @@ public class BoardActivity extends Activity implements OnClickListener{
 	boolean isRollDone;         // Did the stick throwing animation finish
 	boolean canRoll = true;     // Did the user roll 4 or 5
 	boolean isEndTurn;          // Is it the end of the turn
-	boolean moveWasMade;        // Did user make a move
 	boolean capture;            // Did previous move eat enemy piece
 	boolean isGameOver;         // Is the game over
 	boolean isComputerPlaying;  // One player mode
+	boolean isMoveInProgress;
 
 	int rollAmount;
 	int turn = 0;
 	int oppTurn = 1;
 	int counter = 0;
 	int MAX_TILES = 29;
-	int mpPos;  // Current position in the song (Updates when the activity is paused)
+	int mpPos;                  // Current position in the song (Updates when the activity is paused)
+	int MOVE_DURATION = 150;    // Length of animation for piece movement
+	int COMPUTER_THINK_DURATION = 1000;
+
+	double moveSize = 0;           // Used for animation movement horizontally or vertically
+	double diagonalMoveSize = 0;   // Used for animation movement diagonally
+
+	char[] order;               // Used to determine order of movements for animating movement
+	int orderIndex = 0;         // Indicates the current step in animating movement
+
+	Move currentMoveType;
 
 	Context context = this;
 	Board board = new Board();
@@ -59,6 +71,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	TextView turnText;
 	TextView tips;
+
+	TranslateAnimation up;
+	TranslateAnimation down;
+	TranslateAnimation left;
+	TranslateAnimation right;
+	TranslateAnimation upRight;
+	TranslateAnimation downRight;
+	TranslateAnimation upLeft;
+	TranslateAnimation downLeft;
 
 	AnimationDrawable fallingSticks;
 	AnimationDrawable offBoardPieceAnimation;
@@ -151,11 +172,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 		 */
 
 		// Set up tiles
-		double boardSize = height*0.6;
+		double boardSize = (height*0.6);
 		if(height*0.6 > width) boardSize = width;
-		double padding = boardSize/50.0;
-		double space = boardSize/25.0;
-		double tileSize = (boardSize - padding*2 - space*5) / 6;
+		double padding = (boardSize/50.0);
+		double space = (boardSize/25.0);
+		double tileSize = ((boardSize - padding*2 - space*5) / 6);
+		moveSize = (tileSize + space);    // Used for animations
 
 		tiles = new ImageView[MAX_TILES];
 		for(int i = 0; i < tiles.length; i++) {
@@ -178,7 +200,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				tiles[i].setY((tiles[5].getY()));
 			}
 			else if(i < 16) {
-				tiles[i].setX((float)(tiles[9].getX() - tileSize - space));
+				tiles[i].setX((float) (tiles[9].getX() - tileSize - space));
 				tiles[i].setY(tiles[5 - (i - 10)].getY());
 			}
 			else if(i < 20) {
@@ -186,25 +208,27 @@ public class BoardActivity extends Activity implements OnClickListener{
 				tiles[i].setY(tiles[15].getY());
 			}
 			else if(i < 25) {
-				tiles[i].setX((float)(width / 2 - tileSize / 2 + (22 - i) * ((tiles[0].getX() - (width / 2 - tileSize / 2))) / 3));
+				tiles[i].setX((float) (width / 2 - tileSize / 2 + (22 - i) * ((tiles[0].getX() - (width / 2 - tileSize / 2))) / 3));
 				tiles[i].setY((float) (height * 0.4 - tileSize / 2 - (22 - i) * ((tiles[0].getY() - (height * 0.4 - tileSize / 2))) / 3));
 			}
 			else {
 				int j = i;
 				if(i > 26) j ++;
-				tiles[i].setX((float)(width / 2 - tileSize / 2 + (j - 27) * ((tiles[0].getX() - (width / 2 - tileSize / 2))) / 3));
+				tiles[i].setX((float) (width / 2 - tileSize / 2 + (j - 27) * ((tiles[0].getX() - (width / 2 - tileSize / 2))) / 3));
 				tiles[i].setY((float) (height * 0.4 - tileSize / 2 + (j - 27) * ((tiles[0].getY() - (height * 0.4 - tileSize / 2))) / 3));
 			}
 			rl.addView(tiles[i]);
 		}
 
+		diagonalMoveSize = Math.abs(tiles[21].getY() - tiles[20].getY());
+
 		// Set up lines behind the tiles
 		ImageView board_lines = new ImageView(this);
 		board_lines.setBackgroundResource(R.drawable.board_lines);
-		int dim = (int) (boardSize - 2 * padding - tileSize);   // Width of board lines on screen
-		float line_width = (float) (11.0/500) * dim;  // Thickness of line is 11 pixels in a 500x500 image
+		double dim = (boardSize - 2 * padding - tileSize);   // Width of board lines on screen
+		double line_width = (11.0/500) * dim;  // Thickness of line is 11 pixels in a 500x500 image
 		dim += line_width;  // Account for left shift of image
-		board_lines.setLayoutParams(new RelativeLayout.LayoutParams(dim, dim));
+		board_lines.setLayoutParams(new RelativeLayout.LayoutParams((int) dim, (int) dim));
 		board_lines.setX((float) (tiles[10].getX() + tileSize/2 - line_width/2));
 		board_lines.setY((float) (tiles[10].getY() + tileSize/2 - line_width/2));
 		rl.addView(board_lines);
@@ -391,6 +415,169 @@ public class BoardActivity extends Activity implements OnClickListener{
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 */
+
+
+		/*
+		 * -----------------------------------------------------------------------------------------------
+		 * ----------------------------------------- START ANIMATION SETUP -------------------------------
+		 * -----------------------------------------------------------------------------------------------
+		 */
+
+		up = new TranslateAnimation(0, 0, 0, (float) -moveSize);
+		up.setDuration(MOVE_DURATION);
+		up.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setY((float) (currentPieceImage.getY() - moveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
+		down = new TranslateAnimation(0, 0, 0, (float) moveSize);
+		down.setDuration(MOVE_DURATION);
+		down.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setY((float) (currentPieceImage.getY() + moveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+		});
+
+		left = new TranslateAnimation(0, (float) -moveSize, 0, 0);
+		left.setDuration(MOVE_DURATION);
+		left.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setX((float) (currentPieceImage.getX() - moveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
+		right = new TranslateAnimation(0, (float) moveSize, 0, 0);
+		right.setDuration(MOVE_DURATION);
+		right.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setX((float) (currentPieceImage.getX() + moveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
+		upRight = new TranslateAnimation(0, (float) diagonalMoveSize, 0, (float) -diagonalMoveSize);
+		upRight.setDuration(MOVE_DURATION);
+		upRight.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setX((float) (currentPieceImage.getX() + diagonalMoveSize));
+				currentPieceImage.setY((float) (currentPieceImage.getY() - diagonalMoveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
+		downRight = new TranslateAnimation(0, (float) diagonalMoveSize, 0, (float) diagonalMoveSize);
+		downRight.setDuration(MOVE_DURATION);
+		downRight.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setX((float) (currentPieceImage.getX() + diagonalMoveSize));
+				currentPieceImage.setY((float) (currentPieceImage.getY() + diagonalMoveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
+		upLeft = new TranslateAnimation(0, (float) -diagonalMoveSize, 0, (float) -diagonalMoveSize);
+		upLeft.setDuration(MOVE_DURATION);
+		upLeft.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setX((float) (currentPieceImage.getX() - diagonalMoveSize));
+				currentPieceImage.setY((float) (currentPieceImage.getY() - diagonalMoveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
+		downLeft = new TranslateAnimation(0, (float) -diagonalMoveSize, 0, (float) diagonalMoveSize);
+		downLeft.setDuration(MOVE_DURATION);
+		downLeft.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setX((float) (currentPieceImage.getX() - diagonalMoveSize));
+				currentPieceImage.setY((float) (currentPieceImage.getY() + diagonalMoveSize));
+				if (orderIndex < order.length) startNextAnimation();
+				else endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
+		/*
+		 * -----------------------------------------------------------------------------------------------
+		 * ----------------------------------------- END ANIMATION SETUP ---------------------------------
+		 * -----------------------------------------------------------------------------------------------
+		 */
 	}
 
 	@Override
@@ -463,13 +650,14 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 *
 	 * Once a player has won, prevent any further click events
 	 * Otherwise, call the handleClick method if it is not the computer's turn
+	 * Also, check that an animation is not in progress
 	 *
 	 * @param v The view being clicked on
 	 */
 	@Override
 	public void onClick(View v) {
 		if (isGameOver) return;
-		if (turn == 0 || !isComputerPlaying) handleClick(v);
+		if ((turn == 0 || !isComputerPlaying) && !isMoveInProgress) handleClick(v);
 	}
 
 	/**
@@ -481,7 +669,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 * @param v The view being clicked on
 	 */
 	private void handleClick(View v){
-		if (v.getId() == R.id.rollButton) { // Called when user clicks roll
+		if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
 			handleRoll();
 		}
 		else if (v.getId() == finish.getId()) {
@@ -500,9 +688,37 @@ public class BoardActivity extends Activity implements OnClickListener{
 			hidePossibleTiles();    // Cancel move by clicking anything else
 		}
 
-		if (moveWasMade) cleanUp();
 	}
 
+	/*
+	 * Gets next animation in the animation order list
+	 *
+	 * U = Move up
+	 * D = Move down
+	 * L = Move left
+	 * R = Move right
+	 * A = Move up and right
+	 * B = Move down and right
+	 * C = Move down and left
+	 * E = Move up and left
+	 *
+	 * Shown as an image:
+	 *
+	 * E U A
+	 * L   R
+	 * C D B
+	 */
+	private void startNextAnimation(){
+		if (order[orderIndex] == 'U') currentPieceImage.startAnimation(up);
+		else if (order[orderIndex] == 'D') currentPieceImage.startAnimation(down);
+		else if (order[orderIndex] == 'L') currentPieceImage.startAnimation(left);
+		else if (order[orderIndex] == 'R') currentPieceImage.startAnimation(right);
+		else if (order[orderIndex] == 'A') currentPieceImage.startAnimation(upRight);
+		else if (order[orderIndex] == 'B') currentPieceImage.startAnimation(downRight);
+		else if (order[orderIndex] == 'C') currentPieceImage.startAnimation(downLeft);
+		else if (order[orderIndex] == 'E') currentPieceImage.startAnimation(upLeft);
+		orderIndex++;
+	}
 	/**
 	 * Highlight possible move locations for the currently selected piece.
 	 *
@@ -622,30 +838,81 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 * Moves the currently selected piece to a new location.
 	 * Additional actions are required if the move involved stacking your own piece or capturing an enemy piece
 	 *
-	 * @param i The location to move to
+	 * @param dest The location destination to move to
 	 * @param m The type of Move: STACK, CAPTURE, NORMAL
 	 */
-	private void movePiece(int i, Move m){
+	private void movePiece(int dest, Move m){
 
-		if (currentPiece.getLocation() == -1) players[turn].addNumPieces(1);
+		isMoveInProgress = true;
+		hidePossibleTiles();
 
-		currentPiece.setLocation(i);
-		moveWasMade = true;
+		offBoardPiece.setVisibility(View.INVISIBLE);
+		tips.setVisibility(View.INVISIBLE);
+
+		if (currentPiece.getLocation() == -1) {
+			players[turn].addNumPieces(1);
+			currentPieceImage.setX(tiles[0].getX());
+			currentPieceImage.setY(tiles[0].getY());
+		}
+
+		// Find the roll amount
+		int numMoves = 0;
+		for (int i = 0; i < 5; i++){
+			if (moveSet[i][0] == dest){
+				numMoves = moveSet[i][1];
+				break;
+			}
+		}
+		calculateAnimationOrder(dest, numMoves);
+		startNextAnimation();
+
+		currentPiece.setLocation(dest);
+		currentMoveType = m;
+	}
+
+	/*
+	 * End of animation
+	 */
+	private void endAnimation(){
+		orderIndex = 0;
+
+		if (currentMoveType == Move.STACK) stack();
+		else if (currentMoveType == Move.CAPTURE) capture();
+
+		// Remove the roll that was used
+		int value = 0;
+		for (Integer[] i : moveSet) {
+			if (i[0] == currentPiece.getLocation()) {
+				value = i[1];
+				break;
+			}
+		}
+		removeRoll(value);
+
+		if (board.numberOfRolls() != 0 && currentMoveType != Move.CAPTURE){
+			offBoardPiece.setVisibility(View.VISIBLE);
+			tips.setVisibility(View.VISIBLE);
+		}
 
 		// Move image to tile i
-		if (i != 32) {
-			currentPieceImage.setX(tiles[i].getX());
-			currentPieceImage.setY(tiles[i].getY());
-		} else {
+		if (currentPiece.getLocation() == 32){
 			players[turn].addScore(currentPiece.getValue());
-			currentPieceImage.setX(-currentPieceImage.getWidth());
+			currentPieceImage.setX(-currentPieceImage.getX());
 			hidePossibleTiles();
 
 			if (players[turn].hasWon()) endGame();
 		}
 
-		if (m == Move.STACK) stack();
-		else if (m == Move.CAPTURE) capture();
+		cleanUp();
+		isMoveInProgress = false;
+	}
+
+	/*
+	 * Calculates the path the piece needs to take to move to it's destination and saves it to the
+	 * char array, order
+	 */
+	private void calculateAnimationOrder(int dest, int numMoves){
+		order = board.calculatePath(currentPiece.getLocation(), dest, numMoves);
 	}
 
 	/**
@@ -775,7 +1042,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 				else if (rollAmount == -1 && counter == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
 				else {
 					canRoll = false;
-					isRollDone = true;
 				}
 			}
 		}, 990);
@@ -793,6 +1059,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 					else handleComputerRoll();
 				}
 				else {
+					isRollDone = true;
+
 					int posCount = 0;
 					for (int i : board.rollArray) {
 						if (i != 0 && i != -1) {
@@ -847,15 +1115,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 * prepare the board for another move or end the turn
 	 */
 	private void cleanUp(){
-		moveWasMade = false;
-		int value = 0;
-		for (Integer[] i : moveSet) {
-			if (i[0] == currentPiece.getLocation()) {
-				value = i[1];
-				break;
-			}
-		}
-		removeRoll(value);
 
 		if (isGameOver) return;
 
@@ -974,6 +1233,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void endTurn(){
 		board.endTurn();
 		reset();
+		System.err.println("P1: " + players[0].getScore() + " P2: " + players[1].getScore());
 		if (isComputerPlaying && turn == 1) handleComputerRoll();
 	}
 
@@ -1098,7 +1358,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			public void run() {
 				handleRoll();
 			}
-		}, 1000);
+		}, COMPUTER_THINK_DURATION);
 	}
 
 	/**
@@ -1126,8 +1386,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 						if (i == 32) handleClick(finish);
 						else handleClick(tiles[i]);
 					}
-				}, 1000);
+				}, COMPUTER_THINK_DURATION);
 			}
-		}, 1000);
+		}, COMPUTER_THINK_DURATION);
 	}
 }

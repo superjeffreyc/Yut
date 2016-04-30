@@ -38,6 +38,9 @@ public class Board {
 	// These tiles must be handled differently. You cannot simply add moves to these tiles to calculate move locations.
 	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 15, 20, 21, 22, 23, 24, 25, 26, 27));
 
+	// These moves represent the path for animating the movement along the outermost path of the board
+	char[] moves = {'U', 'U', 'U', 'U', 'U', 'L', 'L', 'L', 'L', 'L', 'D', 'D', 'D', 'D', 'D', 'R', 'R', 'R','R' };
+
 	/*
 	 * Initialize the roll array to all 0s
 	 */
@@ -145,6 +148,20 @@ public class Board {
 		}
 
 		return (count == 0);
+	}
+
+	/**
+	 * Counts how many rolls are available.
+	 *
+	 * @return Number of rolls available
+	 */
+	public int numberOfRolls(){
+		int count = 0;
+		for (int i = 0; i < 5; i++){
+			if (rollArray[i] != 0) count++;
+		}
+
+		return count;
 	}
 
 	/**
@@ -332,6 +349,127 @@ public class Board {
 		moveList.add(possibleMoves);
 
 		return moveList;
+	}
+
+	/**
+	 * Calculates the path for properly animating the movement of a piece from a start location to a destination
+	 * For a given roll that involves moving across n tiles, create an array with n elements
+	 * Each element represents a direction to move on the board.
+	 *
+	 * @param start The start location
+	 * @param dest The end location
+	 * @param numMoves The roll amount
+	 * @return A character array representing a sequence of directions to follow for animating movement
+	 */
+	public char[] calculatePath(int start, int dest, int numMoves){
+		char[] array;
+
+		if (numMoves > 0) {
+			array = new char[numMoves];
+		} else {
+			array = new char[1];
+		}
+
+		int j = 0;
+
+		if (numMoves == -1){
+			// Covers the double move locations
+			if (start == 0 && dest == 28) array[0] = 'E';
+			else if (start == 0 && dest == 19) array[0] = 'L';
+			else if (start == 15 && dest == 14) array[0] = 'U';
+			else if (start == 15 && dest == 24) array[0] = 'A';
+			else if (start == 22 && dest == 26) array[0] = 'E';
+			else if (start == 22 && dest == 21) array[0] = 'A';
+
+			// Covers the single move locations
+			else if (start > 0 && start <= 5) array[0] = 'D';
+			else if (start > 5 && start <= 10) array[0] = 'R';
+			else if (start > 10 && start <= 14) array[0] = 'U';
+			else if (start > 15 && start <= 19) array[0] = 'L';
+			else if (start > 19 && start <= 24) array[0] = 'A';
+			else if (start > 24 && start <= 28) array[0] = 'E';
+		}
+		else if (start == 0) {
+			for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+		}
+		else if (start == 5){
+			for (int i = 0; i < numMoves; i++) array[j++] = 'C';
+		}
+		else if (start == 10){
+			for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+		}
+		else if (start == 20) {
+			for (int i = 0; i < numMoves; i++) array[j++] = 'C';
+		}
+		else if (start == 21){
+			if (numMoves < 5) {
+				for (int i = 0; i < numMoves; i++) array[j++] = 'C';
+			} else {
+				for (int i = 0; i < numMoves - 1; i++) array[j++] = 'C';
+				array[j] = 'R';
+			}
+		}
+		else if (start == 22){
+			if (numMoves <= 3){
+				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+			} else if (numMoves > 3){
+				for (int i = 0; i < 3; i++) array[j++] = 'B';
+				for (int i = 3; i < numMoves; i++) array[j++] = 'R';
+			}
+		}
+		else if (start == 23){
+			if (numMoves <= 2) {
+				for (int i = 0; i < numMoves; i++) array[j++] = 'C';
+			} else {
+				for (int i = 0; i < 2; i++) array[j++] = 'C';
+				for (int i = 2; i < numMoves; i++) array[j++] = 'R';
+			}
+		}
+		else if (start == 24){
+			array[j++] = 'C';
+
+			if (numMoves > 1) {
+				for (int i = 1; i < numMoves; i++) array[j++] = 'R';
+			}
+		}
+		else if (start == 25){
+			for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+		}
+		else if (start == 26){
+			if (numMoves < 5){
+				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+			} else {
+				for (int i = 0; i < numMoves - 1; i++) array[j++] = 'B';
+				array[j] = 'R';
+			}
+		}
+		else if (start == 27){
+			if (numMoves <= 2) {
+				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+			} else {
+				for (int i = 0; i < 2; i++) array[j++] = 'B';
+				for (int i = 2; i < numMoves; i++) array[j++] = 'R';
+			}
+		}
+		else if (start == 28){
+			array[j++] = 'B';
+
+			if (numMoves > 1) {
+				for (int i = 1; i < numMoves; i++) array[j++] = 'R';
+			}
+		}
+		else {
+			if (start == -1) start++;
+
+			if (dest == 0 || dest == 32){
+				for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+			}
+			else {
+				for (int i = start; i < dest; i++) array[j++] = moves[i];
+			}
+		}
+
+		return array;
 	}
 }
 

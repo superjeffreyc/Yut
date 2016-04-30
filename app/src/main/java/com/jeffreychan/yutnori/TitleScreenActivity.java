@@ -40,14 +40,21 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	RelativeLayout rl;
 	RelativeLayout rl1;
 	RelativeLayout rl2;
+	RelativeLayout snowLayout1;
+	RelativeLayout snowLayout2;
 
 	TextView loading;
 
 	ImageView title;
 
+	ImageView[][] snow = new ImageView[2][10];
+
 	Context context = this;
 
-	TranslateAnimation leftToRight, rightToLeft;
+	TranslateAnimation leftToRight;
+	TranslateAnimation rightToLeft;
+	TranslateAnimation down1;
+	TranslateAnimation down2;
 
 	private MediaPlayer mp;
 	private final static int MAX_VOLUME = 100;
@@ -103,13 +110,25 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 
 		midX = width/4;         // Top left corner of a centered button
 
+		// The layout holding the start, how to play, options, and quit buttons
 		rl1 = new RelativeLayout(this);
 		rl1.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
 		rl1.setX(0);
 
+		// The layout holding the one player, two player, and back buttons
 		rl2 = new RelativeLayout(this);
 		rl2.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
 		rl2.setX(width);
+
+		// The layout holding the first group of snowflakes (alternates falling with the other group)
+		snowLayout1 = new RelativeLayout(this);
+		snowLayout1.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+		snowLayout1.setY(-height);
+
+		// The layout holding the second group of snowflakes (alternates falling with the other group)
+		snowLayout2 = new RelativeLayout(this);
+		snowLayout2.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+		snowLayout2.setY(-height);
 
 		startButton = new Button(this);
 		startButton.setBackgroundResource(R.drawable.startbutton);
@@ -176,6 +195,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 
 		rl.addView(rl1);
 		rl.addView(rl2);
+		rl.addView(snowLayout1);
+		rl.addView(snowLayout2);
 
 		// Sets up loading text (shown when BoardActivity is loading)
 		loading = new TextView(this);
@@ -197,14 +218,15 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		 * #########################################################################################
 		 */
 
-		int ANIMATION_DURATION = 600;
+		int BUTTON_SLIDE_DURATION = 600;
+		int SNOW_FALL_DURATION = 9000;
 
 		/*
 		 * Animation for moving all title screen buttons to the left.
 		 * Called when the start button is clicked.
 		 */
 		rightToLeft = new TranslateAnimation(0, -width, 0, 0);
-		rightToLeft.setDuration(ANIMATION_DURATION);
+		rightToLeft.setDuration(BUTTON_SLIDE_DURATION);
 		rightToLeft.setAnimationListener(new Animation.AnimationListener() {
 			@Override
 			public void onAnimationStart(Animation animation) {
@@ -228,7 +250,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		 * Called when the back button is clicked or the phone's back button is pressed.
 		 */
 		leftToRight = new TranslateAnimation(0, width, 0, 0);
-		leftToRight.setDuration(ANIMATION_DURATION);
+		leftToRight.setDuration(BUTTON_SLIDE_DURATION);
 		leftToRight.setAnimationListener(new Animation.AnimationListener() {
 			@Override
 			public void onAnimationStart(Animation animation) {
@@ -246,6 +268,82 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 				// Do nothing
 			}
 		});
+
+		// Animation for falling snow for the first group of snowflakes
+		down1 = new TranslateAnimation(0, 0, 0, height*2);
+		down1.setDuration(SNOW_FALL_DURATION);
+		down1.setRepeatCount(-1);
+		down1.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				for (int j = 0; j < snow[0].length; j++){
+					snow[0][j].setX((int) (Math.random() * (width - width/50)));
+					snow[0][j].setY((int) (Math.random() * (height - width/50)));
+				}
+			}
+		});
+
+		// Animation for falling snow for the second group of snowflakes
+		down2 = new TranslateAnimation(0, 0, 0, height*2);
+		down2.setDuration(SNOW_FALL_DURATION);
+		down2.setRepeatCount(-1);
+		down2.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				for (int j = 0; j < snow[1].length; j++){
+					snow[1][j].setX((int) (Math.random() * (width - width/50)));
+					snow[1][j].setY((int) (Math.random() * (height - width/50)));
+				}
+			}
+		});
+
+		for (int i = 0; i < snow.length; i++) {
+			for (int j = 0; j < snow[i].length; j++) {
+				snow[i][j] = new ImageView(this);
+				snow[i][j].setLayoutParams(new RelativeLayout.LayoutParams(width / 50, width / 50));
+				snow[i][j].setBackgroundResource(R.drawable.snow);
+				snow[i][j].setX((int) (Math.random() * (width - width/50)));
+				snow[i][j].setY((int) (Math.random() * (height - width/50)));
+
+				if (i == 0) snowLayout1.addView(snow[i][j]);
+				else snowLayout2.addView(snow[i][j]);
+			}
+		}
+
+		// Start the falling snow for the first group of snowflakes
+		snowLayout1.startAnimation(down1);
+
+		// Delay the falling snow for the second group of snowflakes
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+				snowLayout2.startAnimation(down2);
+            }
+        }, SNOW_FALL_DURATION/2);
+
+		rl1.bringToFront();
+		rl2.bringToFront();
 	}
 
 	/*
@@ -408,7 +506,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			final CharSequence[] items = {"Share", "Credits", "Rate on Play Store", "Close"};
-			adb.setTitle("Settings");
+			adb.setTitle("Options");
 			adb.setItems(items, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int item) {
 					if (item == 0){
@@ -420,6 +518,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 					}
 					else if (item == 1){
 						AlertDialog.Builder adb = new AlertDialog.Builder(context);
+						adb.setTitle("Credits");
 						ScrollView sv = new ScrollView(context);
 						TextView tv = new TextView(context);
 						tv.setPadding(0, 40, 0, 40);
