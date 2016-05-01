@@ -70,7 +70,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	Piece currentPiece;
 
 	TextView turnText;
-	TextView tips;
+	AutoResizeTextView tips;
 
 	TranslateAnimation up;
 	TranslateAnimation down;
@@ -285,7 +285,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 
 		//Set up TextView for guiding player
-		tips = new TextView(context);
+		tips = new AutoResizeTextView(context);
 		tips.setId(View.generateViewId());
 		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height / 20.0)));
 		tips.setY((int) (height * 7.6 / 10.0));
@@ -293,7 +293,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 		String tipText = "Click Me!";
 		tips.setText(tipText);
 		tips.setTextColor(Color.BLACK);
-		tips.setTextSize(18f);
 		tips.setVisibility(View.INVISIBLE);
 		rl.addView(tips);
 
@@ -397,7 +396,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rl.addView(finish);
 
 		// Set up TextView for indicating player turn
-		turnText = new TextView(context);
+		turnText = new TextView(this);
 		turnText.setId(View.generateViewId());
 		turnText.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2 / 10.0)));
 		turnText.setY((int) (height * 2 / 10.0));
@@ -405,9 +404,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 		String text = "Player 1's Turn";
 		turnText.setText(text);
 		turnText.setTextColor(Color.WHITE);
-		turnText.setTextSize(40f);
 		turnText.setBackgroundColor(Color.parseColor("#56AFC1"));
 		turnText.setAlpha(0.8f);    // Set slight transparency so users can see pieces behind it
+		turnText.setTextSize(30f);
 		rl.addView(turnText);
 
 		// Set up sticks to be rolled
@@ -1054,8 +1053,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 				if ((rollAmount == 4 || rollAmount == 5) && counter < 4) {
 					counter++;
 					String text;
-					if (isComputerPlaying && turn == 1) text = "Computer\nRoll Again!";
-					else text = "Player " + (turn+1) + "\nRoll Again!";
+					if (isComputerPlaying && turn == 1) text = "Computer Roll Again!";
+					else text = "Player " + (turn+1) + " Roll Again!";
 
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
@@ -1168,8 +1167,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 		} else {
 			String text;
-			if (isComputerPlaying && turn == 1) text = "Computer\nRoll Again!";
-			else text = "Player " + (turn+1) + "\nRoll Again!";
+			if (isComputerPlaying && turn == 1) text = "Computer Roll Again!";
+			else text = "Player " + (turn+1) + " Roll Again!";
 
 			turnText.setText(text);
 			turnText.setVisibility(View.VISIBLE);

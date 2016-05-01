@@ -206,7 +206,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		loading.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		loading.setOnClickListener(this);
 		loading.setGravity(Gravity.CENTER);
-		loading.setTextColor(Color.BLACK);
+		loading.setTextColor(Color.WHITE);
 		loading.setTextSize(20f);
 		loading.setX(midX);
 		loading.setY(helpButton.getY());
