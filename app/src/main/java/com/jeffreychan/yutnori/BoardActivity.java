@@ -1174,19 +1174,33 @@ public class BoardActivity extends Activity implements OnClickListener{
 		}
 
 		hidePossibleTiles();
-
-		// Hide pieces that are on the board or completed
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (j < players[i].getNumPieces()) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
-				else playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
-			}
-		}
+		updateOffBoardImages();
 
 		if (capture && isComputerPlaying && turn == 1) handleComputerRoll();
 		else if (!board.rollEmpty() && isComputerPlaying && turn == 1) handleComputerMove();
 
 		capture = false;
+	}
+
+	/**
+	 * Show completed pieces as images with a gold medal
+	 * Hide pieces that are on the board
+	 * Otherwise, show images as a plain seal or penguin
+	 */
+	private void updateOffBoardImages(){
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < players[i].getScore(); j++) {
+				playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+				if (i == 0) playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal_goal);
+				else playerOffBoardImages[i][j].setBackgroundResource(R.drawable.penguin_goal);
+			}
+			for (int j = players[i].getScore(); j < players[i].getNumPieces(); j++) {
+				playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
+			}
+			for (int j = players[i].getNumPieces(); j < 4; j++) {
+				playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+			}
+		}
 	}
 
 	/**
@@ -1316,6 +1330,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void endGame(){
 
 		isGameOver = true;
+		updateOffBoardImages();
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
 		tips.setVisibility(View.INVISIBLE);

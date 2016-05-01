@@ -27,6 +27,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 public class TitleScreenActivity extends Activity implements OnClickListener {
 
 	Button startButton;
@@ -344,6 +346,18 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 
 		rl1.bringToFront();
 		rl2.bringToFront();
+
+		/*
+		 * Set up background image depending on the time of day
+		 */
+		Calendar time = Calendar.getInstance();
+		int hour = time.get(Calendar.HOUR_OF_DAY);
+		if (hour >= 0 && hour < 5) rl.setBackgroundResource(R.drawable.backgroundnight);
+		else if (hour >= 5 && hour < 9) rl.setBackgroundResource(R.drawable.backgrounddawn);
+		else if (hour >= 9 && hour < 18) rl.setBackgroundResource(R.drawable.backgroundnoon);
+		else if (hour >= 18 && hour < 21) rl.setBackgroundResource(R.drawable.backgrounddawn);
+		else if (hour >= 21 && hour <= 23) rl.setBackgroundResource(R.drawable.backgrounddawn);
+
 	}
 
 	/*

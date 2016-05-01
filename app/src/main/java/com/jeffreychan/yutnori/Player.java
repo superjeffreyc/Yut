@@ -21,6 +21,8 @@ public class Player {
 		return -1;  // Error
 	}
 
+	public int getScore(){ return score; }
+
 	public void addScore(int i){ score += i; }
 
 	public int getNumPieces() { return numPieces; }
