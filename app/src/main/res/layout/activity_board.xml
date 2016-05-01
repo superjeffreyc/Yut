@@ -12,14 +12,6 @@
                 tools:context="com.jeffreychan.yutnori.BoardActivity"
                 >
 
-    <ImageView
-        android:contentDescription="@string/sticks"
-        android:layout_width="210dp"
-        android:layout_height="300dp"
-        android:id="@+id/sticks"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"  />
-
     <com.google.android.gms.ads.AdView
         android:id="@+id/ad_view"
         android:layout_width="match_parent"

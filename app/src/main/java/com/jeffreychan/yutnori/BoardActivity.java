@@ -91,6 +91,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView offBoardPiece;
 	ImageView currentPieceImage;
 	ImageView finish;
+	ImageView sticks;
 
 	ImageView[] playerLogo = new ImageView[2];
 	ImageView[] playerNum = new ImageView[2];
@@ -101,7 +102,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView[][] playerOffBoardImages = new ImageView[2][4];
 
 	@Bind(R.id.rollButton)  Button rollButton;
-	@Bind(R.id.sticks)      ImageView sticks;
 	@Bind(R.id.topBar)      ImageView topBar;
 	@Bind(R.id.bottomBar)   ImageView bottomBar;
 	@Bind(R.id.rl)          RelativeLayout rl;
@@ -409,6 +409,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 		turnText.setBackgroundColor(Color.parseColor("#56AFC1"));
 		turnText.setAlpha(0.8f);    // Set slight transparency so users can see pieces behind it
 		rl.addView(turnText);
+
+		// Set up sticks to be rolled
+		sticks = new ImageView(this);
+		sticks.setId(View.generateViewId());
+		sticks.setLayoutParams(new RelativeLayout.LayoutParams(width/2, height/2));
+		sticks.setX((float) (width/4.0));
+		sticks.setY((float) (height/4.0));
+		sticks.setVisibility(View.INVISIBLE);
+		rl.addView(sticks);
 
 		/* <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>

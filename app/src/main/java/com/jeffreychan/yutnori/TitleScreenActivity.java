@@ -356,8 +356,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		else if (hour >= 5 && hour < 9) rl.setBackgroundResource(R.drawable.backgrounddawn);
 		else if (hour >= 9 && hour < 18) rl.setBackgroundResource(R.drawable.backgroundnoon);
 		else if (hour >= 18 && hour < 21) rl.setBackgroundResource(R.drawable.backgrounddawn);
-		else if (hour >= 21 && hour <= 23) rl.setBackgroundResource(R.drawable.backgrounddawn);
-
+		else if (hour >= 21 && hour <= 23) rl.setBackgroundResource(R.drawable.backgroundnight);
 	}
 
 	/*
