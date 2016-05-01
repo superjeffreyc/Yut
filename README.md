@@ -12,7 +12,7 @@ Coming soon!
 
 OBJECTIVE
 
-The first player to move all 4 of his or her pieces around the board wins.\n\n
+The first player to move all 4 of his or her pieces around the board wins.
 
 ROLL PHASE
 
