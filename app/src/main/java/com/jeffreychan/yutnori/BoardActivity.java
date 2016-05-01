@@ -898,15 +898,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		if (currentMoveType == Move.STACK) stack();
 		else if (currentMoveType == Move.CAPTURE) capture();
 
-		// Remove the roll that was used
-		int value = 0;
-		for (Integer[] i : moveSet) {
-			if (i[0] == currentPiece.getLocation()) {
-				value = i[1];
-				break;
-			}
-		}
-		removeRoll(value);
+		removeRoll();
 
 		// Check for win
 		if (currentPiece.getLocation() == 32){
@@ -1138,34 +1130,13 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		if (isGameOver) return;
 
-		if (players[turn].hasAllPiecesOnBoard()){
+		if (players[turn].hasAllPiecesOnBoard() || capture){
 			offBoardPiece.setVisibility(View.INVISIBLE);
 			offBoardPieceAnimation.stop();
 			offBoardPieceAnimation.selectDrawable(0);
 		}
 
-		if (!capture) {
-			int count = 0;
-			int posCount = 0;
-			for (int i : board.rollArray) {
-				if (i != 0) {
-					count++;
-					break;
-				}
-			}
-			for (int i : board.rollArray) {
-				if (i != 0 && i != -1) {
-					posCount++;
-					break;
-				}
-			}
-			if (count == 0 && isRollDone) endTurn();
-			if (posCount == 0 && isRollDone) {
-				offBoardPiece.setVisibility(View.INVISIBLE);
-				offBoardPieceAnimation.stop();
-				offBoardPieceAnimation.selectDrawable(0);
-			}
-		} else {
+		if (capture) {
 			String text;
 			if (isComputerPlaying && turn == 1) text = "Computer Roll Again!";
 			else text = "Player " + (turn+1) + " Roll Again!";
@@ -1174,9 +1145,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 			turnText.setVisibility(View.VISIBLE);
 			tips.setVisibility(View.INVISIBLE);
 
-			offBoardPiece.setVisibility(View.INVISIBLE);
-			offBoardPieceAnimation.stop();
-			offBoardPieceAnimation.selectDrawable(0);
 			isRollDone = false;
 			canRoll = true;
 		}
@@ -1185,6 +1153,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		updateOffBoardImages();
 
 		if (capture && isComputerPlaying && turn == 1) handleComputerRoll();
+		else if ((!capture && board.rollEmpty()) || (board.hasOnlyNegativeRoll() && players[turn].hasNoPiecesOnBoard())) endTurn();
 		else if (!board.rollEmpty() && isComputerPlaying && turn == 1) handleComputerMove();
 
 		capture = false;
@@ -1213,11 +1182,20 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	/**
 	 * Removes the first occurrence of a roll from the roll slots
-	 *
-	 * @param i The roll to remove
 	 */
-	private void removeRoll(int i) {
-		board.removeRoll(i);
+	private void removeRoll() {
+
+		// Find the roll that was used by the current piece
+		int value = 0;
+		for (Integer[] m : moveSet) {
+			if (m[0] == currentPiece.getLocation()) {
+				value = m[1];
+				break;
+			}
+		}
+
+		// Remove the roll from the board array and update the roll slot images
+		board.removeRoll(value);
 		int count = 0;
 		for (int k = 0; k < board.rollArray.length; k++){
 			if (board.rollArray[k] != 0) count++;

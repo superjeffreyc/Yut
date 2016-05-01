@@ -165,6 +165,20 @@ public class Board {
 	}
 
 	/**
+	 * Checks if the only rolls left are -1
+	 *
+	 * @return true if the only rolls available are -1, false otherwise
+	 */
+	public boolean hasOnlyNegativeRoll(){
+		int count = 0;
+		for (int i = 0; i < 5; i++){
+			if (rollArray[i] == 0 || rollArray[i] == -1) count++;
+		}
+
+		return (count == 5);
+	}
+
+	/**
 	 * Processes the roll amount and starting location to calculate possible locations to move to.
 	 *
 	 * Returns an ArrayList of 2-element Integer arrays, with the arrays as follows:
