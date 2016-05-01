@@ -825,21 +825,21 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void handlePlayerClick(View v){
 		if (isRollDone) {
 			for (int i = 0; i < 4; i++) {
-				int location = players[turn].pieces[i].getLocation();
 
-				if (location != -1 && location != 32) {
-					// Show possible move locations
-					if (v.getId() == playerOnBoardImages[turn][i].getId() && !isMarked[players[turn].pieces[i].getLocation()]) {
-						showPossibleTiles(i);
-					}
-					// Same team
-					else if (v.getId() == playerOnBoardImages[turn][i].getId() && isMarked[players[turn].pieces[i].getLocation()]) {
-						movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
-					}
-					// Opponent's pieces
-					else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && isMarked[players[oppTurn].pieces[i].getLocation()]) {
-						movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
-					}
+				int myLocation = players[turn].pieces[i].getLocation();
+				int oppLocation = players[oppTurn].pieces[i].getLocation();
+
+				// Show possible move locations
+				if (v.getId() == playerOnBoardImages[turn][i].getId() && myLocation != -1 && myLocation != 32 && !isMarked[players[turn].pieces[i].getLocation()]) {
+					showPossibleTiles(i);
+				}
+				// Same team
+				else if (v.getId() == playerOnBoardImages[turn][i].getId() && myLocation != -1 && myLocation != 32 && isMarked[players[turn].pieces[i].getLocation()]) {
+					movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
+				}
+				// Opponent's pieces
+				else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && oppLocation != -1 && oppLocation != 32 && isMarked[players[oppTurn].pieces[i].getLocation()]) {
+					movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
 				}
 			}
 		}
