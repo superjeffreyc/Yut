@@ -6,7 +6,7 @@ Yut (pronounced yoot) is a traditional Korean board game which plays similar to 
 
 Head over to the Google Play Store and download the latest release: 
 
-Coming soon!
+https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori
 
 -------------- HOW TO PLAY --------------
 
