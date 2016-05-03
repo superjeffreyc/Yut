@@ -1198,7 +1198,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		// Set off board piece visible if not the end of game
 		if (!isGameOver && board.numberOfRolls() != 0 && currentMoveType != Move.CAPTURE){
-			offBoardPiece.setVisibility(View.VISIBLE);
+			if (!board.hasOnlyNegativeRoll()) offBoardPiece.setVisibility(View.VISIBLE);
 			tips.setVisibility(View.VISIBLE);
 		}
 
