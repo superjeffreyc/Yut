@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Google Play game services IDs.
+-->
+<resources>
+    <string name="app_id"></string>
+    <string name="package_name"></string>
+    <string name="achievement_first_victory"></string>
+    <string name="achievement_two_player_battle"></string>
+    <string name="achievement_the_stack"></string>
+    <string name="achievement_full_stack_finish"></string>
+    <string name="achievement_white_belt"></string>
+</resources>

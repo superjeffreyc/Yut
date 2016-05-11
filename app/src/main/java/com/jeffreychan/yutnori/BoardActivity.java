@@ -10,6 +10,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -29,6 +30,9 @@ import android.widget.TextView;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +41,7 @@ import java.util.TreeSet;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class BoardActivity extends Activity implements OnClickListener{
+public class BoardActivity extends Activity implements OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
 	boolean isRollDone;         // Did the stick throwing animation finish
 	boolean canRoll = true;     // Did the user roll 4 or 5
@@ -46,6 +50,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	boolean isGameOver;         // Is the game over
 	boolean isComputerPlaying;  // One player mode
 	boolean isMoveInProgress;
+	String connectedStatus = "";
 
 	int rollAmount;
 	int turn = 0;
@@ -55,6 +60,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	int mpPos;                  // Current position in the song (Updates when the activity is paused)
 	int MOVE_DURATION = 150;    // Length of animation for piece movement
 	int COMPUTER_THINK_DURATION = 1000;
+	float heightOffset;
 
 	double moveSize = 0;           // Used for animation movement horizontally or vertically
 	double diagonalMoveSize = 0;   // Used for animation movement diagonally
@@ -80,9 +86,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 	TranslateAnimation downRight;
 	TranslateAnimation upLeft;
 	TranslateAnimation downLeft;
+	TranslateAnimation finishing;
 
 	AnimationDrawable fallingSticks;
 	AnimationDrawable offBoardPieceAnimation;
+	AnimationDrawable finishAnimation;
 
 	AnimationDrawable[] tilesAnimation = new AnimationDrawable[MAX_TILES];
 
@@ -92,9 +100,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView currentPieceImage;
 	ImageView finish;
 	ImageView sticks;
+	ImageView topBar;
+	ImageView bottomBar;
 
 	ImageView[] playerLogo = new ImageView[2];
-	ImageView[] playerNum = new ImageView[2];
 	ImageView[] rollSlot = new ImageView[5];
 	ImageView[] tiles = new ImageView[MAX_TILES];
 
@@ -102,9 +111,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 	ImageView[][] playerOffBoardImages = new ImageView[2][4];
 
 	@Bind(R.id.rollButton)  Button rollButton;
-	@Bind(R.id.topBar)      ImageView topBar;
-	@Bind(R.id.bottomBar)   ImageView bottomBar;
 	@Bind(R.id.rl)          RelativeLayout rl;
+
+	GoogleApiClient client;
 
 	private MediaPlayer mp;
 	private final static int MAX_VOLUME = 100;
@@ -127,7 +136,19 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		// Gets mode selected from TitleScreenActivity
 		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
+		connectedStatus = getIntent().getExtras().getString("SignedIn");
 		mpPos = getIntent().getExtras().getInt("Song");
+
+		// Set up GoogleApiClient if signed in
+		if (connectedStatus.equals("Connected")) {
+			client = new GoogleApiClient.Builder(this)
+					.addApi(Games.API)
+					.addScope(Games.SCOPE_GAMES)
+					.addConnectionCallbacks(this)
+					.addOnConnectionFailedListener(this)
+					.build();
+			client.connect();
+		}
 
 		// Create media player for background song
 		mp = MediaPlayer.create(this, R.raw.song);
@@ -138,7 +159,6 @@ public class BoardActivity extends Activity implements OnClickListener{
 		int soundVolume = 75;
 		final float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
 		mp.setVolume(volume, volume);
-
 		mp.start();
 
 		// Get screen size and adjust based on ad size
@@ -147,6 +167,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		display.getSize(size);
 		int width = size.x;
 		int height = size.y - AdSize.SMART_BANNER.getHeightInPixels(this);
+		heightOffset = (float) (height/20.0);
 
 		// Set up ad at bottom of screen
 		Handler handler = new Handler();
@@ -170,6 +191,21 @@ public class BoardActivity extends Activity implements OnClickListener{
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 */
+
+		// Set up seal area
+		topBar = new ImageView(this);
+		topBar.setLayoutParams(new RelativeLayout.LayoutParams(width/2, height/10));
+		topBar.setBackgroundResource(R.drawable.bar1);
+		rl.addView(topBar);
+
+		// Set up penguin area
+		bottomBar = new ImageView(this);
+		bottomBar.setLayoutParams(new RelativeLayout.LayoutParams(width/2, height/10));
+		bottomBar.setBackgroundResource(R.drawable.bar2);
+		bottomBar.setRotation(180f);
+		bottomBar.setX(width/2);
+		bottomBar.setAlpha(0.25f);
+		rl.addView(bottomBar);
 
 		// Set up tiles
 		double boardSize = (height*0.6);
@@ -219,6 +255,11 @@ public class BoardActivity extends Activity implements OnClickListener{
 			}
 			rl.addView(tiles[i]);
 		}
+
+		for (int i = 0; i < tiles.length; i++) {
+			tiles[i].setY(tiles[i].getY() + heightOffset/2);
+		}
+
 
 		diagonalMoveSize = Math.abs(tiles[21].getY() - tiles[20].getY());
 
@@ -280,7 +321,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 			rollSlot[i].setLayoutParams(new RelativeLayout.LayoutParams((int) rollSize, (int) rollSize));
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
 			rollSlot[i].setX((float) (0.5 * padding + i * spaceSize + i * rollSize));
-			rollSlot[i].setY((float) (8.5 * height / 10.0 - 0.5 * rollSize));
+			rollSlot[i].setY((float) (heightOffset*1.5 + (8.5 * height / 10.0 - 0.5 * rollSize)));
 			rl.addView(rollSlot[i]);
 		}
 
@@ -288,7 +329,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		tips = new AutoResizeTextView(context);
 		tips.setId(View.generateViewId());
 		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height / 20.0)));
-		tips.setY((int) (height * 7.6 / 10.0));
+		tips.setY(heightOffset + (int) (height * 7.6 / 10.0));
 		tips.setGravity(Gravity.CENTER);
 		String tipText = "Click Me!";
 		tips.setText(tipText);
@@ -297,7 +338,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		rl.addView(tips);
 
 		// Set up player bars
-		int iconSize = (int) ((width- padding - 5 * space)/7.0);
+		int iconSize = (int) ((width/2 - padding - 2 * space)/4.0);
 		for (int i = 0; i < 2; i++) {
 			// ----------------------------------------------------------Player Logo
 			playerLogo[i] = new ImageView(context);
@@ -307,45 +348,36 @@ public class BoardActivity extends Activity implements OnClickListener{
 			if (i == 0) playerLogo[i].setBackgroundResource(R.drawable.seal_icon);
 			else playerLogo[i].setBackgroundResource(R.drawable.penguin_icon);
 
-			playerLogo[i].setX((float) (0.5 * padding));
+			if (i == 0) playerLogo[i].setX((float) (0.5 * padding));
+			else playerLogo[i].setX((float) (width - iconSize - (0.5 * padding)));
 
-			if (i == 0) playerLogo[i].setY((float) (0.5 * height / 10.0 - 0.5 * iconSize));
-			else playerLogo[i].setY((float) (9.5 * height / 10.0 - 0.5 * iconSize));
+			playerLogo[i].setY((float) (0.5 * height / 10.0 - 0.5 * iconSize));
 
 			rl.addView(playerLogo[i]);
-
-			//-----------------------------------------------------------Player Number
-			playerNum[i] = new ImageView(context);
-			playerNum[i].setId(View.generateViewId());
-			playerNum[i].setLayoutParams(new RelativeLayout.LayoutParams(2 * iconSize, iconSize));
-
-			if (i == 0) playerNum[i].setBackgroundResource(R.drawable.player1);
-			else if (i == 1 && !isComputerPlaying) playerNum[i].setBackgroundResource(R.drawable.player2);
-			else playerNum[i].setBackgroundResource(R.drawable.computer);
-
-			playerNum[i].setX((float) (0.5 * padding + iconSize + space));
-
-			if (i == 0) playerNum[i].setY((float) (0.5 * height / 10.0 - 0.5 * iconSize));
-			else playerNum[i].setY((float) (9.5 * height / 10.0 - 0.5 * iconSize));
-
-			rl.addView(playerNum[i]);
 		}
 
 		// -----------------------------Player pieces indicating how many unfinished pieces are left
+		int miniIconSize = (int) ((width/2 - padding - iconSize - space)/4.0);
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
-				playerOffBoardImages[i][j] = new ImageView(context);
-				playerOffBoardImages[i][j].setId(View.generateViewId());
-				playerOffBoardImages[i][j].setLayoutParams(new RelativeLayout.LayoutParams(iconSize, iconSize));
-				if (i == 0) playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal1);
-				else playerOffBoardImages[i][j].setBackgroundResource(R.drawable.penguin1);
-
-				playerOffBoardImages[i][j].setX((float) (0.5*padding + 3 * iconSize + 2 * space + j * space + j * iconSize));
-
-				if (i == 0) playerOffBoardImages[i][j].setY((float) (0.5 * height / 10.0 - 0.5 * iconSize));
-				else playerOffBoardImages[i][j].setY((float) (9.5 * height / 10.0 - 0.5 * iconSize));
-
-				rl.addView(playerOffBoardImages[i][j]);
+				if (i == 0){
+					playerOffBoardImages[i][j] = new ImageView(context);
+					playerOffBoardImages[i][j].setId(View.generateViewId());
+					playerOffBoardImages[i][j].setLayoutParams(new RelativeLayout.LayoutParams(miniIconSize, miniIconSize));
+					playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal1);
+					playerOffBoardImages[i][j].setX((float) (0.5*padding + iconSize + space/4 + j * space/4 + j * miniIconSize));
+					playerOffBoardImages[i][j].setY((float) (0.5 * height / 10.0 - 0.5 * miniIconSize));
+					rl.addView(playerOffBoardImages[i][j]);
+				}
+				else {
+					playerOffBoardImages[i][3-j] = new ImageView(context);
+					playerOffBoardImages[i][3-j].setId(View.generateViewId());
+					playerOffBoardImages[i][3-j].setLayoutParams(new RelativeLayout.LayoutParams(miniIconSize, miniIconSize));
+					playerOffBoardImages[i][3-j].setBackgroundResource(R.drawable.penguin1);
+					playerOffBoardImages[i][3-j].setX((float) (width - 0.5*padding - iconSize - space/8 - miniIconSize - j * space/4 - j * miniIconSize));
+					playerOffBoardImages[i][3-j].setY((float) (0.5 * height / 10.0 - 0.5 * miniIconSize));
+					rl.addView(playerOffBoardImages[i][3-j]);
+				}
 			}
 		}
 
@@ -373,7 +405,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		offBoardPiece.setId(View.generateViewId());
 		offBoardPiece.setLayoutParams(new RelativeLayout.LayoutParams((int) (width/5.0), (int) (height/10.0)));
 		offBoardPiece.setX((float) (width/2.0 - width/10.0));
-		offBoardPiece.setY((float) (6.9*height/10.0));
+		offBoardPiece.setY(heightOffset + (float) (6.9*height/10.0));
 		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
 		offBoardPiece.setVisibility(View.INVISIBLE);
 		rl.addView(offBoardPiece);
@@ -390,16 +422,20 @@ public class BoardActivity extends Activity implements OnClickListener{
 		finish.setId(View.generateViewId());
 		finish.setLayoutParams(new RelativeLayout.LayoutParams((int) (width/2.5), (int) (height/10.0)));
 		finish.setX((float) (width - width/2.5));
-		finish.setY((float) (6.9*height/10.0));
-		finish.setBackgroundResource(R.drawable.finish);
+		finish.setY(heightOffset + (float) (6.9*height/10.0));
+		finish.setBackgroundResource(R.drawable.finishflash);
 		finish.setVisibility(View.INVISIBLE);
 		rl.addView(finish);
+
+		// Finish button animation
+		finishAnimation = (AnimationDrawable) finish.getBackground();
+		finishAnimation.start();
 
 		// Set up TextView for indicating player turn
 		turnText = new TextView(this);
 		turnText.setId(View.generateViewId());
 		turnText.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height * 2 / 10.0)));
-		turnText.setY((int) (height * 2 / 10.0));
+		turnText.setY(heightOffset + (int) (height * 2 / 10.0));
 		turnText.setGravity(Gravity.CENTER);
 		String text = "Player 1's Turn";
 		turnText.setText(text);
@@ -414,7 +450,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		sticks.setId(View.generateViewId());
 		sticks.setLayoutParams(new RelativeLayout.LayoutParams(width/2, height/2));
 		sticks.setX((float) (width/4.0));
-		sticks.setY((float) (height/4.0));
+		sticks.setY(heightOffset + (float) (height/4.0));
 		sticks.setVisibility(View.INVISIBLE);
 		rl.addView(sticks);
 
@@ -582,6 +618,25 @@ public class BoardActivity extends Activity implements OnClickListener{
 			public void onAnimationRepeat(Animation animation) {}
 		});
 
+		finishing = new TranslateAnimation(0, (float) -diagonalMoveSize, 0, (float) diagonalMoveSize);
+		finishing.setDuration(MOVE_DURATION);
+		finishing.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				currentPieceImage.clearAnimation();
+				currentPieceImage.setX((float) (currentPieceImage.getX() - diagonalMoveSize));
+				currentPieceImage.setY((float) (currentPieceImage.getY() + diagonalMoveSize));
+				currentPieceImage.setVisibility(View.GONE);
+				endAnimation();
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+		});
+
 		/*
 		 * -----------------------------------------------------------------------------------------------
 		 * ----------------------------------------- END ANIMATION SETUP ---------------------------------
@@ -594,6 +649,12 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) { return super.onOptionsItemSelected(item);	}
+
+	public void onConnected(Bundle connectionHint){}
+
+	public void onConnectionSuspended(int cause){}
+
+	public void onConnectionFailed(@NonNull ConnectionResult result){}
 
 	/*
 	 * If the activity is placed in the background, save the current position of the song
@@ -982,6 +1043,7 @@ public class BoardActivity extends Activity implements OnClickListener{
      * B = Move down and right
      * C = Move down and left
      * E = Move up and left
+     * F = Set visibility to gone
      *
      * Shown as an image:
      *
@@ -998,6 +1060,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 		else if (order[orderIndex] == 'B') currentPieceImage.startAnimation(downRight);
 		else if (order[orderIndex] == 'C') currentPieceImage.startAnimation(downLeft);
 		else if (order[orderIndex] == 'E') currentPieceImage.startAnimation(upLeft);
+		else if (order[orderIndex] == 'F') currentPieceImage.startAnimation(finishing);
 		orderIndex++;
 	}
 
@@ -1018,6 +1081,10 @@ public class BoardActivity extends Activity implements OnClickListener{
 		for (int j = 0; j < 4; j++) {
 			if (players[turn].pieces[j].getLocation() == currentPiece.getLocation() && currentPiece != players[turn].pieces[j]) {
 				currentPiece.addValue(players[turn].pieces[j].getValue());
+
+				// Check for achievement for stacking all 4
+				if (client != null && client.isConnected() && isComputerPlaying && turn == 0 && currentPiece.getValue() == 4) Games.Achievements.unlock(client, getResources().getString(R.string.achievement_the_stack));
+
 				playerOnBoardImages[turn][j].setX(-currentPieceImage.getWidth());
 				players[turn].pieces[j].setLocation(-1);
 				players[turn].pieces[j].resetValue();
@@ -1026,6 +1093,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 				else playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
 
 				playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+				playerAnimation[turn][j].start();
 			}
 		}
 
@@ -1093,15 +1161,22 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void updateOffBoardImages(){
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < players[i].getScore(); j++) {
-				playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
-				if (i == 0) playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal_goal);
-				else playerOffBoardImages[i][j].setBackgroundResource(R.drawable.penguin_goal);
+				if (i == 0) {
+					playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+					playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal_goal);
+				}
+				else {
+					playerOffBoardImages[i][3-j].setVisibility(View.VISIBLE);
+					playerOffBoardImages[i][3-j].setBackgroundResource(R.drawable.penguin_goal);
+				}
 			}
 			for (int j = players[i].getScore(); j < players[i].getNumPieces(); j++) {
-				playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
+				if (i == 0) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
+				else playerOffBoardImages[i][3-j].setVisibility(View.INVISIBLE);
 			}
 			for (int j = players[i].getNumPieces(); j < 4; j++) {
-				playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+				if (i == 0) playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+				else playerOffBoardImages[i][3-j].setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -1153,6 +1228,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 	 */
 	private void removeRoll() {
 
+		System.err.println(Arrays.toString(board.rollArray));
 		// Find the roll that was used by the current piece
 		int value = 0;
 		for (Integer[] m : moveSet) {
@@ -1169,11 +1245,15 @@ public class BoardActivity extends Activity implements OnClickListener{
 			if (board.rollArray[k] != 0) count++;
 		}
 		counter = count;
+
 		if (counter == 5) counter = 4;
 
 		for(int j = 0; j < 5; ++j) {
 			updateRollSlots(j, board.rollArray[j]);
 		}
+
+		System.err.println(Arrays.toString(board.rollArray));
+		System.err.println("------");
 	}
 
 	/*
@@ -1198,7 +1278,7 @@ public class BoardActivity extends Activity implements OnClickListener{
 
 		// Set off board piece visible if not the end of game
 		if (!isGameOver && board.numberOfRolls() != 0 && currentMoveType != Move.CAPTURE){
-			offBoardPiece.setVisibility(View.VISIBLE);
+			if (!board.hasOnlyNegativeRoll()) offBoardPiece.setVisibility(View.VISIBLE);
 			tips.setVisibility(View.VISIBLE);
 		}
 
@@ -1259,6 +1339,23 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void endGame(){
 
 		isGameOver = true;
+
+		// Check for computer match and user won
+		if (isComputerPlaying && players[0].hasWon()) {
+			// Check if GoogleApiClient is connected
+			if (client != null && client.isConnected()) {
+				// Increment number of wins for white belt achievement
+				Games.Achievements.increment(client, getResources().getString(R.string.achievement_white_belt), 1);
+				// Achievement for beating computer once
+				Games.Achievements.unlock(client, getResources().getString(R.string.achievement_first_victory));
+				// Achievement for crossing finish with all 4 pieces against computer
+				if (currentPiece.getValue() == 4) Games.Achievements.unlock(client, getResources().getString(R.string.achievement_full_stack_finish));
+			}
+		}
+
+		// Check for achievement for playing two player mode
+		if (client != null && client.isConnected() && !isComputerPlaying) Games.Achievements.unlock(client, getResources().getString(R.string.achievement_two_player_battle));
+
 		updateOffBoardImages();
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
@@ -1280,6 +1377,8 @@ public class BoardActivity extends Activity implements OnClickListener{
 				Intent intent = new Intent(context, BoardActivity.class);
 				intent.putExtra("Computer", isComputerPlaying);
 				intent.putExtra("Song", mp.getCurrentPosition());
+				if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
+				else intent.putExtra("SignedIn", "Disconnected");
 				startActivity(intent);
 				finish();
 			}
@@ -1309,17 +1408,17 @@ public class BoardActivity extends Activity implements OnClickListener{
 			offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
 			tips.setText(R.string.any_penguin);
 
-			bottomBar.setBackgroundResource(R.color.DarkerBlue);
+			bottomBar.setBackgroundResource(R.drawable.bar1);
 			bottomBar.setAlpha(1.0f);
-			topBar.setBackgroundResource(R.color.LighterBlue);
+			topBar.setBackgroundResource(R.drawable.bar2);
 			topBar.setAlpha(0.25f);
 		} else {
 			offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
 			tips.setText(R.string.any_seal);
 
-			topBar.setBackgroundResource(R.color.DarkerBlue);
+			topBar.setBackgroundResource(R.drawable.bar1);
 			topBar.setAlpha(1.0f);
-			bottomBar.setBackgroundResource(R.color.LighterBlue);
+			bottomBar.setBackgroundResource(R.drawable.bar2);
 			bottomBar.setAlpha(0.25f);
 		}
 
@@ -1359,6 +1458,9 @@ public class BoardActivity extends Activity implements OnClickListener{
 	private void quit(){
 		Intent intent = new Intent(this, TitleScreenActivity.class);
 		intent.putExtra("Song", mp.getCurrentPosition());
+		intent.putExtra("Board", true);
+		if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
+		else intent.putExtra("SignedIn", "Disconnected");
 		startActivity(intent);
 		finish();
 	}

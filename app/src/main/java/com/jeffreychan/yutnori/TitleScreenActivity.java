@@ -10,6 +10,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -26,10 +27,22 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
+import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.util.Calendar;
 
-public class TitleScreenActivity extends Activity implements OnClickListener {
+public class TitleScreenActivity extends Activity implements OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+	private static int RC_SIGN_IN = 9001;
+
+	private boolean mResolvingConnectionFailure = false;
+	private boolean mAutoStartSignInFlow = true;
+	private boolean mSignInClicked = false;
 
 	Button startButton;
 	Button helpButton;
@@ -67,6 +80,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 	int mpPos = 0;  // Current position in the song (Updates when the activity is paused)
 
 	boolean isLeft = false;     // Are the initial buttons (Start, How To Play, Quit) off screen to the left
+	boolean hasClickedSignIn;   // Was sign in clicked?
+	boolean fromBoard;          // Is this activity being launched from BoardActivity?
+
+	GoogleApiClient client;
+	String signInStatus = "Sign In";
+	String connectedStatus = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +98,22 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		mp = MediaPlayer.create(this, R.raw.song);
 		mp.setLooping(true);
 		if (getIntent().hasExtra("Song")) mpPos = getIntent().getExtras().getInt("Song");
+		if (getIntent().hasExtra("Board")) fromBoard = true;
+		if (getIntent().hasExtra("SignedIn")) connectedStatus = getIntent().getExtras().getString("SignedIn");
+
+
 		mp.seekTo(mpPos);
+
+		// Create client to connect to Google Play Games
+		client = new GoogleApiClient.Builder(this)
+				.addApi(Games.API)
+				.addScope(Games.SCOPE_GAMES)
+				.addConnectionCallbacks(this)
+				.addOnConnectionFailedListener(this)
+				.build();
+
+		if (!fromBoard || connectedStatus.equals("Connected")) client.connect();
+		if (client.isConnected()) signInStatus = "Sign Out";
 
 		// Formula to modify volume from https://stackoverflow.com/questions/5215459/android-mediaplayer-setvolume-function
 		int soundVolume = 75;
@@ -413,6 +447,43 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		}
 	}
 
+
+	public void onConnected(Bundle connectionHint){
+		signInStatus = "Sign Out";
+	}
+
+	public void onConnectionSuspended(int cause){
+		// Attempt to reconnect
+		client.connect();
+	}
+
+	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+		if (mResolvingConnectionFailure) {
+			// already resolving
+			return;
+		}
+
+		// if the sign-in button was clicked or if auto sign-in is enabled,
+		// launch the sign-in flow
+		if (mSignInClicked || mAutoStartSignInFlow) {
+			mAutoStartSignInFlow = false;
+			mSignInClicked = false;
+			mResolvingConnectionFailure = true;
+
+			// Attempt to resolve the connection failure using BaseGameUtils.
+			// The R.string.signin_other_error value should reference a generic
+			// error string in your strings.xml file, such as "There was
+			// an issue with sign-in, please try again later."
+			if (!BaseGameUtils.resolveConnectionFailure(this,
+					client, connectionResult,
+					RC_SIGN_IN, "There was an issue with sign-in, please try again later.")) {
+				mResolvingConnectionFailure = false;
+			}
+		}
+
+		// Put code here to display the sign-in button
+	}
+
 	/*
 	 * If the activity is placed in the background, save the current position of the song
 	 */
@@ -433,6 +504,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		super.onResume();
 		mp.seekTo(mpPos);
 		mp.start();
+		if (hasClickedSignIn) {
+			hasClickedSignIn = false;
+			client.connect();
+		}
 	}
 
 	/*
@@ -445,6 +520,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 			mp.stop();
 			mp.release();
 		}
+
+		client.disconnect();
 	}
 
 	/*
@@ -467,6 +544,43 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void signInClicked() {
+		mSignInClicked = true;
+		hasClickedSignIn = true;
+		client.connect();
+	}
+
+	private void signOutClicked() {
+		mSignInClicked = false;
+		Games.signOut(client);
+		client.disconnect();
+		if (!client.isConnected()){
+			Toast savedToast = Toast.makeText(getApplicationContext(), "Successfully disconnected", Toast.LENGTH_SHORT);
+			savedToast.show();
+		}
+
+		signInStatus = "Sign In";
+	}
+
+	protected void onActivityResult(int requestCode, int resultCode,
+	                                Intent intent) {
+		if (requestCode == RC_SIGN_IN) {
+			mSignInClicked = false;
+			mResolvingConnectionFailure = false;
+			if (resultCode == RESULT_OK) {
+				client.connect();
+			} else {
+				// Bring up an error dialog to alert the user that sign-in
+				// failed. The R.string.signin_failure should reference an error
+				// string in your strings.xml file that tells the user they
+				// could not be signed in, such as "Unable to sign in."
+//				BaseGameUtils.showActivityResultError(this,	requestCode, resultCode, R.string.signin_failure);
+				Toast savedToast = Toast.makeText(getApplicationContext(), "Unable to sign in", Toast.LENGTH_SHORT);
+				savedToast.show();
+			}
+		}
+	}
+
 	/*
 	 * Handles all clicks
 	 */
@@ -483,6 +597,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 				public void run() {
 					Intent intent = new Intent(context, BoardActivity.class);
 					intent.putExtra("Computer", isOnePlayer);
+					if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
+					else intent.putExtra("SignedIn", "Disconnected");
 					intent.putExtra("Song", mp.getCurrentPosition());
 					startActivity(intent);
 					finish();
@@ -518,12 +634,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 		}
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			final CharSequence[] items = {"Share", "Credits", "Rate on Play Store", "Close"};
+			final CharSequence[] items = {"Share", "Credits", "Rate", "Achievements", signInStatus, "Close"};
 			adb.setTitle("Options");
 			adb.setItems(items, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int item) {
 					if (item == 0){
-						String message = "I am playing a board game called Yut! Try it out at https://play.google.com/store/apps/details?id=com.jeffreychan.yutnori";
+						String message = "I am playing a board game called Yut! Try it out at https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori";
 						Intent share = new Intent(Intent.ACTION_SEND);
 						share.setType("text/plain");
 						share.putExtra(Intent.EXTRA_TEXT, message);
@@ -548,8 +664,20 @@ public class TitleScreenActivity extends Activity implements OnClickListener {
 						adb.show();
 					}
 					else if (item == 2){
-						Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yutnori"));
+						Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
 						startActivity(intent);
+					}
+					else if (item == 3){
+						if (client.isConnected()) {
+							startActivityForResult(Games.Achievements.getAchievementsIntent(client), 0);
+						} else {
+							Toast savedToast = Toast.makeText(getApplicationContext(), "You must be signed in to view achievements", Toast.LENGTH_SHORT);
+							savedToast.show();
+						}
+					}
+					else if (item == 4){
+						if (signInStatus.equals("Sign In")) signInClicked();
+						else signOutClicked();
 					}
 				}
 			});

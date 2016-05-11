@@ -81,10 +81,7 @@ public class Board {
 	 */
 	public void addRoll(int roll){
 		rollArray[rollIndex] = roll;
-
-		if ((roll == 4 || roll == 5) && rollIndex < 4){
-			rollIndex++;
-		}
+		if (rollIndex < 4) rollIndex++;
 	}
 
 	/*
@@ -135,6 +132,8 @@ public class Board {
 				rollArray[index] = 0;
 			}
 		}
+
+		if (rollIndex > 0) rollIndex--;
 	}
 
 	/**
@@ -404,7 +403,7 @@ public class Board {
 			else if (start > 24 && start <= 28) array[0] = 'E';
 		}
 		else if (start == 0) {
-			for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+			for (int i = 0; i < numMoves; i++) array[j++] = 'F';
 		}
 		else if (start == 5){
 			for (int i = 0; i < numMoves; i++) array[j++] = 'C';
@@ -428,7 +427,7 @@ public class Board {
 				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
 			} else if (numMoves > 3){
 				for (int i = 0; i < 3; i++) array[j++] = 'B';
-				for (int i = 3; i < numMoves; i++) array[j++] = 'R';
+				for (int i = 3; i < numMoves; i++) array[j++] = 'F';
 			}
 		}
 		else if (start == 23){
@@ -454,7 +453,7 @@ public class Board {
 				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
 			} else {
 				for (int i = 0; i < numMoves - 1; i++) array[j++] = 'B';
-				array[j] = 'R';
+				array[j] = 'F';
 			}
 		}
 		else if (start == 27){
@@ -462,21 +461,55 @@ public class Board {
 				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
 			} else {
 				for (int i = 0; i < 2; i++) array[j++] = 'B';
-				for (int i = 2; i < numMoves; i++) array[j++] = 'R';
+				for (int i = 2; i < numMoves; i++) array[j++] = 'F';
 			}
 		}
 		else if (start == 28){
 			array[j++] = 'B';
 
 			if (numMoves > 1) {
-				for (int i = 1; i < numMoves; i++) array[j++] = 'R';
+				for (int i = 1; i < numMoves; i++) array[j++] = 'F';
 			}
 		}
 		else {
 			if (start == -1) start++;
 
 			if (dest == 0 || dest == 32){
-				for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+				if (start == 15){
+					for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+				}
+				else if (start == 16){
+					if (numMoves <= 4){
+						for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+					} else if (numMoves > 4){
+						for (int i = 0; i < 4; i++) array[j++] = 'R';
+						for (int i = 4; i < numMoves; i++) array[j++] = 'F';
+					}
+				}
+				else if (start == 17){
+					if (numMoves <= 3){
+						for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+					} else if (numMoves > 3){
+						for (int i = 0; i < 3; i++) array[j++] = 'R';
+						for (int i = 3; i < numMoves; i++) array[j++] = 'F';
+					}
+				}
+				else if (start == 18){
+					if (numMoves <= 2){
+						for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+					} else if (numMoves > 2){
+						for (int i = 0; i < 2; i++) array[j++] = 'R';
+						for (int i = 2; i < numMoves; i++) array[j++] = 'F';
+					}
+				}
+				else if (start == 19){
+					if (numMoves <= 1){
+						for (int i = 0; i < numMoves; i++) array[j++] = 'R';
+					} else if (numMoves > 1){
+						for (int i = 0; i < 1; i++) array[j++] = 'R';
+						for (int i = 1; i < numMoves; i++) array[j++] = 'F';
+					}
+				}
 			}
 			else {
 				for (int i = start; i < dest; i++) array[j++] = moves[i];
