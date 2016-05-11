@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -110,6 +111,8 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	ImageView[][] playerOnBoardImages = new ImageView[2][4];
 	ImageView[][] playerOffBoardImages = new ImageView[2][4];
 
+	int[][] avatarIds = new int[2][7];  // Holds the image ids for each player, depending on the avatar chosen
+
 	@Bind(R.id.rollButton)  Button rollButton;
 	@Bind(R.id.rl)          RelativeLayout rl;
 
@@ -184,6 +187,9 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 
 		players[0] = new Player();
 		players[1] = new Player();
+
+		// Set up avatars
+		initializeAvatar();
 
 		/* <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -345,8 +351,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 			playerLogo[i].setId(View.generateViewId());
 			playerLogo[i].setLayoutParams(new RelativeLayout.LayoutParams(iconSize, iconSize));
 
-			if (i == 0) playerLogo[i].setBackgroundResource(R.drawable.seal_icon);
-			else playerLogo[i].setBackgroundResource(R.drawable.penguin_icon);
+			playerLogo[i].setBackgroundResource(avatarIds[i][6]);
 
 			if (i == 0) playerLogo[i].setX((float) (0.5 * padding));
 			else playerLogo[i].setX((float) (width - iconSize - (0.5 * padding)));
@@ -357,15 +362,15 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		}
 
 		// -----------------------------Player pieces indicating how many unfinished pieces are left
-		int miniIconSize = (int) ((width/2 - padding - iconSize - space)/4.0);
+		int miniIconSize = (int) ((width/2 - width/24 - padding - iconSize - space)/4.0);
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (i == 0){
 					playerOffBoardImages[i][j] = new ImageView(context);
 					playerOffBoardImages[i][j].setId(View.generateViewId());
 					playerOffBoardImages[i][j].setLayoutParams(new RelativeLayout.LayoutParams(miniIconSize, miniIconSize));
-					playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal1);
-					playerOffBoardImages[i][j].setX((float) (0.5*padding + iconSize + space/4 + j * space/4 + j * miniIconSize));
+					playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][0]);
+					playerOffBoardImages[i][j].setX((float) (0.5*padding + iconSize + space/4 + j * space/8 + j * miniIconSize));
 					playerOffBoardImages[i][j].setY((float) (0.5 * height / 10.0 - 0.5 * miniIconSize));
 					rl.addView(playerOffBoardImages[i][j]);
 				}
@@ -373,8 +378,8 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 					playerOffBoardImages[i][3-j] = new ImageView(context);
 					playerOffBoardImages[i][3-j].setId(View.generateViewId());
 					playerOffBoardImages[i][3-j].setLayoutParams(new RelativeLayout.LayoutParams(miniIconSize, miniIconSize));
-					playerOffBoardImages[i][3-j].setBackgroundResource(R.drawable.penguin1);
-					playerOffBoardImages[i][3-j].setX((float) (width - 0.5*padding - iconSize - space/8 - miniIconSize - j * space/4 - j * miniIconSize));
+					playerOffBoardImages[i][3-j].setBackgroundResource(avatarIds[i][0]);
+					playerOffBoardImages[i][3-j].setX((float) (width - 0.5*padding - iconSize - space/4 - miniIconSize - j * space/8 - j * miniIconSize));
 					playerOffBoardImages[i][3-j].setY((float) (0.5 * height / 10.0 - 0.5 * miniIconSize));
 					rl.addView(playerOffBoardImages[i][3-j]);
 				}
@@ -392,9 +397,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 				player_ids.add(playerOnBoardImages[i][j].getId());
 				rl.addView(playerOnBoardImages[i][j]);
 
-				if (i == 0) playerOnBoardImages[i][j].setBackgroundResource(R.drawable.sealmoveanimation);
-				else playerOnBoardImages[i][j].setBackgroundResource(R.drawable.penguinjumpanimation);
-
+				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
 				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
@@ -406,7 +409,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		offBoardPiece.setLayoutParams(new RelativeLayout.LayoutParams((int) (width/5.0), (int) (height/10.0)));
 		offBoardPiece.setX((float) (width/2.0 - width/10.0));
 		offBoardPiece.setY(heightOffset + (float) (6.9*height/10.0));
-		offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
+		offBoardPiece.setBackgroundResource(avatarIds[0][1]);
 		offBoardPiece.setVisibility(View.INVISIBLE);
 		rl.addView(offBoardPiece);
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
@@ -1089,9 +1092,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 				players[turn].pieces[j].setLocation(-1);
 				players[turn].pieces[j].resetValue();
 
-				if (turn == 0) playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.sealmoveanimation);
-				else playerOnBoardImages[turn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
-
+				playerOnBoardImages[turn][j].setBackgroundResource(avatarIds[turn][1]);
 				playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
 				playerAnimation[turn][j].start();
 			}
@@ -1099,16 +1100,13 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 
 		switch (currentPiece.getValue()) {
 			case 2:
-				if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation2);
-				else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation2);
+				currentPieceImage.setBackgroundResource(avatarIds[turn][2]);
 				break;
 			case 3:
-				if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation3);
-				else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation3);
+				currentPieceImage.setBackgroundResource(avatarIds[turn][3]);
 				break;
 			case 4:
-				if (turn == 0) currentPieceImage.setBackgroundResource(R.drawable.sealmoveanimation4);
-				else currentPieceImage.setBackgroundResource(R.drawable.penguinjumpanimation4);
+				currentPieceImage.setBackgroundResource(avatarIds[turn][4]);
 				break;
 			default:
 		}
@@ -1134,8 +1132,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 				players[oppTurn].subtractNumPieces(players[oppTurn].pieces[j].getValue());
 				players[oppTurn].pieces[j].resetValue();
 
-				if (turn == 0) playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.penguinjumpanimation);
-				else playerOnBoardImages[oppTurn][j].setBackgroundResource(R.drawable.sealmoveanimation);
+				playerOnBoardImages[oppTurn][j].setBackgroundResource(avatarIds[oppTurn][1]);
 			}
 
 			playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
@@ -1163,11 +1160,11 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 			for (int j = 0; j < players[i].getScore(); j++) {
 				if (i == 0) {
 					playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
-					playerOffBoardImages[i][j].setBackgroundResource(R.drawable.seal_goal);
+					playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][5]);
 				}
 				else {
 					playerOffBoardImages[i][3-j].setVisibility(View.VISIBLE);
-					playerOffBoardImages[i][3-j].setBackgroundResource(R.drawable.penguin_goal);
+					playerOffBoardImages[i][3-j].setBackgroundResource(avatarIds[i][5]);
 				}
 			}
 			for (int j = players[i].getScore(); j < players[i].getNumPieces(); j++) {
@@ -1405,7 +1402,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		tips.setVisibility(View.INVISIBLE);
 
 		if (turn == 1) {
-			offBoardPiece.setBackgroundResource(R.drawable.penguinjumpanimation);
+			offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
 			tips.setText(R.string.any_penguin);
 
 			bottomBar.setBackgroundResource(R.drawable.bar1);
@@ -1413,7 +1410,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 			topBar.setBackgroundResource(R.drawable.bar2);
 			topBar.setAlpha(0.25f);
 		} else {
-			offBoardPiece.setBackgroundResource(R.drawable.sealmoveanimation);
+			offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
 			tips.setText(R.string.any_seal);
 
 			topBar.setBackgroundResource(R.drawable.bar1);
@@ -1507,5 +1504,52 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 				}, COMPUTER_THINK_DURATION);
 			}
 		}, COMPUTER_THINK_DURATION);
+	}
+
+	private void initializeAvatar(){
+		SharedPreferences prefs = this.getSharedPreferences("avatar", Context.MODE_PRIVATE);
+		String avatars = prefs.getString("animals", null);
+
+		if (avatars == null) {
+			avatarIds[0][0] = R.drawable.seal1;
+			avatarIds[0][1] = R.drawable.sealmoveanimation;
+			avatarIds[0][2] = R.drawable.sealmoveanimation2;
+			avatarIds[0][3] = R.drawable.sealmoveanimation3;
+			avatarIds[0][4] = R.drawable.sealmoveanimation4;
+			avatarIds[0][5] = R.drawable.seal_goal;
+			avatarIds[0][6] = R.drawable.seal_icon;
+
+			avatarIds[1][0] = R.drawable.penguin1;
+			avatarIds[1][1] = R.drawable.penguinjumpanimation;
+			avatarIds[1][2] = R.drawable.penguinjumpanimation2;
+			avatarIds[1][3] = R.drawable.penguinjumpanimation3;
+			avatarIds[1][4] = R.drawable.penguinjumpanimation4;
+			avatarIds[1][5] = R.drawable.penguin_goal;
+			avatarIds[1][6] = R.drawable.penguin_icon;
+		}
+		else {
+			String[] animals = avatars.split(" ");
+			for (int i = 0; i < 2; i++){
+				if (animals[i].equals("seal")){
+					avatarIds[i][0] = R.drawable.seal1;
+					avatarIds[i][1] = R.drawable.sealmoveanimation;
+					avatarIds[i][2] = R.drawable.sealmoveanimation2;
+					avatarIds[i][3] = R.drawable.sealmoveanimation3;
+					avatarIds[i][4] = R.drawable.sealmoveanimation4;
+					avatarIds[i][5] = R.drawable.seal_goal;
+					avatarIds[i][6] = R.drawable.seal_icon;
+
+				} else if (animals[i].equals("penguin")){
+					avatarIds[i][0] = R.drawable.penguin1;
+					avatarIds[i][1] = R.drawable.penguinjumpanimation;
+					avatarIds[i][2] = R.drawable.penguinjumpanimation2;
+					avatarIds[i][3] = R.drawable.penguinjumpanimation3;
+					avatarIds[i][4] = R.drawable.penguinjumpanimation4;
+					avatarIds[i][5] = R.drawable.penguin_goal;
+					avatarIds[i][6] = R.drawable.penguin_icon;
+
+				}
+			}
+		}
 	}
 }
