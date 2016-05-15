@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -51,7 +50,9 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	boolean isGameOver;         // Is the game over
 	boolean isComputerPlaying;  // One player mode
 	boolean isMoveInProgress;
+
 	String connectedStatus = "";
+	String[] playerTips = new String[2];
 
 	int rollAmount;
 	int turn = 0;
@@ -111,7 +112,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	ImageView[][] playerOnBoardImages = new ImageView[2][4];
 	ImageView[][] playerOffBoardImages = new ImageView[2][4];
 
-	int[][] avatarIds = new int[2][7];  // Holds the image ids for each player, depending on the avatar chosen
+	Integer[][] avatarIds = new Integer[2][7];  // Holds the image ids for each player, depending on the avatar chosen
 
 	@Bind(R.id.rollButton)  Button rollButton;
 	@Bind(R.id.rl)          RelativeLayout rl;
@@ -189,7 +190,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		players[1] = new Player();
 
 		// Set up avatars
-		initializeAvatar();
+		loadAvatars();
 
 		/* <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 		 * <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -262,10 +263,9 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 			rl.addView(tiles[i]);
 		}
 
-		for (int i = 0; i < tiles.length; i++) {
-			tiles[i].setY(tiles[i].getY() + heightOffset/2);
+		for (ImageView iv : tiles){
+			iv.setY(iv.getY() + heightOffset/2);
 		}
-
 
 		diagonalMoveSize = Math.abs(tiles[21].getY() - tiles[20].getY());
 
@@ -337,8 +337,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height / 20.0)));
 		tips.setY(heightOffset + (int) (height * 7.6 / 10.0));
 		tips.setGravity(Gravity.CENTER);
-		String tipText = "Click Me!";
-		tips.setText(tipText);
+		tips.setText(R.string.click_me);
 		tips.setTextColor(Color.BLACK);
 		tips.setVisibility(View.INVISIBLE);
 		rl.addView(tips);
@@ -857,8 +856,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 
 						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
 					} else if (players[turn].hasAllPiecesOnBoard()){
-						if (turn == 0) tips.setText(R.string.any_seal);
-						else tips.setText(R.string.any_penguin);
+						tips.setText(playerTips[turn]);
 					}
 
 					for (int j = 0; j < 4; j++){
@@ -980,8 +978,8 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 
 		if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
 		else {
-			if (turn == 0) tips.setText(R.string.any_seal);
-			else if (turn == 1 && !isComputerPlaying) tips.setText(R.string.any_penguin);
+			if (turn == 0) tips.setText(playerTips[0]);
+			else if (turn == 1 && !isComputerPlaying) tips.setText(playerTips[1]);
 		}
 
 		if (isComputerPlaying && turn == 1) {
@@ -1225,7 +1223,6 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	 */
 	private void removeRoll() {
 
-		System.err.println(Arrays.toString(board.rollArray));
 		// Find the roll that was used by the current piece
 		int value = 0;
 		for (Integer[] m : moveSet) {
@@ -1248,9 +1245,6 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		for(int j = 0; j < 5; ++j) {
 			updateRollSlots(j, board.rollArray[j]);
 		}
-
-		System.err.println(Arrays.toString(board.rollArray));
-		System.err.println("------");
 	}
 
 	/*
@@ -1348,6 +1342,11 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 				// Achievement for crossing finish with all 4 pieces against computer
 				if (currentPiece.getValue() == 4) Games.Achievements.unlock(client, getResources().getString(R.string.achievement_full_stack_finish));
 			}
+
+			Shop.Instance.addCoins(3);
+		}
+		else {
+			Shop.Instance.addCoins(1);
 		}
 
 		// Check for achievement for playing two player mode
@@ -1362,14 +1361,18 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		TextView tv = new TextView(this);
 		tv.setPadding(0, 40, 0, 40);
 
-		if (players[0].hasWon()) tv.setText("Player 1 wins!\nPlay again?");
-		else if (!isComputerPlaying) tv.setText("Player 2 wins!\nPlay again?");
-		else tv.setText("Computer wins!\nPlay again?");
+		// Display message notifying winner and amount of coins earned
+		String winner = "\nTotal Coins: " + Shop.Instance.getCoins();
+		if (players[0].hasWon() && isComputerPlaying) winner = "Player 1 wins!\n\nCoins earned: " + 3 + winner;
+		else if (players[0].hasWon() && !isComputerPlaying) winner = "Player 1 wins!\n\nCoins earned: " + 1 + winner;
+		else if (players[1].hasWon() && !isComputerPlaying) winner = "Player 2 wins!\n\nCoins earned: " + 1 + winner;
+		else winner = "Computer wins!\n\nCoins earned: " + 1 + winner;
+		tv.setText(winner);
 
 		tv.setTextSize(20f);
 		tv.setGravity(Gravity.CENTER_HORIZONTAL);
 		adb.setView(tv);
-		adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		adb.setPositiveButton("Play Again", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				Intent intent = new Intent(context, BoardActivity.class);
 				intent.putExtra("Computer", isComputerPlaying);
@@ -1400,10 +1403,9 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		offBoardPieceAnimation.selectDrawable(0);
 
 		tips.setVisibility(View.INVISIBLE);
-
+		tips.setText(playerTips[turn]);
 		if (turn == 1) {
 			offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
-			tips.setText(R.string.any_penguin);
 
 			bottomBar.setBackgroundResource(R.drawable.bar1);
 			bottomBar.setAlpha(1.0f);
@@ -1411,7 +1413,6 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 			topBar.setAlpha(0.25f);
 		} else {
 			offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
-			tips.setText(R.string.any_seal);
 
 			topBar.setBackgroundResource(R.drawable.bar1);
 			topBar.setAlpha(1.0f);
@@ -1506,50 +1507,11 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		}, COMPUTER_THINK_DURATION);
 	}
 
-	private void initializeAvatar(){
-		SharedPreferences prefs = this.getSharedPreferences("avatar", Context.MODE_PRIVATE);
-		String avatars = prefs.getString("animals", null);
-
-		if (avatars == null) {
-			avatarIds[0][0] = R.drawable.seal1;
-			avatarIds[0][1] = R.drawable.sealmoveanimation;
-			avatarIds[0][2] = R.drawable.sealmoveanimation2;
-			avatarIds[0][3] = R.drawable.sealmoveanimation3;
-			avatarIds[0][4] = R.drawable.sealmoveanimation4;
-			avatarIds[0][5] = R.drawable.seal_goal;
-			avatarIds[0][6] = R.drawable.seal_icon;
-
-			avatarIds[1][0] = R.drawable.penguin1;
-			avatarIds[1][1] = R.drawable.penguinjumpanimation;
-			avatarIds[1][2] = R.drawable.penguinjumpanimation2;
-			avatarIds[1][3] = R.drawable.penguinjumpanimation3;
-			avatarIds[1][4] = R.drawable.penguinjumpanimation4;
-			avatarIds[1][5] = R.drawable.penguin_goal;
-			avatarIds[1][6] = R.drawable.penguin_icon;
-		}
-		else {
-			String[] animals = avatars.split(" ");
-			for (int i = 0; i < 2; i++){
-				if (animals[i].equals("seal")){
-					avatarIds[i][0] = R.drawable.seal1;
-					avatarIds[i][1] = R.drawable.sealmoveanimation;
-					avatarIds[i][2] = R.drawable.sealmoveanimation2;
-					avatarIds[i][3] = R.drawable.sealmoveanimation3;
-					avatarIds[i][4] = R.drawable.sealmoveanimation4;
-					avatarIds[i][5] = R.drawable.seal_goal;
-					avatarIds[i][6] = R.drawable.seal_icon;
-
-				} else if (animals[i].equals("penguin")){
-					avatarIds[i][0] = R.drawable.penguin1;
-					avatarIds[i][1] = R.drawable.penguinjumpanimation;
-					avatarIds[i][2] = R.drawable.penguinjumpanimation2;
-					avatarIds[i][3] = R.drawable.penguinjumpanimation3;
-					avatarIds[i][4] = R.drawable.penguinjumpanimation4;
-					avatarIds[i][5] = R.drawable.penguin_goal;
-					avatarIds[i][6] = R.drawable.penguin_icon;
-
-				}
-			}
+	private void loadAvatars(){
+		String[] s = Shop.Instance.getAnimals();
+		for (int i = 0; i < 2; i++) {
+			avatarIds[i] = Shop.Instance.getImageArray(s[i]);
+			playerTips[i] = "Press any moving " + s[i];
 		}
 	}
 }

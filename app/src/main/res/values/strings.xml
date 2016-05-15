@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">Yut</string>
-    <string name="loading">Loading...</string>
-    <string name="computer">Computer is making a move...</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="computer">Computer is making a move&#8230;</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="sticks">Stick animation</string>
@@ -18,11 +18,16 @@
     <string name="penguin_icon">Penguin Icon</string>
     <string name="finish">Finish Button</string>
     <string name="soon">Coming Soon!</string>
+    <string name="twenty">20 Coins</string>
+    <string name="future">Check back in the future for new avatars!</string>
+    <string name="set_avatar">Select a different avatar from the drop down menu or press the arrow button to swap the current avatars</string>
+    <string name="change">Change</string>
+    <string name="buy">Buy</string>
+    <string name="welcome">Welcome to the Avatar Shop!</string>
+    <string name="spend">Spend your coins from playing Yut to buy new avatars!</string>
     <string name="click_me">Press me!</string>
     <string name="click_yellow">Press a yellow tile to move</string>
     <string name="click_finish">Press finish to complete current piece(s)</string>
-    <string name="any_seal">Press any jumping seal</string>
-    <string name="any_penguin">Press any jumping penguin</string>
     <string name="signin_failure">Unable to sign in</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
@@ -39,7 +44,12 @@
         POSSIBLE ROLLS\n\n
         You can roll a -1, 1, 2, 3, 4, or 5.\n\n
         REMAINING PIECES\n\n
-        Pieces off the board that need to be completed will be shown at the top. Pieces already completed will have medals. Pieces on the board will not be shown at the top.
+        Pieces off the board that need to be completed will be shown at the top. Pieces already completed will have medals. Pieces on the board will not be shown at the top.\n\n
+        COINS\n\n
+        Earn coins to buy new avatars!\n\n
+        Win 1 coin for losing against a computer\n
+        Win 1 coin for playing a two player match\n
+        Win 3 coins for beating a computer
     </string>
 
     <string name="credits">
