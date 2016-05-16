@@ -86,12 +86,12 @@ public class Shop {
 		// TODO: Images and cost = 20
 		addAvatar("Rabbit", 0, new Integer[]{
 				R.drawable.rabbit1,
-				R.drawable.sealmoveanimation,
-				R.drawable.sealmoveanimation2,
-				R.drawable.sealmoveanimation3,
-				R.drawable.sealmoveanimation4,
-				R.drawable.seal_goal,
-				R.drawable.seal_icon
+				R.drawable.rabbitjumpanimation1,
+				R.drawable.rabbitjumpanimation2,
+				R.drawable.rabbitjumpanimation3,
+				R.drawable.rabbitjumpanimation4,
+				R.drawable.rabbit_goal,
+				R.drawable.rabbit_icon
 		});
 	}
 

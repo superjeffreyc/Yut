@@ -1511,7 +1511,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		String[] s = Shop.Instance.getAnimals();
 		for (int i = 0; i < 2; i++) {
 			avatarIds[i] = Shop.Instance.getImageArray(s[i]);
-			playerTips[i] = "Press any moving " + s[i];
+			playerTips[i] = "Press any moving " + s[i].toLowerCase();
 		}
 	}
 }
