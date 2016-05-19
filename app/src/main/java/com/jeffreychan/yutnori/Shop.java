@@ -28,7 +28,7 @@ public class Shop {
 	 *
 	 * To add a new avatar, follow the following format and add it to the bottom of the constructor
 	 *
-	 *  addAvatar(NAME, COST, new Integer[]{
+	 *  addAvatar(NAME, COST, INDEX, new Integer[]{
 	 *      static image drawable
 	 *      animation1
 	 *      animation2
@@ -37,6 +37,8 @@ public class Shop {
 	 *      finished avatar
 	 *      player icon
 	 *  });
+	 *
+	 *  NOTE: NAME cannot have spaces in it
 	 *
 	 */
 	private Shop(){
@@ -61,30 +63,7 @@ public class Shop {
 				R.drawable.penguin_icon
 		});
 
-		// TODO: Images and cost = 20
-		addAvatar("Cat", 0, new Integer[]{
-				R.drawable.cat1,
-				R.drawable.penguinjumpanimation,
-				R.drawable.penguinjumpanimation2,
-				R.drawable.penguinjumpanimation3,
-				R.drawable.penguinjumpanimation4,
-				R.drawable.penguin_goal,
-				R.drawable.penguin_icon
-		});
-
-		// TODO: Images and cost = 20
-		addAvatar("Dog", 0, new Integer[]{
-				R.drawable.dog1,
-				R.drawable.sealmoveanimation,
-				R.drawable.sealmoveanimation2,
-				R.drawable.sealmoveanimation3,
-				R.drawable.sealmoveanimation4,
-				R.drawable.seal_goal,
-				R.drawable.seal_icon
-		});
-
-		// TODO: Images and cost = 20
-		addAvatar("Rabbit", 0, new Integer[]{
+		addAvatar("Rabbit", 10, new Integer[]{
 				R.drawable.rabbit1,
 				R.drawable.rabbitjumpanimation1,
 				R.drawable.rabbitjumpanimation2,
@@ -92,6 +71,16 @@ public class Shop {
 				R.drawable.rabbitjumpanimation4,
 				R.drawable.rabbit_goal,
 				R.drawable.rabbit_icon
+		});
+
+		addAvatar("Polar-Bear", 50, new Integer[]{
+				R.drawable.polarbear1jump1,
+				R.drawable.polarbearanimation1,
+				R.drawable.polarbearanimation2,
+				R.drawable.polarbearanimation3,
+				R.drawable.polarbearanimation4,
+				R.drawable.polarbear_goal,
+				R.drawable.polarbear_icon
 		});
 	}
 
@@ -123,6 +112,16 @@ public class Shop {
 			editor.putInt("coins", 0);
 			editor.apply();
 		}
+
+		// debug
+//		editor.putInt("Rabbit", 0);
+// 		editor.putInt("Polar-Bear", 0);
+//		editor.putInt("coins", 10);
+//		editor.putString("animals", "Seal Penguin");
+//		playerAnimals = "Seal Penguin";
+//		lastSavedAnimals = playerAnimals;
+//		editor.apply();
+
 	}
 
 	/**
@@ -132,6 +131,19 @@ public class Shop {
 	 */
 	protected Integer getImage(String s){
 		return drawables.get(s)[0];
+	}
+
+	/**
+	 * Gets the index associated with an animal
+	 * @param s The string name of the animal
+	 * @return The index of the animal
+	 */
+	protected Integer getIndex(String s){
+		ArrayList<String> list = getUnlockedAvatars();
+		for (int i = 0; i < list.size(); i++){
+			if (s.equalsIgnoreCase(list.get(i))) return i;
+		}
+		return -1;  // Error - cannot find animal
 	}
 
 	/**

@@ -189,6 +189,9 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		players[0] = new Player();
 		players[1] = new Player();
 
+		// Prevent multi-touch
+		rl.setMotionEventSplittingEnabled(false);
+
 		// Set up avatars
 		loadAvatars();
 
@@ -335,7 +338,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		tips = new AutoResizeTextView(context);
 		tips.setId(View.generateViewId());
 		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height / 20.0)));
-		tips.setY(heightOffset + (int) (height * 7.6 / 10.0));
+		tips.setY(heightOffset + (int) (height * 7.7 / 10.0));
 		tips.setGravity(Gravity.CENTER);
 		tips.setText(R.string.click_me);
 		tips.setTextColor(Color.BLACK);
@@ -860,6 +863,8 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 					}
 
 					for (int j = 0; j < 4; j++){
+						playerAnimation[turn][j].stop();
+						playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
 						playerAnimation[turn][j].start();
 					}
 
@@ -1091,29 +1096,16 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 				players[turn].pieces[j].resetValue();
 
 				playerOnBoardImages[turn][j].setBackgroundResource(avatarIds[turn][1]);
-				playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
-				playerAnimation[turn][j].start();
+
 			}
 		}
 
-		switch (currentPiece.getValue()) {
-			case 2:
-				currentPieceImage.setBackgroundResource(avatarIds[turn][2]);
-				break;
-			case 3:
-				currentPieceImage.setBackgroundResource(avatarIds[turn][3]);
-				break;
-			case 4:
-				currentPieceImage.setBackgroundResource(avatarIds[turn][4]);
-				break;
-			default:
-		}
+		currentPieceImage.setBackgroundResource(avatarIds[turn][currentPiece.getValue()]);
 
 		for (int j = 0; j < 4; j++){
-			if (currentPieceImage == playerOnBoardImages[turn][j]){
-				playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
-				playerAnimation[turn][j].start();
-			}
+			playerAnimation[turn][j].stop();
+			playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+			playerAnimation[turn][j].start();
 		}
 	}
 
@@ -1132,9 +1124,6 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 
 				playerOnBoardImages[oppTurn][j].setBackgroundResource(avatarIds[oppTurn][1]);
 			}
-
-			playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
-			playerAnimation[turn][j].start();
 		}
 		if (turn == 0 || !isComputerPlaying) rollButton.setVisibility(View.VISIBLE);
 		capture = true;
@@ -1362,11 +1351,11 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		tv.setPadding(0, 40, 0, 40);
 
 		// Display message notifying winner and amount of coins earned
-		String winner = "\nTotal Coins: " + Shop.Instance.getCoins();
-		if (players[0].hasWon() && isComputerPlaying) winner = "Player 1 wins!\n\nCoins earned: " + 3 + winner;
-		else if (players[0].hasWon() && !isComputerPlaying) winner = "Player 1 wins!\n\nCoins earned: " + 1 + winner;
-		else if (players[1].hasWon() && !isComputerPlaying) winner = "Player 2 wins!\n\nCoins earned: " + 1 + winner;
-		else winner = "Computer wins!\n\nCoins earned: " + 1 + winner;
+		String winner = "\nYou now have " + Shop.Instance.getCoins() + " coin(s)";
+		if (players[0].hasWon() && isComputerPlaying) winner = "Player 1 wins!\n\nYou have earned 3 coins!" + winner;
+		else if (players[0].hasWon() && !isComputerPlaying) winner = "Player 1 wins!\n\nYou have earned 1 coin!" + winner;
+		else if (players[1].hasWon() && !isComputerPlaying) winner = "Player 2 wins!\n\nYou have earned 1 coin!" + winner;
+		else winner = "Computer wins!\n\nYou have earned 1 coin!" + winner;
 		tv.setText(winner);
 
 		tv.setTextSize(20f);

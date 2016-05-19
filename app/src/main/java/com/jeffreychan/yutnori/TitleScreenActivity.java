@@ -99,9 +99,11 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 	int[] player_id = new int[2];       // Holds each player's avatar id
 
-	boolean isLeft = false;     // Are the initial buttons (Start, How To Play, Quit) off screen to the left
-	boolean hasClickedSignIn;   // Was sign in clicked?
-	boolean fromBoard;          // Is this activity being launched from BoardActivity?
+	boolean isLeft = false;             // Are the initial buttons (Start, How To Play, Quit) off screen to the left
+	boolean hasClickedSignIn;           // Was sign in clicked?
+	boolean fromBoard;                  // Is this activity being launched from BoardActivity?
+	boolean isP1spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
+	boolean isP2spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
 
 	GoogleApiClient client;
 	String signInStatus = "Sign In";
@@ -173,11 +175,13 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// The layout holding the start, how to play, options, and quit buttons
 		rl1 = new RelativeLayout(this);
 		rl1.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+		rl1.setMotionEventSplittingEnabled(false);
 		rl1.setX(0);
 
-		// The layout holding the one player, two player, and back buttons
+		// The layout holding the one player, two player, avatar shop, and back buttons
 		rl2 = new RelativeLayout(this);
 		rl2.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+		rl2.setMotionEventSplittingEnabled(false);
 		rl2.setX(width);
 
 		// The layout holding the first group of snowflakes (alternates falling with the other group)
@@ -651,9 +655,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			ImageView tempImage = firstImage;
 			firstImage = secondImage;
 			secondImage = tempImage;
-
-			p1spin.setSelection(0);
-			p2spin.setSelection(0);
+		}
+		else if (firstImage != null && v.getId() == firstImage.getId()){
+			p1spin.performClick();
+		}
+		else if (secondImage != null && v.getId() == secondImage.getId()){
+			p2spin.performClick();
 		}
 		else if (v.getId() == backButton.getId()) {
 			showInitialButtons();   // start animation of left to right
@@ -665,12 +672,111 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			adb.setTitle("How to play");
 			ScrollView sv = new ScrollView(this);
+
+			LinearLayout layout = new LinearLayout(this);
+			layout.setOrientation(LinearLayout.VERTICAL);
+			layout.setGravity(Gravity.CENTER);
+			layout.setPadding(0, 20, 0, 0);
+
+			ImageView logo = new ImageView(this);
+			logo.setBackgroundResource(R.drawable.banner);
+			logo.setLayoutParams(new LinearLayout.LayoutParams(width, width/2));
+			logo.setPadding(0, 0, 0, 30);
+			layout.addView(logo);
+
 			TextView tv = new TextView(this);
-			tv.setPadding(0, 40, 0, 40);
-			tv.setText(R.string.guide);
+			tv.setText(R.string.guide1);
 			tv.setTextSize(20f);
+			tv.setPadding(0, 30, 0, 0);
 			tv.setGravity(Gravity.CENTER);
-			sv.addView(tv);
+			layout.addView(tv);
+
+			ImageView roll = new ImageView(this);
+			roll.setBackgroundResource(R.drawable.rollbutton1);
+			roll.setPadding(20, 0, 20, 30);
+			roll.setLayoutParams(new LinearLayout.LayoutParams(width*9/10, width*9/44));
+			layout.addView(roll);
+
+			TextView tv2 = new TextView(this);
+			tv2.setText(R.string.guide2);
+			tv2.setPadding(0, 30, 0, 0);
+			tv2.setTextSize(20f);
+			tv2.setGravity(Gravity.CENTER);
+			layout.addView(tv2);
+
+			ImageView rollExample = new ImageView(this);
+			rollExample.setBackgroundResource(R.drawable.roll_example);
+			rollExample.setPadding(20, 0, 20, 30);
+			rollExample.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int)(width*8.5/60)));
+			layout.addView(rollExample);
+
+			TextView tv3 = new TextView(this);
+			tv3.setText(R.string.guide3);
+			tv3.setPadding(0, 30, 0, 0);
+			tv3.setTextSize(20f);
+			tv3.setGravity(Gravity.CENTER);
+			layout.addView(tv3);
+
+			ImageView yellowExample = new ImageView(this);
+			yellowExample.setBackgroundResource(R.drawable.yellow_tile_example);
+			yellowExample.setPadding(20, 0, 20, 30);
+			yellowExample.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int)(width*8.5/10)));
+			layout.addView(yellowExample);
+
+			TextView tv4 = new TextView(this);
+			tv4.setText(R.string.guide4);
+			tv4.setPadding(0, 30, 0, 0);
+			tv4.setTextSize(20f);
+			tv4.setGravity(Gravity.CENTER);
+			layout.addView(tv4);
+
+			int[] rollImages = new int[]{R.drawable.circleminus1, R.drawable.circle1, R.drawable.circle2, R.drawable.circle3, R.drawable.circle4, R.drawable.circle5};
+			LinearLayout rollNumbers = new LinearLayout(this);
+			rollNumbers.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int) (width*8.5/60)));
+			rollNumbers.setOrientation(LinearLayout.HORIZONTAL);
+			rollNumbers.setPadding(0, 0, 0, 30);
+			for (int image : rollImages){
+				ImageView iv = new ImageView(this);
+				iv.setBackgroundResource(image);
+				iv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+				rollNumbers.addView(iv);
+			}
+			layout.addView(rollNumbers);
+
+			TextView tv5 = new TextView(this);
+			tv5.setText(R.string.guide5);
+			tv5.setPadding(0, 30, 0, 0);
+			tv5.setTextSize(20f);
+			tv5.setGravity(Gravity.CENTER);
+			layout.addView(tv5);
+
+			ImageView rollBarExample = new ImageView(this);
+			rollBarExample.setBackgroundResource(R.drawable.rollbar_example);
+			rollBarExample.setPadding(20, 0, 20, 30);
+			rollBarExample.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int)(width*8.5/60)));
+			layout.addView(rollBarExample);
+
+			TextView tv6 = new TextView(this);
+			tv6.setText(R.string.guide6);
+			tv6.setPadding(0, 30, 0, 0);
+			tv6.setTextSize(20f);
+			tv6.setGravity(Gravity.CENTER);
+			layout.addView(tv6);
+
+			ImageView avatarShopExample = new ImageView(this);
+			avatarShopExample.setBackgroundResource(R.drawable.welcome);
+			avatarShopExample.setPadding(20, 0, 20, 30);
+			avatarShopExample.setLayoutParams(new LinearLayout.LayoutParams(width*9/10, width*6/10));
+			layout.addView(avatarShopExample);
+
+			TextView tv7 = new TextView(this);
+			tv7.setText(R.string.guide7);
+			tv7.setPadding(0, 30, 0, 0);
+			tv7.setTextSize(20f);
+			tv7.setGravity(Gravity.CENTER);
+			layout.addView(tv7);
+
+			sv.addView(layout);
 			adb.setView(sv);
 			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
@@ -800,6 +906,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Holds the two buttons for setting avatars or buying avatars
 		LinearLayout buttons = new LinearLayout(this);
 		buttons.setOrientation(LinearLayout.HORIZONTAL);
+		buttons.setMotionEventSplittingEnabled(false);
 
 		// Set up button for changing avatars
 		TextView setAvatarButton = new AutofitTextView(this);
@@ -891,6 +998,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		ScrollView sv = new ScrollView(this);
 		LinearLayout list = new LinearLayout(this);
 		list.setOrientation(LinearLayout.VERTICAL);
+		list.setMotionEventSplittingEnabled(false);
 
 		// Get the list of locked avatars and display them
 		ArrayList<String> avatars = Shop.Instance.getLockedAvatars();
@@ -919,7 +1027,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			// Set up image for this avatar
 			ImageView avatarImage = new ImageView(this);
 			avatarImage.setBackgroundResource(Shop.Instance.getAnim(s));
-			avatarImage.setLayoutParams(new LinearLayout.LayoutParams(0, height / 5, 8));
+			avatarImage.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 8));
 			rowItem.addView(avatarImage);
 			AnimationDrawable sealAnim = (AnimationDrawable) avatarImage.getBackground();
 			sealAnim.start();
@@ -931,7 +1039,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			// Set up buy button for this avatar
 			Button buyButton = new Button(this);
 			buyButton.setBackgroundResource(R.drawable.blank);
-			String buyText = Shop.Instance.getCost(s) + " Coins";
+			String buyText = Shop.Instance.getCost(s) + " Coin(s)";
 			buyButton.setText(buyText);
 			buyButton.setLayoutParams(new LinearLayout.LayoutParams(0, height / 7, 6));
 			rowItem.addView(buyButton);
@@ -983,6 +1091,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	}
 
 	private void setAvatar(){
+
+		// Prevents initialization of spinner from activating OnItemSelected
+		isP1spinFirstTime = true;
+		isP2spinFirstTime = true;
 
 		// Set the avatar images to the saved avatars
 		String[] s = Shop.Instance.getAnimals();
@@ -1048,15 +1160,19 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		LinearLayout icons = new LinearLayout(this);
 		icons.setOrientation(LinearLayout.HORIZONTAL);
 		icons.setGravity(Gravity.CENTER);
+		icons.setMotionEventSplittingEnabled(false);
 
 		// Avatar for player 1
 		firstImage = new ImageView(this);
+		firstImage.setId(View.generateViewId());
 		firstImage.setBackgroundResource(player_id[0]);
 		firstImage.setLayoutParams(new LinearLayout.LayoutParams(0, height/5, 2));
+		firstImage.setOnClickListener(this);
 		icons.addView(firstImage);
 
 		// Switch button that allows the player avatars to be swapped
 		switchButton = new Button(this);
+		switchButton.setId(View.generateViewId());
 		switchButton.setBackgroundResource(R.drawable.switchx);
 		switchButton.setLayoutParams(new LinearLayout.LayoutParams(0, height/7, 1));
 		switchButton.setOnClickListener(this);
@@ -1064,8 +1180,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 		// Avatar for player 2
 		secondImage = new ImageView(this);
+		secondImage.setId(View.generateViewId());
 		secondImage.setBackgroundResource(player_id[1]);
 		secondImage.setLayoutParams(new LinearLayout.LayoutParams(0, height/5, 2));
+		secondImage.setOnClickListener(this);
 		icons.addView(secondImage);
 
 		// Add all views to the linear layout
@@ -1080,44 +1198,45 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Linear layout for the dropdown menus
 		LinearLayout menus = new LinearLayout(this);
 		menus.setOrientation(LinearLayout.HORIZONTAL);
-		menus.setPadding(0, 0, 0, 100);
 		menus.setGravity(Gravity.CENTER);
 
 		/*
 		 * Populate drop down menus with unlocked avatars
-		 * Default selection is the word "Select"
 		 */
 		ArrayList<String> list = new ArrayList<>();
-		list.add("Select");
 		list.addAll(Shop.Instance.getUnlockedAvatars());
 
 		// Dropdown menu for player 1
 		p1spin = new Spinner(this);
+		p1spin.setId(View.generateViewId());
 		p1spin.setGravity(Gravity.CENTER);
 		p1spin.setId(View.generateViewId());
-		p1spin.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2));
+		p1spin.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 2));
 		ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_center_text, list);
 		adapter.setDropDownViewResource(R.layout.spinner_center_text);
 		p1spin.setOnItemSelectedListener(this);
 		p1spin.setAdapter(adapter);
-		p1spin.setSelection(0);
+		p1spin.setVisibility(View.INVISIBLE);
+		p1spin.setSelection(Shop.Instance.getIndex(s[0]));
 		menus.addView(p1spin);
 
 		// Space in between dropdown menus
 		Space menuSpace = new Space(this);
-		menuSpace.setLayoutParams(new LinearLayout.LayoutParams(0, height/10, 1));
+		menuSpace.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 1));
 		menus.addView(menuSpace);
 
 		// Dropdown menu for player 2
 		p2spin = new Spinner(this);
+		p2spin.setId(View.generateViewId());
 		p2spin.setGravity(Gravity.CENTER);
 		p2spin.setId(View.generateViewId());
-		p2spin.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2));
+		p2spin.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 2));
 		ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, R.layout.spinner_center_text, list);
 		adapter2.setDropDownViewResource(R.layout.spinner_center_text);
 		p2spin.setAdapter(adapter2);
 		p2spin.setOnItemSelectedListener(this);
-		p2spin.setSelection(0);
+		p2spin.setVisibility(View.INVISIBLE);
+		p2spin.setSelection(Shop.Instance.getIndex(s[1]));
 		menus.addView(p2spin);
 
 		// Add all views to the linear layout
@@ -1158,31 +1277,26 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 		String[] s = Shop.Instance.getAnimals();
+		String item = (String) parent.getItemAtPosition(position);
 
 		if (parent.getId() == p1spin.getId()) {
-			String item = (String) parent.getItemAtPosition(position);
-			if (!item.equalsIgnoreCase("Select")) {
-				if (!s[1].equalsIgnoreCase(item)) {
-					Shop.Instance.changeAvatar(1, item);
-					firstImage.setBackgroundResource(Shop.Instance.getImage(item));
-				} else {
-					p1spin.setSelection(0);
-					Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
-					savedToast.show();
-				}
+			if (isP1spinFirstTime) isP1spinFirstTime = false;
+			else if (!s[1].equalsIgnoreCase(item) && !s[0].equalsIgnoreCase(item)) {
+				Shop.Instance.changeAvatar(1, item);
+				firstImage.setBackgroundResource(Shop.Instance.getImage(item));
+			} else if (s[1].equalsIgnoreCase(item)){
+				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+				savedToast.show();
 			}
-		}
-		else if (parent.getId() == p2spin.getId()) {
-			String item = (String) parent.getItemAtPosition(position);
-			if (!item.equalsIgnoreCase("Select")) {
-				if (!s[0].equalsIgnoreCase(item)) {
-					Shop.Instance.changeAvatar(2, item);
-					secondImage.setBackgroundResource(Shop.Instance.getImage(item));
-				} else {
-					p2spin.setSelection(0);
-					Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
-					savedToast.show();
-				}
+		} else if (parent.getId() == p2spin.getId()) {
+
+			if (isP2spinFirstTime) isP2spinFirstTime = false;
+			else if (!s[0].equalsIgnoreCase(item) && !s[1].equalsIgnoreCase(item)) {
+				Shop.Instance.changeAvatar(2, item);
+				secondImage.setBackgroundResource(Shop.Instance.getImage(item));
+			} else if (s[0].equalsIgnoreCase(item)){
+				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+				savedToast.show();
 			}
 		}
 	}
