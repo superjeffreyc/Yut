@@ -82,6 +82,26 @@ public class Shop {
 				R.drawable.polarbear_goal,
 				R.drawable.polarbear_icon
 		});
+
+		addAvatar("Leopard", 60, new Integer[]{
+				R.drawable.leopard1jump1,
+				R.drawable.leopardanimation1,
+				R.drawable.leopardanimation2,
+				R.drawable.leopardanimation3,
+				R.drawable.leopardanimation4,
+				R.drawable.leopard_goal,
+				R.drawable.leopard_icon
+		});
+
+		addAvatar("Husky", 100, new Integer[]{
+				R.drawable.husky1jump1,
+				R.drawable.huskyanimation1,
+				R.drawable.huskyanimation2,
+				R.drawable.huskyanimation3,
+				R.drawable.huskyanimation4,
+				R.drawable.husky_goal,
+				R.drawable.husky_icon
+		});
 	}
 
 	/*
