@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jeffreychan.yutnori"
-    android:versionCode="2"
-    android:versionName="1.1" >
-
-    <uses-sdk
-        android:minSdkVersion="17"
-        android:targetSdkVersion="23" />
+    package="com.jeffreychan.yutnori">
 
     <application
         android:allowBackup="true"
