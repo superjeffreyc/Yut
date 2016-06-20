@@ -8,18 +8,22 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+/*
+ * This class controls Shop functions and serves as the interface to SharedPreferences, where avatar selections are stored.
+ */
 public class Shop {
 
-	public static Shop Instance = new Shop();
+	public static Shop Instance = new Shop();	// Only one instance can exist
 
-	private LinkedHashMap<String, Integer> costs = new LinkedHashMap<>();
-	private LinkedHashMap<String, Integer[]> drawables = new LinkedHashMap<>();
+	private LinkedHashMap<String, Integer> costs = new LinkedHashMap<>();		// Holds cost for each avatar
+	private LinkedHashMap<String, Integer[]> drawables = new LinkedHashMap<>();	// Holds images for each avatar
 
+	// Used to access stored information on device
 	SharedPreferences prefs;
 	Editor editor;
 
-	String playerAnimals;
-	String lastSavedAnimals;
+	String playerAnimals;		// Currently selected avatars
+	String lastSavedAnimals;	// Avatars that were previously saved (not updated until the user presses save)
 
 	Context context;
 
