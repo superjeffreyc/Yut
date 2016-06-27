@@ -239,10 +239,10 @@ public class Board {
 					} else {
 						location--;
 
-							/* Rolling a -1 on the bottom left tile gives you two possible choices.
-							 * This covers the second case.
-							 * The first case is covered at the end of the loop
-							 */
+						/* Rolling a -1 on the bottom left tile gives you two possible choices.
+						 * This covers the second case.
+						 * The first case is covered at the end of the loop
+						 */
 						Integer[] secondMove = new Integer[2];
 						secondMove[0] = 24;
 						secondMove[1] = move;
@@ -274,10 +274,10 @@ public class Board {
 					} else {
 						location = 21;
 
-							/* Rolling a -1 on center tile gives you two possible choices.
-							 * This covers the second case.
-							 * The first case is covered at the end of the loop
-							 */
+						/* Rolling a -1 on center tile gives you two possible choices.
+						 * This covers the second case.
+						 * The first case is covered at the end of the loop
+						 */
 						Integer[] secondMove = new Integer[2];
 						secondMove[0] = 26;
 						secondMove[1] = move;
@@ -368,6 +368,14 @@ public class Board {
 	 * Calculates the path for properly animating the movement of a piece from a start location to a destination
 	 * For a given roll that involves moving across n tiles, create an array with n elements
 	 * Each element represents a direction to move on the board.
+	 * 
+	 * Direction Symbols:
+	 * U = Up
+	 * D = Down
+	 * L = Left
+	 * R = Right
+	 * A = Diagonal Down-left
+	 * E = Diagonal Down-right
 	 *
 	 * @param start The start location
 	 * @param dest The end location
