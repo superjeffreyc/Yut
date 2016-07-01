@@ -1,17 +1,23 @@
 package com.jeffreychan.yutnori;
 
 public class Player {
-	private int score = 0;
-	private int numPieces = 0;
+	private int score = 0;			// First to 4 wins
+	private int numPieces = 0;		// Number of pieces on the board
 
 	public Piece[] pieces = new Piece[4];
 
+	/*
+	 * Creates new pieces for the player 
+	 */
 	public Player() {
 		for (int i = 0; i < pieces.length; i++) {
 			pieces[i] = new Piece();
 		}
 	}
 
+	/*
+	 * Finds the next available piece (going from left to right) in the pieces array
+	 */
 	public int findAvailablePiece(){
 		for (int i = 0; i < 4; i++){
 			if (pieces[i].getLocation() == -1){
