@@ -57,7 +57,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	int rollAmount;
 	int turn = 0;
 	int oppTurn = 1;
-	int counter = 0;
+	int rollSlotIndex = 0;
 	int MAX_TILES = 29;
 	int mpPos;                  // Current position in the song (Updates when the activity is paused)
 	int MOVE_DURATION = 150;    // Length of animation for piece movement
@@ -812,8 +812,8 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 			public void run() {
 				updateRollArray(rollAmount);
 
-				if ((rollAmount == 4 || rollAmount == 5) && counter < 4) {
-					counter++;
+				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
+					rollSlotIndex++;
 					String text;
 					if (isComputerPlaying && turn == 1) text = "Computer Roll Again!";
 					else text = "Player " + (turn+1) + " Roll Again!";
@@ -821,7 +821,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
 				}
-				else if (rollAmount == -1 && counter == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
+				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
 				else {
 					canRoll = false;
 				}
@@ -1166,13 +1166,13 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	}
 
 	/**
-	 * Update the board's rollArray and update the roll slot images
+	 * Update the board's rollArray and call function to update the roll slot images
 	 *
 	 * @param rollAmount The roll to be added
 	 */
 	private void updateRollArray(int rollAmount){
 		board.addRoll(rollAmount);
-		updateRollSlots(counter, rollAmount);
+		updateRollSlots(rollSlotIndex, rollAmount);
 		fallingSticks.setVisible(false, false);
 	}
 
@@ -1227,9 +1227,9 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		for (int k = 0; k < board.rollArray.length; k++){
 			if (board.rollArray[k] != 0) count++;
 		}
-		counter = count;
+		rollSlotIndex = count;
 
-		if (counter == 5) counter = 4;
+		if (rollSlotIndex == 5) rollSlotIndex = 4;
 
 		for(int j = 0; j < 5; ++j) {
 			updateRollSlots(j, board.rollArray[j]);
@@ -1425,7 +1425,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		board.resetRollArray();
 		hidePossibleTiles();
 
-		counter = 0;
+		rollSlotIndex = 0;
 		isRollDone = false;
 		canRoll = true;
 		isEndTurn = false;
