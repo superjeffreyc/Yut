@@ -508,17 +508,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			mResolvingConnectionFailure = true;
 
 			// Attempt to resolve the connection failure using BaseGameUtils.
-			// The R.string.signin_other_error value should reference a generic
-			// error string in your strings.xml file, such as "There was
-			// an issue with sign-in, please try again later."
 			if (!BaseGameUtils.resolveConnectionFailure(this,
 					client, connectionResult,
 					RC_SIGN_IN, "There was an issue with sign-in, please try again later.")) {
 				mResolvingConnectionFailure = false;
 			}
 		}
-
-		// Put code here to display the sign-in button
 	}
 
 	/*
@@ -607,11 +602,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			if (resultCode == RESULT_OK) {
 				client.connect();
 			} else {
-				// Bring up an error dialog to alert the user that sign-in
-				// failed. The R.string.signin_failure should reference an error
-				// string in your strings.xml file that tells the user they
-				// could not be signed in, such as "Unable to sign in."
-//				BaseGameUtils.showActivityResultError(this,	requestCode, resultCode, R.string.signin_failure);
+				// Bring up an error dialog to alert the user that sign-in failed
 				Toast savedToast = Toast.makeText(getApplicationContext(), "Unable to sign in", Toast.LENGTH_SHORT);
 				savedToast.show();
 			}

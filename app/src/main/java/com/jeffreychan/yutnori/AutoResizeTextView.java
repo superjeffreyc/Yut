@@ -39,7 +39,7 @@ public class AutoResizeTextView extends TextView {
 
 	// Interface for resize notifications
 	public interface OnTextResizeListener {
-		public void onTextResize(TextView textView, float oldSize, float newSize);
+		void onTextResize(TextView textView, float oldSize, float newSize);
 	}
 
 	// Our ellipse string
@@ -57,17 +57,11 @@ public class AutoResizeTextView extends TextView {
 	// Temporary upper bounds on the starting text size
 	private float mMaxTextSize = 0;
 
-	// Lower bounds for text size
-	private float mMinTextSize = MIN_TEXT_SIZE;
-
 	// Text view line spacing multiplier
 	private float mSpacingMult = 1.0f;
 
 	// Text view additional line spacing
 	private float mSpacingAdd = 0.0f;
-
-	// Add ellipsis to text that overflows at the smallest text size
-	private boolean mAddEllipsis = true;
 
 	// Default constructor override
 	public AutoResizeTextView(Context context) {
@@ -106,14 +100,6 @@ public class AutoResizeTextView extends TextView {
 	}
 
 	/**
-	 * Register listener to receive resize notifications
-	 * @param listener
-	 */
-	public void setOnResizeListener(OnTextResizeListener listener) {
-		mTextResizeListener = listener;
-	}
-
-	/**
 	 * Override the set text size to update our internal reference values
 	 */
 	@Override
@@ -142,58 +128,6 @@ public class AutoResizeTextView extends TextView {
 	}
 
 	/**
-	 * Set the upper text size limit and invalidate the view
-	 * @param maxTextSize
-	 */
-	public void setMaxTextSize(float maxTextSize) {
-		mMaxTextSize = maxTextSize;
-		requestLayout();
-		invalidate();
-	}
-
-	/**
-	 * Return upper text size limit
-	 * @return
-	 */
-	public float getMaxTextSize() {
-		return mMaxTextSize;
-	}
-
-	/**
-	 * Set the lower text size limit and invalidate the view
-	 * @param minTextSize
-	 */
-	public void setMinTextSize(float minTextSize) {
-		mMinTextSize = minTextSize;
-		requestLayout();
-		invalidate();
-	}
-
-	/**
-	 * Return lower text size limit
-	 * @return
-	 */
-	public float getMinTextSize() {
-		return mMinTextSize;
-	}
-
-	/**
-	 * Set flag to add ellipsis to text that overflows at the smallest text size
-	 * @param addEllipsis
-	 */
-	public void setAddEllipsis(boolean addEllipsis) {
-		mAddEllipsis = addEllipsis;
-	}
-
-	/**
-	 * Return flag to add ellipsis to text that overflows at the smallest text size
-	 * @return
-	 */
-	public boolean getAddEllipsis() {
-		return mAddEllipsis;
-	}
-
-	/**
 	 * Reset the text to the original size
 	 */
 	public void resetTextSize() {
@@ -217,21 +151,15 @@ public class AutoResizeTextView extends TextView {
 	}
 
 	/**
-	 * Resize the text size with default width and height
-	 */
-	public void resizeText() {
-
-		int heightLimit = getHeight() - getPaddingBottom() - getPaddingTop();
-		int widthLimit = getWidth() - getPaddingLeft() - getPaddingRight();
-		resizeText(widthLimit, heightLimit);
-	}
-
-	/**
 	 * Resize the text size with specified width and height
-	 * @param width
-	 * @param height
+	 * @param width text size width
+	 * @param height text size height
 	 */
 	public void resizeText(int width, int height) {
+
+		// Lower bounds for text size
+		float mMinTextSize = MIN_TEXT_SIZE;
+
 		CharSequence text = getText();
 		// Do not resize if the view does not have dimensions or there is no text
 		if (text == null || text.length() == 0 || height <= 0 || width <= 0 || mTextSize == 0) {
@@ -260,7 +188,7 @@ public class AutoResizeTextView extends TextView {
 		}
 
 		// If we had reached our minimum text size and still don't fit, append an ellipsis
-		if (mAddEllipsis && targetTextSize == mMinTextSize && textHeight > height) {
+		if (targetTextSize == mMinTextSize && textHeight > height) {
 			// Draw using a static layout
 			// modified: use a copy of TextPaint for measuring
 			TextPaint paint = new TextPaint(textPaint);
@@ -286,7 +214,8 @@ public class AutoResizeTextView extends TextView {
 					while (width < lineWidth + ellipseWidth) {
 						lineWidth = textPaint.measureText(text.subSequence(start, --end + 1).toString());
 					}
-					setText(text.subSequence(0, end) + mEllipsis);
+					String newText = text.subSequence(0, end) + mEllipsis;
+					setText(newText);
 				}
 			}
 		}

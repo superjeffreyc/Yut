@@ -3,11 +3,11 @@
 Google Play game services IDs.
 -->
 <resources>
-    <string name="app_id"></string>
-    <string name="package_name"></string>
-    <string name="achievement_first_victory"></string>
-    <string name="achievement_two_player_battle"></string>
-    <string name="achievement_the_stack"></string>
-    <string name="achievement_full_stack_finish"></string>
-    <string name="achievement_white_belt"></string>
+	<string name="app_id">429899067256</string>
+	<string name="package_name">com.jeffreychan.yunnori</string>
+	<string name="achievement_first_victory">CgkI-N7sv8EMEAIQAQ</string>
+	<string name="achievement_two_player_battle">CgkI-N7sv8EMEAIQAg</string>
+	<string name="achievement_the_stack">CgkI-N7sv8EMEAIQAw</string>
+	<string name="achievement_full_stack_finish">CgkI-N7sv8EMEAIQBA</string>
+	<string name="achievement_white_belt">CgkI-N7sv8EMEAIQBQ</string>
 </resources>

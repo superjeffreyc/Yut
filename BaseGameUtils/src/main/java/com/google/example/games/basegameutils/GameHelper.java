@@ -22,16 +22,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.Api.ApiOptions.NoOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.games.Games;
@@ -71,6 +70,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
          *                                            that an error indeed
          *                                            occurred.
          */
+        @SuppressWarnings("JavaDoc")
         void onSignInFailed();
 
         /** Called when sign-in succeeds. */
@@ -198,20 +198,6 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         mHandler = new Handler();
     }
 
-    /**
-     * Sets the maximum number of automatic sign-in attempts to be made on
-     * application startup. This maximum is over the lifetime of the application
-     * (it is stored in a SharedPreferences file). So, for example, if you
-     * specify 2, then it means that the user will be prompted to sign in on app
-     * startup the first time and, if they cancel, a second time the next time
-     * the app starts, and, if they cancel that one, never again. Set to 0 if
-     * you do not want the user to be prompted to sign in on application
-     * startup.
-     */
-    public void setMaxAutoSignInAttempts(int max) {
-        mMaxAutoSignInAttempts = max;
-    }
-
     void assertConfigured(String operation) {
         if (!mSetupDone) {
             String error = "GameHelper error: Operation attempted without setup: "
@@ -230,24 +216,6 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
             logError(error);
             throw new IllegalStateException(error);
         }
-    }
-
-    /**
-     * Sets the options to pass when setting up the Games API. Call before
-     * setup().
-     */
-    public void setGamesApiOptions(GamesOptions options) {
-        doApiOptionsPreCheck();
-        mGamesApiOptions = options;
-    }
-
-    /**
-     * Sets the options to pass when setting up the Plus API. Call before
-     * setup().
-     */
-    public void setPlusApiOptions(PlusOptions options) {
-        doApiOptionsPreCheck();
-        mPlusApiOptions = options;
     }
 
     /**
@@ -375,7 +343,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
                 mGoogleApiClient.connect();
             }
         } else {
-            debugLog("Not attempting to connect becase mConnectOnStart=false");
+            debugLog("Not attempting to connect because mConnectOnStart=false");
             debugLog("Instead, reporting a sign-in failure.");
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -412,11 +380,12 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
      *                                            case, accept the invitation.
      * @return The id of the invitation, or null if none was received.
      */
+    @SuppressWarnings("JavaDoc")
     public String getInvitationId() {
         if (!mGoogleApiClient.isConnected()) {
             Log.w(TAG,
                     "Warning: getInvitationId() should only be called when signed in, "
-                            + "that is, after getting onSignInSuceeded()");
+                            + "that is, after getting onSignInSucceeded()");
         }
         return mInvitation == null ? null : mInvitation.getInvitationId();
     }
@@ -430,87 +399,20 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
      *                                            case, accept the invitation.
      * @return The invitation, or null if none was received.
      */
+    @SuppressWarnings("JavaDoc")
     public Invitation getInvitation() {
         if (!mGoogleApiClient.isConnected()) {
             Log.w(TAG,
                     "Warning: getInvitation() should only be called when signed in, "
-                            + "that is, after getting onSignInSuceeded()");
+                            + "that is, after getting onSignInSucceeded()");
         }
         return mInvitation;
     }
 
-    public boolean hasInvitation() {
-        return mInvitation != null;
-    }
-
-    public boolean hasTurnBasedMatch() {
-        return mTurnBasedMatch != null;
-    }
-
-    public boolean hasRequests() {
-        return mRequests != null;
-    }
-
-    public void clearInvitation() {
-        mInvitation = null;
-    }
-
-    public void clearTurnBasedMatch() {
-        mTurnBasedMatch = null;
-    }
-
-    public void clearRequests() {
-        mRequests = null;
-    }
-
-    /**
-     * Returns the tbmp match received through an invitation notification. This
-     * should be called from your GameHelperListener's
-     *
-     * @link{GameHelperListener#onSignInSucceeded method, to check if there's a
-     *                                            match available.
-     * @return The match, or null if none was received.
-     */
-    public TurnBasedMatch getTurnBasedMatch() {
-        if (!mGoogleApiClient.isConnected()) {
-            Log.w(TAG,
-                    "Warning: getTurnBasedMatch() should only be called when signed in, "
-                            + "that is, after getting onSignInSuceeded()");
-        }
-        return mTurnBasedMatch;
-    }
-
-    /**
-     * Returns the requests received through the onConnected bundle. This should
-     * be called from your GameHelperListener's
-     *
-     * @link{GameHelperListener#onSignInSucceeded method, to check if there are
-     *                                            incoming requests that must be
-     *                                            handled.
-     * @return The requests, or null if none were received.
-     */
-    public ArrayList<GameRequest> getRequests() {
-        if (!mGoogleApiClient.isConnected()) {
-            Log.w(TAG, "Warning: getRequests() should only be called "
-                    + "when signed in, "
-                    + "that is, after getting onSignInSuceeded()");
-        }
-        return mRequests;
-    }
-
-    /** Enables debug logging */
-    public void enableDebugLog(boolean enabled) {
-        mDebugLog = enabled;
-        if (enabled) {
-            debugLog("Debug log enabled.");
-        }
-    }
-
     @Deprecated
-    public void enableDebugLog(boolean enabled, String tag) {
+    public void enableDebugLog(boolean enabled) {
         Log.w(TAG, "GameHelper.enableDebugLog(boolean,String) is deprecated. "
                 + "Use GameHelper.enableDebugLog(boolean)");
-        enableDebugLog(enabled);
     }
 
     /** Sign out and disconnect from the APIs. */
@@ -547,8 +449,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
      * onActivityResult callback. If the activity result pertains to the sign-in
      * process, processes it appropriately.
      */
-    public void onActivityResult(int requestCode, int responseCode,
-                                 Intent intent) {
+    public void onActivityResult(int requestCode, int responseCode) {
         debugLog("onActivityResult: req="
                 + (requestCode == RC_RESOLVE ? "RC_RESOLVE" : String
                 .valueOf(requestCode)) + ", resp="
@@ -756,7 +657,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         SharedPreferences.Editor editor = mAppContext.getSharedPreferences(
                 GAMEHELPER_SHARED_PREFS, Context.MODE_PRIVATE).edit();
         editor.putInt(KEY_SIGN_IN_CANCELLATIONS, cancellations + 1);
-        editor.commit();
+        editor.apply();
         return cancellations + 1;
     }
 
@@ -766,12 +667,12 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         SharedPreferences.Editor editor = mAppContext.getSharedPreferences(
                 GAMEHELPER_SHARED_PREFS, Context.MODE_PRIVATE).edit();
         editor.putInt(KEY_SIGN_IN_CANCELLATIONS, 0);
-        editor.commit();
+        editor.apply();
     }
 
     /** Handles a connection failure. */
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
         // save connection result for later reference
         debugLog("onConnectionFailed");
 
@@ -784,7 +685,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         debugLog("   - details: " + mConnectionResult.toString());
 
         int cancellations = getSignInCancellations();
-        boolean shouldResolve = false;
+        boolean shouldResolve;
 
         if (mUserInitiatedSignIn) {
             debugLog("onConnectionFailed: WILL resolve because user initiated sign-in.");
@@ -932,7 +833,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
             Log.e("GameHelper", "*** No Activity. Can't show failure dialog!");
             return;
         }
-        Dialog errorDialog = null;
+        Dialog errorDialog;
 
         switch (actResp) {
             case GamesActivityResultCodes.RESULT_APP_MISCONFIGURED:
