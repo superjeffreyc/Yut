@@ -10,6 +10,9 @@ android:
         - extra-android-m2repository
         - extra-google-google_play_services
 
+jdk:
+  - oraclejdk8
+
 script:
   - ./gradlew build connectedCheck
   
