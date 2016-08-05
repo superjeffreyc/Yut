@@ -41,7 +41,7 @@ import java.util.TreeSet;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class BoardActivity implements OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class BoardActivity extends Activity implements OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
 	boolean isRollDone;         // Did the stick throwing animation finish
 	boolean canRoll = true;     // Did the user roll 4 or 5
