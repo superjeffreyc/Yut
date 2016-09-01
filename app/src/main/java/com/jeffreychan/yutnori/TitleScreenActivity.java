@@ -40,6 +40,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameUtils;
+import com.instabug.library.IBGInvocationEvent;
+import com.instabug.library.Instabug;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,6 +117,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.titlescreen);
+
+		new Instabug.Builder(this.getApplication(), "9c88d402b34fee9b4ffe2a832b0d1944")
+				.setInvocationEvent(IBGInvocationEvent.IBGInvocationEventShake)
+				.build();
 
 		// Create media player for background song
 		mp = MediaPlayer.create(this, R.raw.song);
