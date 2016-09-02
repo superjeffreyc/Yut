@@ -63,7 +63,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	int MAX_TILES = 29;
 	int mpPos;                  // Current position in the song (Updates when the activity is paused)
 	int MOVE_DURATION = 150;    // Length of animation for piece movement
-	int COMPUTER_THINK_DURATION = 2000;
+	int COMPUTER_THINK_DURATION = 1000;
 	float heightOffset;
 
 	double moveSize = 0;           // Used for animation movement horizontally or vertically
