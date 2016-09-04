@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Yut</string>
-    <string name="loading">Loading&#8230;</string>
-    <string name="computer">Computer is making a move&#8230;</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="sticks">Stick animation</string>
-    <string name="rollSlot">Slot displaying roll</string>
-    <string name="topBar">Top Bar for Player 1</string>
-    <string name="bottomBar">Bottom Bar for Player 2</string>
-    <string name="seal">Seal</string>
-    <string name="penguin">Penguin</string>
-    <string name="player1">Player 1</string>
-    <string name="player2">Player 2</string>
-    <string name="seal_icon">Seal Icon</string>
-    <string name="penguin_icon">Penguin Icon</string>
-    <string name="finish">Finish Button</string>
-    <string name="soon">Coming Soon!</string>
-    <string name="twenty">20 Coins</string>
-    <string name="future">Check back in the future for new avatars!</string>
-    <string name="set_avatar">Select a different avatar from the drop down menu or press the arrow button to swap the current avatars</string>
-    <string name="change">Change</string>
-    <string name="buy">Buy</string>
-    <string name="welcome">Welcome to the Avatar Shop!</string>
-    <string name="spend">Spend your coins from playing Yut to buy new avatars!</string>
-    <string name="click_me">Press me!</string>
-    <string name="click_yellow">Press a yellow tile to move</string>
-    <string name="click_finish">Press finish to complete current piece(s)</string>
-    <string name="signin_failure">Unable to sign in</string>
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+	<string name="app_name">Yut</string>
+	<string name="loading">Loading&#8230;</string>
+	<string name="computer">Computer is making a move&#8230;</string>
+	<string name="action_settings">Settings</string>
+	<string name="title_activity_main">MainActivity</string>
+	<string name="sticks">Stick animation</string>
+	<string name="rollSlot">Slot displaying roll</string>
+	<string name="topBar">Top Bar for Player 1</string>
+	<string name="bottomBar">Bottom Bar for Player 2</string>
+	<string name="seal">Seal</string>
+	<string name="penguin">Penguin</string>
+	<string name="player1">Player 1</string>
+	<string name="player2">Player 2</string>
+	<string name="seal_icon">Seal Icon</string>
+	<string name="penguin_icon">Penguin Icon</string>
+	<string name="finish">Finish Button</string>
+	<string name="soon">Coming Soon!</string>
+	<string name="twenty">20 Coins</string>
+	<string name="future">Check back in the future for new avatars!</string>
+	<string name="set_avatar">Select a different avatar from the drop down menu or press the arrow button to swap the current avatars</string>
+	<string name="change">Change</string>
+	<string name="buy">Buy</string>
+	<string name="welcome">Welcome to the Avatar Shop!</string>
+	<string name="spend">Spend your coins from playing Yut to buy new avatars!</string>
+	<string name="click_me">Press me!</string>
+	<string name="click_yellow">Press a yellow tile to move</string>
+	<string name="click_finish">Press finish to complete current piece(s)</string>
+	<string name="signin_failure">Unable to sign in</string>
+	<string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
     <string name="guide1">
         OBJECTIVE\n\n
