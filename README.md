@@ -13,6 +13,7 @@ First, download Android Studio and make sure all the required SDK Tools are prop
 - Download the zip file of this repository and extract all files
 - Run Android Studio and select 'Open an existing Android Studio project'
 - Select the parent folder containing the files from this repository and press OK
+- If Gradle points out any version errors, just follow its suggestions to update
 
 ## How to play
 
