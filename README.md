@@ -8,6 +8,12 @@ Head over to the Google Play Store and download the latest release:
 
 https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori
 
+## How to work with the source code
+First, download Android Studio and make sure all the required SDK Tools are properly updated. Then, complete the following steps:
+- Download the zip file of this repository and extract all files
+- Run Android Studio and select 'Open an existing Android Studio project'
+- Select the parent folder containing the files from this repository and press OK
+
 ## How to play
 
 OBJECTIVE
