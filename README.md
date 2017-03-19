@@ -3,6 +3,9 @@
 
 Yut (pronounced yoot) is a traditional Korean board game which plays similar to "Sorry!"
 
+## Official Website
+https://yutnori.herokuapp.com/
+
 ## How to download and play on Android
 Head over to the Google Play Store and download the latest release: 
 
@@ -29,6 +32,6 @@ MOVE PHASE
 
 - Your possible moves are shown in the 5 circles near the bottom. To move, click any one of your available pieces (the jumping pieces) and select a yellow tile, which indicate possible locations you can move to with that piece.
  
-## More information 
+## More information about Yut
 
 https://en.wikipedia.org/wiki/Yut
