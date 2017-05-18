@@ -277,6 +277,11 @@ public class Shop {
 	 * @return A String array (size 2) of the player animal names
 	 */
 	protected String[] getAnimals(){
+
+		// Make sure the shop is initialized
+		if (playerAnimals == null) {
+			Shop.Instance.initializeShop(context);
+		}
 		return playerAnimals.split("\\s+");
 	}
 
