@@ -25,8 +25,6 @@ public class Shop {
 	String playerAnimals;		// Currently selected avatars
 	String lastSavedAnimals;	// Avatars that were previously saved (not updated until the user presses save)
 
-	Context context;
-
 	/*
 	 * This constructor lists all the possible avatars in the game.
 	 *
@@ -123,7 +121,6 @@ public class Shop {
 	protected void initializeShop(Context context){
 		prefs = context.getSharedPreferences("avatar", Context.MODE_PRIVATE);
 		editor = prefs.edit();
-		this.context = context;
 
 		playerAnimals = prefs.getString("animals", "Seal Penguin");
 		lastSavedAnimals = playerAnimals;
@@ -276,7 +273,7 @@ public class Shop {
 	 * Gets the current animals for player 1 and player 2
 	 * @return A String array (size 2) of the player animal names
 	 */
-	protected String[] getAnimals(){
+	protected String[] getAnimals(Context context){
 
 		// Make sure the shop is initialized
 		if (playerAnimals == null) {
@@ -302,7 +299,7 @@ public class Shop {
 	/**
 	 * Save the current selection of avatars into SharedPreferences
 	 */
-	protected void saveAvatars(){
+	protected void saveAvatars(Context context){
 		editor.putString("animals", playerAnimals);
 		editor.apply();
 
@@ -319,8 +316,8 @@ public class Shop {
 	 * @param player The player that will have its avatar changed
 	 * @param item The avatar to change to
 	 */
-	protected void changeAvatar(int player, String item){
-		String[] s = getAnimals();
+	protected void changeAvatar(int player, String item, Context context){
+		String[] s = getAnimals(context);
 
 		if (player == 1){
 			playerAnimals = item + " " + s[1];

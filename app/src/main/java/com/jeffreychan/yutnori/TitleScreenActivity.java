@@ -40,8 +40,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameUtils;
-import com.instabug.library.IBGInvocationEvent;
-import com.instabug.library.Instabug;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -117,10 +115,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.titlescreen);
-
-		new Instabug.Builder(this.getApplication(), "9c88d402b34fee9b4ffe2a832b0d1944")
-				.setInvocationEvent(IBGInvocationEvent.IBGInvocationEventShake)
-				.build();
 
 		// Create media player for background song
 		mp = MediaPlayer.create(this, R.raw.song);
@@ -1094,7 +1088,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		isP2spinFirstTime = true;
 
 		// Set the avatar images to the saved avatars
-		String[] s = Shop.Instance.getAnimals();
+		String[] s = Shop.Instance.getAnimals(context);
 		for (int i = 0; i < 2; i++) player_id[i] = Shop.Instance.getImage(s[i]);
 
 		// Create an alert dialog for changing avatars
@@ -1245,7 +1239,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Save button - checks that the two avatars are not the same
 		adb.setPositiveButton("Save", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				String[] s = Shop.Instance.getAnimals();
+				String[] s = Shop.Instance.getAnimals(context);
 
 				if (s[0].equals(s[1])){
 					Shop.Instance.reset();
@@ -1253,7 +1247,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 					savedToast.show();
 				}
 				else {
-					Shop.Instance.saveAvatars();
+					Shop.Instance.saveAvatars(context);
 					dialog.cancel();
 				}
 			}
@@ -1273,13 +1267,13 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		String[] s = Shop.Instance.getAnimals();
+		String[] s = Shop.Instance.getAnimals(context);
 		String item = (String) parent.getItemAtPosition(position);
 
 		if (parent.getId() == p1spin.getId()) {
 			if (isP1spinFirstTime) isP1spinFirstTime = false;
 			else if (!s[1].equalsIgnoreCase(item) && !s[0].equalsIgnoreCase(item)) {
-				Shop.Instance.changeAvatar(1, item);
+				Shop.Instance.changeAvatar(1, item, context);
 				firstImage.setBackgroundResource(Shop.Instance.getImage(item));
 			} else if (s[1].equalsIgnoreCase(item)){
 				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
@@ -1289,7 +1283,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 			if (isP2spinFirstTime) isP2spinFirstTime = false;
 			else if (!s[0].equalsIgnoreCase(item) && !s[1].equalsIgnoreCase(item)) {
-				Shop.Instance.changeAvatar(2, item);
+				Shop.Instance.changeAvatar(2, item, context);
 				secondImage.setBackgroundResource(Shop.Instance.getImage(item));
 			} else if (s[0].equalsIgnoreCase(item)){
 				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);

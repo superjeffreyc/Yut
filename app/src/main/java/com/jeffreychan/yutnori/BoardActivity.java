@@ -33,8 +33,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
-import com.instabug.library.IBGInvocationEvent;
-import com.instabug.library.Instabug;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,10 +137,6 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_board);
 		ButterKnife.bind(this);
-
-		new Instabug.Builder(this.getApplication(), "9c88d402b34fee9b4ffe2a832b0d1944")
-				.setInvocationEvent(IBGInvocationEvent.IBGInvocationEventShake)
-				.build();
 
 		// Gets mode selected from TitleScreenActivity
 		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
@@ -1503,7 +1497,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	}
 
 	private void loadAvatars(){
-		String[] s = Shop.Instance.getAnimals();
+		String[] s = Shop.Instance.getAnimals(context);
 		for (int i = 0; i < 2; i++) {
 			avatarIds[i] = Shop.Instance.getImageArray(s[i]);
 			playerTips[i] = "Press any moving " + s[i].toLowerCase();
