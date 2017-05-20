@@ -8,8 +8,8 @@ android {
         applicationId "com.jeffreychan.yunnori"
         minSdkVersion 17
         targetSdkVersion 25
-        versionCode 12
-        versionName "1.11"
+        versionCode 13
+        versionName "1.12"
     }
     
     buildTypes {
@@ -37,5 +37,4 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'me.grantland:autofittextview:0.2.1'
     compile project(':BaseGameUtils')
-    compile 'com.instabug.library:instabug:4.0.10'
 }
