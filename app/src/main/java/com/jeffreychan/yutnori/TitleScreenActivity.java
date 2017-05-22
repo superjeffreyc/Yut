@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -109,6 +111,13 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	String signInStatus = "Sign In";
 	String connectedStatus = "";
 
+	String soundStatus = "Sound is ON. Click to turn off";
+	boolean soundOn = true;
+
+	// Used to access stored information on device
+	SharedPreferences prefs;
+	Editor editor;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -142,7 +151,19 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		final float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
 		mp.setVolume(volume, volume);
 
-		mp.start();
+		// Grab saved option for sound on/off
+		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
+		int savedSoundOption = prefs.getInt("background", 1);
+
+		if (savedSoundOption == 0) {
+			soundStatus = "Sound is OFF. Click to turn on";
+			soundOn = false;
+		}
+		else {
+			mp.start();
+			soundStatus = "Sound is ON. Click to turn off";
+			soundOn = true;
+		}
 
 		rl = (RelativeLayout) findViewById(R.id.rl);    // All views will be placed in this layout
 
@@ -534,8 +555,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	@Override
 	public void onResume() {
 		super.onResume();
-		mp.seekTo(mpPos);
-		mp.start();
+
+		if (soundOn) {
+			mp.seekTo(mpPos);
+			mp.start();
+		}
+
 		if (hasClickedSignIn) {
 			hasClickedSignIn = false;
 			client.connect();
@@ -574,6 +599,34 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void turnOffSound() {
+		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
+		editor = prefs.edit();
+		editor.putInt("background", 0);
+		editor.commit();
+
+		if (mp.isPlaying()) {
+			mp.pause();
+			mpPos = mp.getCurrentPosition();
+		}
+
+		soundStatus = "Sound is OFF. Click to turn on";
+		soundOn = false;
+	}
+
+	private void turnOnSound() {
+		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
+		editor = prefs.edit();
+		editor.putInt("background", 1);
+		editor.commit();
+
+		mp.seekTo(mpPos);
+		mp.start();
+
+		soundStatus = "Sound is ON. Click to turn off";
+		soundOn = true;
 	}
 
 	private void signInClicked() {
@@ -781,7 +834,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		}
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			final CharSequence[] items = {"Share", "Credits", "Rate", "Achievements", signInStatus, "Close"};
+			final CharSequence[] items = {"Share", "Credits", "Rate", "Achievements", signInStatus, soundStatus, "Close"};
 			adb.setTitle("Options");
 			adb.setItems(items, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int item) {
@@ -825,6 +878,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 					else if (item == 4){
 						if (signInStatus.equals("Sign In")) signInClicked();
 						else signOutClicked();
+					}
+					else if (item == 5){
+						if (soundStatus.equals("Sound is OFF. Click to turn on")) turnOnSound();
+						else turnOffSound();
 					}
 				}
 			});
