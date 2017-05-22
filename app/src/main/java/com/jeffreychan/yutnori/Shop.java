@@ -131,7 +131,7 @@ public class Shop {
 			editor.putInt("Seal", 1);
 			editor.putInt("Penguin", 1);
 			editor.putInt("coins", 0);
-			editor.apply();
+			editor.commit();
 		}
 
 		// debug
@@ -141,7 +141,7 @@ public class Shop {
 //		editor.putString("animals", "Seal Penguin");
 //		playerAnimals = "Seal Penguin";
 //		lastSavedAnimals = playerAnimals;
-//		editor.apply();
+//		editor.commit();
 
 	}
 
@@ -203,7 +203,7 @@ public class Shop {
 			editor.putInt(animal, 1);
 			coins -= Shop.Instance.getCost(animal);
 			editor.putInt("coins", coins);
-			editor.apply();
+			editor.commit();
 
 			return true;
 		}
@@ -219,7 +219,7 @@ public class Shop {
 		int coins = prefs.getInt("coins", 0);
 		coins += amount;
 		editor.putInt("coins", coins);
-		editor.apply();
+		editor.commit();
 	}
 
 	/**
@@ -301,7 +301,7 @@ public class Shop {
 	 */
 	protected void saveAvatars(Context context){
 		editor.putString("animals", playerAnimals);
-		editor.apply();
+		editor.commit();
 
 		lastSavedAnimals = playerAnimals;
 
