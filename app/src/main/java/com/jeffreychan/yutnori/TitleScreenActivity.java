@@ -108,7 +108,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	boolean isP2spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
 
 	GoogleApiClient client;
-	String signInStatus = "Sign In";
+	String signInStatus = "Sign In To Google";
 	String connectedStatus = "";
 
 	String soundStatus = "Sound is ON. Click to turn off";
@@ -144,7 +144,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				.build();
 
 		if (!fromBoard || connectedStatus.equals("Connected")) client.connect();
-		if (client.isConnected()) signInStatus = "Sign Out";
+		if (client.isConnected()) signInStatus = "Sign Out Of Google";
 
 		// Formula to modify volume from https://stackoverflow.com/questions/5215459/android-mediaplayer-setvolume-function
 		int soundVolume = 75;
@@ -507,7 +507,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 
 	public void onConnected(Bundle connectionHint){
-		signInStatus = "Sign Out";
+		signInStatus = "Sign Out Of Google";
 	}
 
 	public void onConnectionSuspended(int cause){
@@ -644,7 +644,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			savedToast.show();
 		}
 
-		signInStatus = "Sign In";
+		signInStatus = "Sign In To Google";
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode,
@@ -656,7 +656,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				client.connect();
 			} else {
 				// Bring up an error dialog to alert the user that sign-in failed
-				Toast savedToast = Toast.makeText(getApplicationContext(), "Unable to sign in", Toast.LENGTH_SHORT);
+				Toast savedToast = Toast.makeText(getApplicationContext(), "Unable to sign in to Google", Toast.LENGTH_SHORT);
 				savedToast.show();
 			}
 		}
@@ -876,7 +876,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 						}
 					}
 					else if (item == 4){
-						if (signInStatus.equals("Sign In")) signInClicked();
+						if (signInStatus.equals("Sign In To Google")) signInClicked();
 						else signOutClicked();
 					}
 					else if (item == 5){
