@@ -732,7 +732,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv.setText(R.string.guide1);
 			tv.setTextSize(20f);
 			tv.setPadding(0, 30, 0, 0);
-			tv.setGravity(Gravity.CENTER);
+			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 			layout.addView(tv);
 
 			ImageView roll = new ImageView(this);
@@ -745,7 +745,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv2.setText(R.string.guide2);
 			tv2.setPadding(0, 30, 0, 0);
 			tv2.setTextSize(20f);
-			tv2.setGravity(Gravity.CENTER);
+			tv2.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 			layout.addView(tv2);
 
 			ImageView rollExample = new ImageView(this);
@@ -758,7 +758,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv3.setText(R.string.guide3);
 			tv3.setPadding(0, 30, 0, 0);
 			tv3.setTextSize(20f);
-			tv3.setGravity(Gravity.CENTER);
+			tv3.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 			layout.addView(tv3);
 
 			ImageView yellowExample = new ImageView(this);
@@ -771,7 +771,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv4.setText(R.string.guide4);
 			tv4.setPadding(0, 30, 0, 0);
 			tv4.setTextSize(20f);
-			tv4.setGravity(Gravity.CENTER);
+			tv4.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 			layout.addView(tv4);
 
 			int[] rollImages = new int[]{R.drawable.circleminus1, R.drawable.circle1, R.drawable.circle2, R.drawable.circle3, R.drawable.circle4, R.drawable.circle5};
@@ -791,7 +791,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv5.setText(R.string.guide5);
 			tv5.setPadding(0, 30, 0, 0);
 			tv5.setTextSize(20f);
-			tv5.setGravity(Gravity.CENTER);
+			tv5.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 			layout.addView(tv5);
 
 			ImageView rollBarExample = new ImageView(this);
@@ -804,7 +804,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv6.setText(R.string.guide6);
 			tv6.setPadding(0, 30, 0, 0);
 			tv6.setTextSize(20f);
-			tv6.setGravity(Gravity.CENTER);
+			tv6.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 			layout.addView(tv6);
 
 			ImageView avatarShopExample = new ImageView(this);
@@ -817,7 +817,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv7.setText(R.string.guide7);
 			tv7.setPadding(0, 30, 0, 0);
 			tv7.setTextSize(20f);
-			tv7.setGravity(Gravity.CENTER);
+			tv7.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 			layout.addView(tv7);
 
 			sv.addView(layout);
