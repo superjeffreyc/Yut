@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -119,6 +120,11 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 
 	GoogleApiClient client;
 
+	// Used to access stored information on device
+	SharedPreferences prefs;
+
+	boolean soundOn = true;
+
 	private MediaPlayer mp;
 	private final static int MAX_VOLUME = 100;
 
@@ -163,7 +169,17 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		int soundVolume = 75;
 		final float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
 		mp.setVolume(volume, volume);
-		mp.start();
+
+		// Grab saved option for sound on/off
+		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
+		int savedSoundOption = prefs.getInt("background", 1);
+		if (savedSoundOption == 0) {
+			soundOn = false;
+		}
+		else {
+			mp.start();
+			soundOn = true;
+		}
 
 		// Get screen size and adjust based on ad size
 		Display display = getWindowManager().getDefaultDisplay();
@@ -679,8 +695,11 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	@Override
 	public void onResume() {
 		super.onResume();
-		mp.seekTo(mpPos);
-		mp.start();
+
+		if (soundOn) {
+			mp.seekTo(mpPos);
+			mp.start();
+		}
 	}
 
 	/*
