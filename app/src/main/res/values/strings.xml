@@ -32,28 +32,28 @@
 	<string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
     <string name="guide1">
-        OBJECTIVE\n\n
+	<u>OBJECTIVE</u>\n\n
         The first player to move all 4 of his or her pieces around the board wins.\n\n
-        ROLL PHASE\n\n
+        <u>ROLL PHASE</u>\n\n
         During your turn, you will be prompted to throw the sticks with the roll button.\n
         </string>
     <string name="guide2">
         If you roll a 4 or 5, you get to roll again. In addition, if you land on an opponent\'s piece, you get to roll again.\n\n
-        MOVE PHASE\n\n
+        <u>MOVE PHASE</u>\n\n
         Your possible moves are shown in the 5 circles near the bottom.\n
         </string>
     <string name="guide3">
         To move, click any one of your available pieces (the jumping pieces) and select a yellow tile, which indicate possible locations you can move to with that piece.\n
         </string>
     <string name="guide4">
-        POSSIBLE ROLLS\n
+        <u>POSSIBLE ROLLS</u>\n
         </string>
     <string name="guide5">
-        REMAINING PIECES\n\n
+        <u>REMAINING PIECES</u>\n\n
         Pieces off the board that need to be completed will be shown at the top. Pieces already completed will have medals. Pieces on the board will not be shown at the top.\n
         </string>
     <string name="guide6">
-        COINS\n\n
+        <u>COINS</u>\n\n
         Earn coins to buy new avatars!\n
         </string>
     <string name="guide7">
@@ -63,12 +63,12 @@
     </string>
 
     <string name="credits">
-        DEVELOPERS\n\n
+        <u>DEVELOPERS</u>\n\n
         Jeffrey Chan\n
         Richard Zhang\n
         Atsuko Shimizu\n
         Roland Zhou\n\n
-        TESTERS\n\n
+        <u>TESTERS</u>\n\n
         Edward Kiewra
     </string>
 
