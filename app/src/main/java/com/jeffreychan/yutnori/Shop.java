@@ -30,7 +30,7 @@ public class Shop {
 	 *
 	 * To add a new avatar, follow the following format and add it to the bottom of the constructor
 	 *
-	 *  addAvatar(NAME, COST, INDEX, new Integer[]{
+	 *  addAvatar(NAME, COST, new Integer[]{
 	 *      static image drawable
 	 *      animation1
 	 *      animation2
@@ -73,6 +73,16 @@ public class Shop {
 				R.drawable.rabbitjumpanimation4,
 				R.drawable.rabbit_goal,
 				R.drawable.rabbit_icon
+		});
+
+		addAvatar("Bird", 20, new Integer[]{
+				R.drawable.bird1jump1,
+				R.drawable.birdjumpanimation1,
+				R.drawable.birdjumpanimation2,
+				R.drawable.birdjumpanimation3,
+				R.drawable.birdjumpanimation4,
+				R.drawable.bird_goal,
+				R.drawable.bird_icon
 		});
 
 		addAvatar("Polar-Bear", 50, new Integer[]{
@@ -135,9 +145,9 @@ public class Shop {
 		}
 
 		// debug
-//		editor.putInt("Rabbit", 0);
+//		editor.putInt("Bird", 0);
 // 		editor.putInt("Polar-Bear", 0);
-//		editor.putInt("coins", 10);
+//		editor.putInt("coins", 100);
 //		editor.putString("animals", "Seal Penguin");
 //		playerAnimals = "Seal Penguin";
 //		lastSavedAnimals = playerAnimals;
