@@ -14,13 +14,14 @@ public class Piece {
 	 * Returns all possible move locations with respective move distances as a 2d Integer array
 	 *
 	 * @param moves array of rolls
-	 * @return 2d array containing move locations in first column and move distances in second column
+	 * @return 2d array containing destination in first column and roll amount in second column
 	 */
 	public Integer[][] calculateMoveset(int[] moves){
 
-		ArrayList<Integer[]> moveList = new ArrayList<>();
+		ArrayList<Integer[]> moveList = new ArrayList<>();  // array of [destination, rollAmount]
 
 		for (int i : moves){
+			// Get all places the piece can move to with roll <i> starting at tile <location>
 			moveList.addAll(Board.calculateLocation(i, location));
 		}
 

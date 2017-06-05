@@ -19,16 +19,19 @@ public class Computer {
 	 */
 	public static int[] selectMove(Player[] players, int[] rollArray){
 
-		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
+		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();    // Array of 4 elements. Each element is a list of destinations for that piece.
 
 		for (int i = 0; i < 4; i++){
 			ArrayList<Integer> m = new ArrayList<>();
 
 			// Don't calculate moveset for finished pieces
 			if (players[1].pieces[i].getLocation() != 32) {
+
+				// Each element in moveSet contains 2 integers: [destination, rollAmount]
 				Integer[][] moveSet = players[1].pieces[i].calculateMoveset(rollArray);
 
 				for (Integer[] arr : moveSet) {
+					// Don't consider destinations of -1 (pieces off the board and not finished)
 					if (arr[0] != -1) {
 						m.add(arr[0]);
 					}
@@ -117,12 +120,14 @@ public class Computer {
 		// Use off board pieces
 		if (players[1].getNumPieces() < 4){
 			for (int i = 0; i < 4; i++) {
+				// Verify that the piece is off the board and that it has a possible move onto the board
 				if (players[1].pieces[i].getLocation() == -1 && moves.get(i).size() > 0)
 					return new int[]{-1, moves.get(i).get(0)};  // -1 indicates off board piece
 			}
 		}
 		// Use on board pieces
 		for (int i = 0; i < 4; i++) {
+			// Verify that the piece is on the board (not off the board and not finished)
 			if (players[1].pieces[i].getLocation() != -1 && players[1].pieces[i].getLocation() != 32){
 				return new int[] {i, moves.get(i).get(0)};
 			}
