@@ -963,16 +963,16 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 	/**
 	 * Highlight possible move locations for the currently selected piece.
 	 *
-	 * @param pi The piece to be moved
+	 * @param i The index of the piece to be moved
 	 */
-	private void showPossibleTiles(int pi){
+	private void showPossibleTiles(int i){
 
 		hidePossibleTiles();
 
-		currentPiece = players[turn].pieces[pi];
-		currentPieceImage = playerOnBoardImages[turn][pi];
+		currentPiece = players[turn].pieces[i];
+		currentPieceImage = playerOnBoardImages[turn][i];
 
-		moveSet = players[turn].pieces[pi].calculateMoveset(board.rollArray);
+		moveSet = players[turn].pieces[i].calculateMoveset(board.rollArray);
 		for (Integer[] move : moveSet) {
 			int location = move[0];
 
