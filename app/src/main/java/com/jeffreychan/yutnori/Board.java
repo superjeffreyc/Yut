@@ -114,7 +114,8 @@ public class Board {
 	}
 
 	/**
-	 * Removes the roll from the roll array. This method should be called after the player has made a move.
+	 * Removes the roll from the roll array. Then, shifts all non-zero entries to the left.
+	 * This method should be called after the player has made a move.
 	 *
 	 * @param i the roll to remove from the roll array
 	 */
