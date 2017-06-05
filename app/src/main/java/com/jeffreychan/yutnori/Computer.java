@@ -108,6 +108,7 @@ public class Computer {
 		// Check for single -1 roll (cannot use off board pieces)
 		if (rolls.size() == 1 && rolls.get(0) == -1){
 			for (int i = 0; i < 4; i++) {
+				// TODO: Add better decision logic here. Don't want to select a piece on a shortcut if there are other pieces to move back.
 				if (players[1].pieces[i].getLocation() != -1 && players[1].pieces[i].getLocation() != 32){
 					return new int[]{i, moves.get(i).get(0)};
 				}
