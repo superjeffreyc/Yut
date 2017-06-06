@@ -120,9 +120,13 @@ public class Board {
 	 * @param i the roll to remove from the roll array
 	 */
 	public void removeRoll(int i) {
+
+		// Find the first occurrence of the roll amount and remove it by setting it to zero.
 		for(int j = 0; j < rollArray.length; ++j) {
 			if(rollArray[j] == i) {rollArray[j] = 0; break;}
 		}
+
+		// Shift all non-zero entries to the left
 		for(int k = 0; k < rollArray.length; ++k) {
 			if(rollArray[k] == 0) {
 				int index = k + 1;
@@ -134,6 +138,7 @@ public class Board {
 			}
 		}
 
+		// Decrease roll index so the board knows where to add a new roll
 		if (rollIndex > 0) rollIndex--;
 	}
 
