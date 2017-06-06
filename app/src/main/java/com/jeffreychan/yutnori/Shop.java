@@ -46,71 +46,71 @@ public class Shop {
 	private Shop(){
 
 		addAvatar("Seal", 0, new Integer[]{
-				R.drawable.seal1,
-				R.drawable.sealmoveanimation,
-				R.drawable.sealmoveanimation2,
-				R.drawable.sealmoveanimation3,
-				R.drawable.sealmoveanimation4,
+				R.drawable.seal1jump1,
+				R.drawable.seal_animation1,
+				R.drawable.seal_animation2,
+				R.drawable.seal_animation3,
+				R.drawable.seal_animation4,
 				R.drawable.seal_goal,
 				R.drawable.seal_icon
 		});
 
 		addAvatar("Penguin", 0, new Integer[]{
-				R.drawable.penguin1,
-				R.drawable.penguinjumpanimation,
-				R.drawable.penguinjumpanimation2,
-				R.drawable.penguinjumpanimation3,
-				R.drawable.penguinjumpanimation4,
+				R.drawable.penguin1jump1,
+				R.drawable.penguin_animation1,
+				R.drawable.penguin_animation2,
+				R.drawable.penguin_animation3,
+				R.drawable.penguin_animation4,
 				R.drawable.penguin_goal,
 				R.drawable.penguin_icon
 		});
 
 		addAvatar("Rabbit", 10, new Integer[]{
-				R.drawable.rabbit1,
-				R.drawable.rabbitjumpanimation1,
-				R.drawable.rabbitjumpanimation2,
-				R.drawable.rabbitjumpanimation3,
-				R.drawable.rabbitjumpanimation4,
+				R.drawable.rabbit1jump1,
+				R.drawable.rabbit_animation1,
+				R.drawable.rabbit_animation2,
+				R.drawable.rabbit_animation3,
+				R.drawable.rabbit_animation4,
 				R.drawable.rabbit_goal,
 				R.drawable.rabbit_icon
 		});
 
 		addAvatar("Bird", 20, new Integer[]{
 				R.drawable.bird1jump1,
-				R.drawable.birdjumpanimation1,
-				R.drawable.birdjumpanimation2,
-				R.drawable.birdjumpanimation3,
-				R.drawable.birdjumpanimation4,
+				R.drawable.bird_animation1,
+				R.drawable.bird_animation2,
+				R.drawable.bird_animation3,
+				R.drawable.bird_animation4,
 				R.drawable.bird_goal,
 				R.drawable.bird_icon
 		});
 
 		addAvatar("Polar-Bear", 50, new Integer[]{
 				R.drawable.polarbear1jump1,
-				R.drawable.polarbearanimation1,
-				R.drawable.polarbearanimation2,
-				R.drawable.polarbearanimation3,
-				R.drawable.polarbearanimation4,
+				R.drawable.polarbear_animation1,
+				R.drawable.polarbear_animation2,
+				R.drawable.polarbear_animation3,
+				R.drawable.polarbear_animation4,
 				R.drawable.polarbear_goal,
 				R.drawable.polarbear_icon
 		});
 
 		addAvatar("Leopard", 60, new Integer[]{
 				R.drawable.leopard1jump1,
-				R.drawable.leopardanimation1,
-				R.drawable.leopardanimation2,
-				R.drawable.leopardanimation3,
-				R.drawable.leopardanimation4,
+				R.drawable.leopard_animation1,
+				R.drawable.leopard_animation2,
+				R.drawable.leopard_animation3,
+				R.drawable.leopard_animation4,
 				R.drawable.leopard_goal,
 				R.drawable.leopard_icon
 		});
 
 		addAvatar("Husky", 100, new Integer[]{
 				R.drawable.husky1jump1,
-				R.drawable.huskyanimation1,
-				R.drawable.huskyanimation2,
-				R.drawable.huskyanimation3,
-				R.drawable.huskyanimation4,
+				R.drawable.husky_animation1,
+				R.drawable.husky_animation2,
+				R.drawable.husky_animation3,
+				R.drawable.husky_animation4,
 				R.drawable.husky_goal,
 				R.drawable.husky_icon
 		});
