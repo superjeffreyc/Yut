@@ -854,7 +854,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 						tv.setPadding(0, 40, 0, 40);
 						tv.setText(R.string.credits);
 						tv.setTextSize(20f);
-						tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+						tv.setGravity(Gravity.CENTER);
 						sv.addView(tv);
 						adb.setView(sv);
 						adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
