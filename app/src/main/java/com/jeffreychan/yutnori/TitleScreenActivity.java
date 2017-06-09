@@ -716,6 +716,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			adb.setTitle("How to play");
 			ScrollView sv = new ScrollView(this);
+			sv.setPadding(10, 0, 10, 0); // set padding to the left and right
 
 			LinearLayout layout = new LinearLayout(this);
 			layout.setOrientation(LinearLayout.VERTICAL);
@@ -853,7 +854,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 						tv.setPadding(0, 40, 0, 40);
 						tv.setText(R.string.credits);
 						tv.setTextSize(20f);
-						tv.setGravity(Gravity.CENTER);
+						tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 						sv.addView(tv);
 						adb.setView(sv);
 						adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {

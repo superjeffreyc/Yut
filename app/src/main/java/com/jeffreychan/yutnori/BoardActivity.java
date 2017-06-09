@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -1387,13 +1388,20 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 				intent.putExtra("Song", mp.getCurrentPosition());
 				if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
 				else intent.putExtra("SignedIn", "Disconnected");
-				startActivity(intent);
 				finish();
+				startActivity(intent);
 			}
 		});
 		adb.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				quit();
+			}
+		});
+		adb.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				quit();
+				Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
+				startActivity(intent);
 			}
 		});
 		adb.show();
