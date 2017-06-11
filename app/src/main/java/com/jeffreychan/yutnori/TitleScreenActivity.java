@@ -59,12 +59,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	Button startButton;
 	Button helpButton;
 	Button settingsButton;
-	Button quitButton;
 	Button onePlayerButton;
 	Button twoPlayerButton;
 	Button shopButton;
 	Button backButton;
 	Button switchButton;
+	Button playOnlineButton;
 
 	Spinner p1spin;
 	Spinner p2spin;
@@ -166,7 +166,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			soundOn = true;
 		}
 
-		rl = (RelativeLayout) findViewById(R.id.rl);    // All views will be placed in this layout
+		rl = findViewById(R.id.rl);    // All views will be placed in this layout
 
 		// Get screen dimensions
 		Display display = getWindowManager().getDefaultDisplay();
@@ -225,13 +225,22 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		startButton.setY((int) (height * 5.5 / 10.0));
 		rl1.addView(startButton);
 
+		shopButton = new Button(this);
+		shopButton.setBackgroundResource(R.drawable.shop);
+		shopButton.setId(View.generateViewId());
+		shopButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		shopButton.setOnClickListener(this);
+		shopButton.setX(midX);
+		shopButton.setY((int) (height * 6.5 / 10.0));
+		rl1.addView(shopButton);
+
 		helpButton = new Button(this);
 		helpButton.setBackgroundResource(R.drawable.howtoplay);
 		helpButton.setId(View.generateViewId());
 		helpButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		helpButton.setOnClickListener(this);
 		helpButton.setX(midX);
-		helpButton.setY((int) (height * 6.5 / 10.0));
+		helpButton.setY((int) (height * 7.5 / 10.0));
 		rl1.addView(helpButton);
 
 		settingsButton = new Button(this);
@@ -240,17 +249,17 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		settingsButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		settingsButton.setOnClickListener(this);
 		settingsButton.setX(midX);
-		settingsButton.setY((int) (height * 7.5 / 10.0));
+		settingsButton.setY((int) (height * 8.5 / 10.0));
 		rl1.addView(settingsButton);
 
-		quitButton = new Button(this);
-		quitButton.setBackgroundResource(R.drawable.quit);
-		quitButton.setId(View.generateViewId());
-		quitButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
-		quitButton.setOnClickListener(this);
-		quitButton.setX(midX);
-		quitButton.setY((int) (height * 8.5 / 10.0));
-		rl1.addView(quitButton);
+		playOnlineButton = new Button(this);
+		playOnlineButton.setBackgroundResource(R.drawable.playonline);
+		playOnlineButton.setId(View.generateViewId());
+		playOnlineButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
+		playOnlineButton.setOnClickListener(this);
+		playOnlineButton.setX(midX);
+		playOnlineButton.setY(startButton.getY());
+		rl2.addView(playOnlineButton);
 
 		onePlayerButton = new Button(this);
 		onePlayerButton.setBackgroundResource(R.drawable.oneplayer);
@@ -258,7 +267,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		onePlayerButton.setOnClickListener(this);
 		onePlayerButton.setX(midX);
-		onePlayerButton.setY(startButton.getY());
+		onePlayerButton.setY(shopButton.getY());
 		rl2.addView(onePlayerButton);
 
 		twoPlayerButton = new Button(this);
@@ -270,22 +279,13 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		twoPlayerButton.setY(helpButton.getY());
 		rl2.addView(twoPlayerButton);
 
-		shopButton = new Button(this);
-		shopButton.setBackgroundResource(R.drawable.shop);
-		shopButton.setId(View.generateViewId());
-		shopButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
-		shopButton.setOnClickListener(this);
-		shopButton.setX(midX);
-		shopButton.setY(settingsButton.getY());
-		rl2.addView(shopButton);
-
 		backButton = new Button(this);
 		backButton.setBackgroundResource(R.drawable.back);
 		backButton.setId(View.generateViewId());
 		backButton.setLayoutParams(new RelativeLayout.LayoutParams(width / 2, height / 10));
 		backButton.setOnClickListener(this);
 		backButton.setX(midX);
-		backButton.setY(quitButton.getY());
+		backButton.setY(settingsButton.getY());
 		rl2.addView(backButton);
 
 		rl.addView(rl1);
@@ -457,8 +457,9 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	 */
 	private void setInitialButtonClickable(boolean b){
 		startButton.setClickable(b);
+		shopButton.setClickable(b);
 		helpButton.setClickable(b);
-		quitButton.setClickable(b);
+		settingsButton.setClickable(b);
 	}
 
 	/*
@@ -467,6 +468,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	private void setModeButtonClickable(boolean b){
 		onePlayerButton.setClickable(b);
 		twoPlayerButton.setClickable(b);
+		playOnlineButton.setClickable(b);
 		backButton.setClickable(b);
 	}
 
@@ -606,7 +608,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
 		editor = prefs.edit();
 		editor.putInt("background", 0);
-		editor.commit();
+		editor.commit();    // Need to write to storage immediately
 
 		if (mp.isPlaying()) {
 			mp.pause();
@@ -621,7 +623,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
 		editor = prefs.edit();
 		editor.putInt("background", 1);
-		editor.commit();
+		editor.commit();    // Need to write to storage immediately
 
 		mp.seekTo(mpPos);
 		mp.start();
@@ -735,7 +737,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv.setText(R.string.guide1);
 			tv.setTextSize(20f);
 			tv.setPadding(0, 30, 0, 0);
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 			layout.addView(tv);
 
 			ImageView roll = new ImageView(this);
@@ -748,7 +750,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv2.setText(R.string.guide2);
 			tv2.setPadding(0, 30, 0, 0);
 			tv2.setTextSize(20f);
-			tv2.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv2.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 			layout.addView(tv2);
 
 			ImageView rollExample = new ImageView(this);
@@ -761,7 +763,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv3.setText(R.string.guide3);
 			tv3.setPadding(0, 30, 0, 0);
 			tv3.setTextSize(20f);
-			tv3.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv3.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 			layout.addView(tv3);
 
 			ImageView yellowExample = new ImageView(this);
@@ -774,7 +776,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv4.setText(R.string.guide4);
 			tv4.setPadding(0, 30, 0, 0);
 			tv4.setTextSize(20f);
-			tv4.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv4.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 			layout.addView(tv4);
 
 			int[] rollImages = new int[]{R.drawable.circleminus1, R.drawable.circle1, R.drawable.circle2, R.drawable.circle3, R.drawable.circle4, R.drawable.circle5};
@@ -794,7 +796,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv5.setText(R.string.guide5);
 			tv5.setPadding(0, 30, 0, 0);
 			tv5.setTextSize(20f);
-			tv5.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv5.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 			layout.addView(tv5);
 
 			ImageView rollBarExample = new ImageView(this);
@@ -807,7 +809,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv6.setText(R.string.guide6);
 			tv6.setPadding(0, 30, 0, 0);
 			tv6.setTextSize(20f);
-			tv6.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv6.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 			layout.addView(tv6);
 
 			ImageView avatarShopExample = new ImageView(this);
@@ -820,7 +822,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			tv7.setText(R.string.guide7);
 			tv7.setPadding(0, 30, 0, 0);
 			tv7.setTextSize(20f);
-			tv7.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv7.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 			layout.addView(tv7);
 
 			sv.addView(layout);
@@ -832,8 +834,9 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			});
 			adb.show();
 		}
-		else if (v.getId() == quitButton.getId()){
-			finish();
+		else if (v.getId() == playOnlineButton.getId()){
+			Toast comingSoon = Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT);
+			comingSoon.show();
 		}
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
@@ -914,12 +917,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	 */
 	private void showLoading(){
 		startButton.setVisibility(View.INVISIBLE);
+		shopButton.setVisibility(View.INVISIBLE);
 		helpButton.setVisibility(View.INVISIBLE);
 		settingsButton.setVisibility(View.INVISIBLE);
-		quitButton.setVisibility(View.INVISIBLE);
-		twoPlayerButton.setVisibility(View.INVISIBLE);
 		onePlayerButton.setVisibility(View.INVISIBLE);
-		shopButton.setVisibility(View.INVISIBLE);
+		twoPlayerButton.setVisibility(View.INVISIBLE);
+		playOnlineButton.setVisibility(View.INVISIBLE);
 		backButton.setVisibility(View.INVISIBLE);
 
 		loading.setVisibility(View.VISIBLE);
