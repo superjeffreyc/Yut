@@ -681,6 +681,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 					if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
 					else intent.putExtra("SignedIn", "Disconnected");
 					intent.putExtra("Song", mp.getCurrentPosition());
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 					startActivity(intent);
 					finish();
 				}
