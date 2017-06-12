@@ -866,6 +866,11 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			}
 		}
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
+
+			// Display the correct message for Google Sign In based on client status
+			if (client.isConnected()) signInStatus = "Sign Out Of Google";
+			else signInStatus = "Sign In To Google";
+
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			final CharSequence[] items = {"Share", "Credits", "Rate", "Achievements", signInStatus, soundStatus, "Close"};
 			adb.setTitle("Options");
