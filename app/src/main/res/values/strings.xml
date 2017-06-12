@@ -2,6 +2,14 @@
 <resources>
 
     <string name="app_name">Yut</string>
+    <string name="start">Start</string>
+    <string name="avatar_shop">Avatar shop</string>
+    <string name="how_to_play">How to play</string>
+    <string name="options">Options</string>
+    <string name="play_online">Play Online</string>
+    <string name="one_player">1-Player (Offline)</string>
+    <string name="two_player">2-Player (Offline)</string>
+    <string name="swap">Swap</string>
     <string name="loading">Loading&#8230;</string>
     <string name="computer">Computer is making a move&#8230;</string>
     <string name="action_settings">Settings</string>
@@ -39,7 +47,7 @@
     <string name="guide4"><u>POSSIBLE ROLLS</u>\n</string>
     <string name="guide5"><u>REMAINING PIECES</u>\n\nPieces off the board that need to be completed will be shown at the top. Pieces already completed will have medals. Pieces on the board will not be shown at the top.\n</string>
     <string name="guide6"><u>COINS</u>\n\nEarn coins to buy new avatars!\n</string>
-    <string name="guide7">- Win 1 coin for losing against a computer\n- Win 1 coin for playing a two player match\n- Win 3 coins for beating a computer</string>
+    <string name="guide7">-Win 1 coin for playing online\n- Win 1 coin for losing against a computer\n- Win 1 coin for playing a two player match\n- Win 3 coins for beating a computer</string>
 
     <string name="credits">
         <u>DEVELOPERS</u>\n\n
