@@ -17,36 +17,21 @@ package com.jeffreychan.yutnori;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Point;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.GamesActivityResultCodes;
-import com.google.android.gms.games.multiplayer.Invitation;
-import com.google.android.gms.games.multiplayer.Multiplayer;
-import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
@@ -86,7 +71,7 @@ import java.util.Set;
 public class OnlineActivity extends GameActivity
 		implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
 		View.OnClickListener, RealTimeMessageReceivedListener,
-		RoomStatusUpdateListener, RoomUpdateListener, OnInvitationReceivedListener {
+		RoomStatusUpdateListener, RoomUpdateListener {
 
     /*
      * API INTEGRATION SECTION. This section contains the code that integrates
@@ -113,8 +98,6 @@ public class OnlineActivity extends GameActivity
 
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
-
-	Context context = this;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -146,12 +129,6 @@ public class OnlineActivity extends GameActivity
 				Log.d(TAG, "Sign-in button clicked");
 				mSignInClicked = true;
 				client.connect();
-				break;
-			case R.id.button_accept_popup_invitation:
-				// user wants to accept the invitation shown on the invitation popup
-				// (the one we got through the OnInvitationReceivedListener).
-				acceptInviteToRoom(mIncomingInvitationId);
-				mIncomingInvitationId = null;
 				break;
 			case R.id.button_quick_game:
 				// user wants to play against a random opponent right now
@@ -185,15 +162,6 @@ public class OnlineActivity extends GameActivity
 		super.onActivityResult(requestCode, responseCode, intent);
 
 		switch (requestCode) {
-			case RC_SELECT_PLAYERS:
-				// we got the result from the "select players" UI -- ready to create the room
-				handleSelectPlayersResult(responseCode, intent);
-				break;
-			case RC_INVITATION_INBOX:
-				// we got the result from the "select invitation" UI (invitation inbox). We're
-				// ready to accept the selected invitation:
-				handleInvitationInboxResult(responseCode, intent);
-				break;
 			case RC_WAITING_ROOM:
 				// we got the result from the "waiting room" UI.
 				if (responseCode == Activity.RESULT_OK) {
@@ -223,77 +191,6 @@ public class OnlineActivity extends GameActivity
 				break;
 		}
 		super.onActivityResult(requestCode, responseCode, intent);
-	}
-
-	// Handle the result of the "Select players UI" we launched when the user clicked the
-	// "Invite friends" button. We react by creating a room with those players.
-	private void handleSelectPlayersResult(int response, Intent data) {
-		if (response != Activity.RESULT_OK) {
-			Log.w(TAG, "*** select players UI cancelled, " + response);
-			switchToMainScreen();
-			return;
-		}
-
-		Log.d(TAG, "Select players UI succeeded.");
-
-		// get the invitee list
-		final ArrayList<String> invitees = data.getStringArrayListExtra(Games.EXTRA_PLAYER_IDS);
-		Log.d(TAG, "Invitee count: " + invitees.size());
-
-		// get the automatch criteria
-		Bundle autoMatchCriteria = null;
-		int minAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MIN_AUTOMATCH_PLAYERS, 0);
-		int maxAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MAX_AUTOMATCH_PLAYERS, 0);
-		if (minAutoMatchPlayers > 0 || maxAutoMatchPlayers > 0) {
-			autoMatchCriteria = RoomConfig.createAutoMatchCriteria(
-					minAutoMatchPlayers, maxAutoMatchPlayers, 0);
-			Log.d(TAG, "Automatch criteria: " + autoMatchCriteria);
-		}
-
-		// create the room
-		Log.d(TAG, "Creating room...");
-		RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(this);
-		rtmConfigBuilder.addPlayersToInvite(invitees);
-		rtmConfigBuilder.setMessageReceivedListener(this);
-		rtmConfigBuilder.setRoomStatusUpdateListener(this);
-		if (autoMatchCriteria != null) {
-			rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
-		}
-		switchToScreen(R.id.screen_wait);
-		keepScreenOn();
-		resetGameVars();
-		Games.RealTimeMultiplayer.create(client, rtmConfigBuilder.build());
-		Log.d(TAG, "Room created, waiting for it to be ready...");
-	}
-
-	// Handle the result of the invitation inbox UI, where the player can pick an invitation
-	// to accept. We react by accepting the selected invitation, if any.
-	private void handleInvitationInboxResult(int response, Intent data) {
-		if (response != Activity.RESULT_OK) {
-			Log.w(TAG, "*** invitation inbox UI cancelled, " + response);
-			switchToMainScreen();
-			return;
-		}
-
-		Log.d(TAG, "Invitation inbox UI succeeded.");
-		Invitation inv = data.getExtras().getParcelable(Multiplayer.EXTRA_INVITATION);
-
-		// accept invitation
-		acceptInviteToRoom(inv.getInvitationId());
-	}
-
-	// Accept the given invitation.
-	void acceptInviteToRoom(String invId) {
-		// accept the invitation
-		Log.d(TAG, "Accepting invitation: " + invId);
-		RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(this);
-		roomConfigBuilder.setInvitationIdToAccept(invId)
-				.setMessageReceivedListener(this)
-				.setRoomStatusUpdateListener(this);
-		switchToScreen(R.id.screen_wait);
-		keepScreenOn();
-		resetGameVars();
-		Games.RealTimeMultiplayer.join(client, roomConfigBuilder.build());
 	}
 
 	// Activity is going to the background. We have to leave the current room.
@@ -391,29 +288,6 @@ public class OnlineActivity extends GameActivity
 		startActivityForResult(i, RC_WAITING_ROOM);
 	}
 
-	// Called when we get an invitation to play a game. We react by showing that to the user.
-	@Override
-	public void onInvitationReceived(Invitation invitation) {
-		// We got an invitation to play a game! So, store it in
-		// mIncomingInvitationId
-		// and show the popup on the screen.
-		mIncomingInvitationId = invitation.getInvitationId();
-		((TextView) findViewById(R.id.incoming_invitation_text)).setText(
-				invitation.getInviter().getDisplayName() + " " +
-						getString(R.string.is_inviting_you));
-		switchToScreen(mCurScreen); // This will show the invitation popup
-	}
-
-	@Override
-	public void onInvitationRemoved(String invitationId) {
-
-		if (mIncomingInvitationId.equals(invitationId)&&mIncomingInvitationId!=null) {
-			mIncomingInvitationId = null;
-			switchToScreen(mCurScreen); // This will hide the invitation popup
-		}
-
-	}
-
     /*
      * CALLBACKS SECTION. This section shows how we implement the several games
      * API callbacks.
@@ -422,26 +296,7 @@ public class OnlineActivity extends GameActivity
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Log.d(TAG, "onConnected() called. Sign in successful!");
-
-		Log.d(TAG, "Sign-in succeeded.");
-
-		// register listener so we are notified if we receive an invitation to play
-		// while we are in the game
-		Games.Invitations.registerInvitationListener(client, this);
-
-		if (connectionHint != null) {
-			Log.d(TAG, "onConnected: connection hint provided. Checking for invite.");
-			Invitation inv = connectionHint
-					.getParcelable(Multiplayer.EXTRA_INVITATION);
-			if (inv != null && inv.getInvitationId() != null) {
-				// retrieve and cache the invitation ID
-				Log.d(TAG,"onConnected: connection hint has a room invite!");
-				acceptInviteToRoom(inv.getInvitationId());
-				return;
-			}
-		}
 		switchToMainScreen();
-
 	}
 
 	// Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
@@ -663,10 +518,10 @@ public class OnlineActivity extends GameActivity
 
 	// Score of other participants. We update this as we receive their scores
 	// from the network.
-	Map<String, Integer> mParticipantScore = new HashMap<String, Integer>();
+	Map<String, Integer> mParticipantScore = new HashMap<>();
 
 	// Participants who sent us their final score.
-	Set<String> mFinishedParticipants = new HashSet<String>();
+	Set<String> mFinishedParticipants = new HashSet<>();
 
 	// Called when we receive a real-time message from the network.
 	// Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'

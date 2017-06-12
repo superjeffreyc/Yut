@@ -81,9 +81,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	ImageView secondImage;
 
 	ImageView[][] snow = new ImageView[2][10];
-
-	Context context = this;
-
+	
 	TranslateAnimation leftToRight;
 	TranslateAnimation rightToLeft;
 	TranslateAnimation down1;
@@ -154,7 +152,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		mp.setVolume(volume, volume);
 
 		// Grab saved option for sound on/off
-		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
+		prefs = getSharedPreferences("sounds", Context.MODE_PRIVATE);
 		int savedSoundOption = prefs.getInt("background", 1);
 
 		if (savedSoundOption == 0) {
@@ -185,7 +183,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		rl.addView(title);
 
 		// Set up the avatar shop
-		Shop.Instance.initializeShop(context);
+		Shop.Instance.initializeShop(this);
 
 		/*
 		 * #########################################################################################
@@ -625,7 +623,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	}
 
 	private void turnOffSound() {
-		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
+		prefs = getSharedPreferences("sounds", Context.MODE_PRIVATE);
 		editor = prefs.edit();
 		editor.putInt("background", 0);
 		editor.commit();    // Need to write to storage immediately
@@ -640,7 +638,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	}
 
 	private void turnOnSound() {
-		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
+		prefs = getSharedPreferences("sounds", Context.MODE_PRIVATE);
 		editor = prefs.edit();
 		editor.putInt("background", 1);
 		editor.commit();    // Need to write to storage immediately
@@ -695,7 +693,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 			final boolean isOnePlayer = (v.getId() == onePlayerButton.getId());
 
-			Intent intent = new Intent(context, BoardActivity.class);
+			Intent intent = new Intent(this, BoardActivity.class);
 			intent.putExtra("Computer", isOnePlayer);
 			if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
 			else intent.putExtra("SignedIn", "Disconnected");
@@ -852,7 +850,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 			// Make sure the user is signed in
 			if (client != null && client.isConnected()) {
-				Intent intent = new Intent(context, OnlineActivity.class);
+				Intent intent = new Intent(this, OnlineActivity.class);
 				intent.putExtra("Song", mp.getCurrentPosition());
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
@@ -902,10 +900,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 						else turnOffSound();
 					}
 					else if (item == 5){
-						AlertDialog.Builder adb = new AlertDialog.Builder(context);
+						AlertDialog.Builder adb = new AlertDialog.Builder(getApplicationContext());
 						adb.setTitle("Credits");
-						ScrollView sv = new ScrollView(context);
-						TextView tv = new TextView(context);
+						ScrollView sv = new ScrollView(getApplicationContext());
+						TextView tv = new TextView(getApplicationContext());
 						tv.setPadding(0, 40, 0, 40);
 						tv.setText(R.string.credits);
 						tv.setTextSize(20f);
@@ -1186,7 +1184,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		isP2spinFirstTime = true;
 
 		// Set the avatar images to the saved avatars
-		String[] s = Shop.Instance.getAnimals(context);
+		String[] s = Shop.Instance.getAnimals(this);
 		for (int i = 0; i < 2; i++) player_id[i] = Shop.Instance.getImage(s[i]);
 
 		// Create an alert dialog for changing avatars
@@ -1339,7 +1337,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Save button - checks that the two avatars are not the same
 		adb.setPositiveButton("Save", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				String[] s = Shop.Instance.getAnimals(context);
+				String[] s = Shop.Instance.getAnimals(getApplicationContext());
 
 				if (s[0].equals(s[1])){
 					Shop.Instance.reset();
@@ -1347,7 +1345,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 					savedToast.show();
 				}
 				else {
-					Shop.Instance.saveAvatars(context);
+					Shop.Instance.saveAvatars(getApplicationContext());
 					dialog.cancel();
 				}
 			}
@@ -1367,13 +1365,13 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		String[] s = Shop.Instance.getAnimals(context);
+		String[] s = Shop.Instance.getAnimals(this);
 		String item = (String) parent.getItemAtPosition(position);
 
 		if (parent.getId() == p1spin.getId()) {
 			if (isP1spinFirstTime) isP1spinFirstTime = false;
 			else if (!s[1].equalsIgnoreCase(item) && !s[0].equalsIgnoreCase(item)) {
-				Shop.Instance.changeAvatar(1, item, context);
+				Shop.Instance.changeAvatar(1, item, this);
 				firstImage.setBackgroundResource(Shop.Instance.getImage(item));
 			} else if (s[1].equalsIgnoreCase(item)){
 				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
@@ -1383,7 +1381,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 			if (isP2spinFirstTime) isP2spinFirstTime = false;
 			else if (!s[0].equalsIgnoreCase(item) && !s[1].equalsIgnoreCase(item)) {
-				Shop.Instance.changeAvatar(2, item, context);
+				Shop.Instance.changeAvatar(2, item, this);
 				secondImage.setBackgroundResource(Shop.Instance.getImage(item));
 			} else if (s[0].equalsIgnoreCase(item)){
 				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
