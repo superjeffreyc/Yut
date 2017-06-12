@@ -300,7 +300,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		rl2.addView(twoPlayerButton);
 
 		backButton = new Button(this);
-		backButton.setBackgroundResource(R.drawable.titlebutton);
+		backButton.setBackgroundResource(R.drawable.backbutton);
 		backButton.setTextColor(Color.WHITE);
 		backButton.setText(R.string.back);
 		backButton.setId(View.generateViewId());

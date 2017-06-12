@@ -65,11 +65,13 @@
                   android:text="" />
         <Button android:id="@+id/button_quick_game"
                 style="@style/MainScreenButton"
+                android:background="@drawable/find_opponent_button"
                 android:text="@string/quick_game" />
         <TextView style="@style/MainScreenButtonBlurb"
                   android:text="@string/quick_game_explanation" />
         <Button android:id="@+id/backButton"
                 style="@style/BackButton"
+                android:background="@drawable/backbutton"
                 android:onClick="exit"
                 android:text="@string/back" />
         <TextView style="@style/MainScreenButtonBlurb"

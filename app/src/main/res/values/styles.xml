@@ -93,7 +93,6 @@
     <style name="GameButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@color/AccentColor</item>
         <item name="android:textColor">@color/ButtonTextColor</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
@@ -123,8 +122,7 @@
 
     <style name="BackButton" parent="@style/GameButton">
         <item name="android:layout_marginBottom">10dp</item>
-        <item name="android:background">@color/BackButtonBackground</item>
-        <item name="android:textColor">@color/BackButtonTextColor</item>
+        <item name="android:textColor">@color/ButtonTextColor</item>
     </style>
 
     <style name="FigureView">
