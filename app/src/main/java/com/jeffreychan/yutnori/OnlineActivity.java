@@ -226,18 +226,8 @@ public class OnlineActivity extends Activity
 
 	@Override
 	public void onClick(View v) {
-		Intent intent;
-
 		switch (v.getId()) {
 			case R.id.button_sign_in:
-				// user wants to sign in
-				// Check to see the developer who's running this sample code read the instructions :-)
-				// NOTE: this check is here only because this is a sample! Don't include this
-				// check in your actual production app.
-				if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
-					Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
-				}
-
 				// start the sign-in flow
 				Log.d(TAG, "Sign-in button clicked");
 				mSignInClicked = true;
