@@ -111,7 +111,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	String signInStatus = "Sign In To Google";
 	String connectedStatus = "";
 
-	String soundStatus = "Sound is ON. Click to turn off";
+	String soundStatus = "Mute Sound";
 	boolean soundOn = true;
 
 	// Used to access stored information on device
@@ -160,12 +160,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		int savedSoundOption = prefs.getInt("background", 1);
 
 		if (savedSoundOption == 0) {
-			soundStatus = "Sound is OFF. Click to turn on";
+			soundStatus = "Unmute Sound";
 			soundOn = false;
 		}
 		else {
 			mp.start();
-			soundStatus = "Sound is ON. Click to turn off";
+			soundStatus = "Mute Sound";
 			soundOn = true;
 		}
 
@@ -637,7 +637,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			mpPos = mp.getCurrentPosition();
 		}
 
-		soundStatus = "Sound is OFF. Click to turn on";
+		soundStatus = "Unmute Sound";
 		soundOn = false;
 	}
 
@@ -650,7 +650,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		mp.seekTo(mpPos);
 		mp.start();
 
-		soundStatus = "Sound is ON. Click to turn off";
+		soundStatus = "Mute Sound";
 		soundOn = true;
 	}
 
@@ -872,18 +872,38 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			else signInStatus = "Sign In To Google";
 
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			final CharSequence[] items = {"Share", "Credits", "Rate", "Achievements", signInStatus, soundStatus, "Close"};
+			final CharSequence[] items = {"Share", "Rate This App", "Achievements", signInStatus, soundStatus, "Credits", "Close"};
 			adb.setTitle("Options");
 			adb.setItems(items, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int item) {
 					if (item == 0){
-						String message = "I am playing a board game called Yut! Try it out at https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori";
+						String message = "I am playing a board game for Android called Yut! Try it out at https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori";
 						Intent share = new Intent(Intent.ACTION_SEND);
 						share.setType("text/plain");
 						share.putExtra(Intent.EXTRA_TEXT, message);
 						startActivity(Intent.createChooser(share, "Share"));
 					}
 					else if (item == 1){
+						Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
+						startActivity(intent);
+					}
+					else if (item == 2){
+						if (client.isConnected()) {
+							startActivityForResult(Games.Achievements.getAchievementsIntent(client), 0);
+						} else {
+							Toast savedToast = Toast.makeText(getApplicationContext(), "You must be signed in to view achievements", Toast.LENGTH_SHORT);
+							savedToast.show();
+						}
+					}
+					else if (item == 3){
+						if (signInStatus.equals("Sign In To Google")) signInClicked();
+						else signOutClicked();
+					}
+					else if (item == 4){
+						if (soundStatus.equals("Unmute Sound")) turnOnSound();
+						else turnOffSound();
+					}
+					else if (item == 5){
 						AlertDialog.Builder adb = new AlertDialog.Builder(context);
 						adb.setTitle("Credits");
 						ScrollView sv = new ScrollView(context);
@@ -900,26 +920,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 							}
 						});
 						adb.show();
-					}
-					else if (item == 2){
-						Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
-						startActivity(intent);
-					}
-					else if (item == 3){
-						if (client.isConnected()) {
-							startActivityForResult(Games.Achievements.getAchievementsIntent(client), 0);
-						} else {
-							Toast savedToast = Toast.makeText(getApplicationContext(), "You must be signed in to view achievements", Toast.LENGTH_SHORT);
-							savedToast.show();
-						}
-					}
-					else if (item == 4){
-						if (signInStatus.equals("Sign In To Google")) signInClicked();
-						else signOutClicked();
-					}
-					else if (item == 5){
-						if (soundStatus.equals("Sound is OFF. Click to turn on")) turnOnSound();
-						else turnOffSound();
 					}
 				}
 			});
