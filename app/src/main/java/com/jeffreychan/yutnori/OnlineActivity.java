@@ -464,10 +464,30 @@ public class OnlineActivity extends Activity
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && mCurScreen == R.id.screen_game) {
-			leaveRoom();
+			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			TextView tv = new TextView(this);
+			tv.setPadding(0, 40, 0, 40);
+			tv.setText("Are you sure you want to leave this match?\nThe game will not be saved.");
+			tv.setTextSize(20f);
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			adb.setView(tv);
+			adb.setPositiveButton("Leave", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					leaveRoom();
+				}
+			});
+			adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.cancel();
+				}
+			});
+			adb.show();
 			return true;
 		}
-		return super.onKeyDown(keyCode, e);
+		else {
+			quit();
+			return true;
+		}
 	}
 
 	// Leave the room.
@@ -973,31 +993,6 @@ public class OnlineActivity extends Activity
 	// Clears the flag that keeps the screen on.
 	void stopKeepingScreenOn() {
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-	}
-
-	/*
-	 * Shows an AlertDialog warning the user that the current game will not be saved upon exit.
-	 */
-	@Override
-	public void onBackPressed() {
-		AlertDialog.Builder adb = new AlertDialog.Builder(this);
-		TextView tv = new TextView(this);
-		tv.setPadding(0, 40, 0, 40);
-		tv.setText("Return to main menu?\nThe game will not be saved.");
-		tv.setTextSize(20f);
-		tv.setGravity(Gravity.CENTER_HORIZONTAL);
-		adb.setView(tv);
-		adb.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				quit();
-			}
-		});
-		adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				dialog.cancel();
-			}
-		});
-		adb.show();
 	}
 
 	/**
