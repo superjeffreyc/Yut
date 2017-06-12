@@ -46,8 +46,6 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import me.grantland.widget.AutofitTextView;
-
 public class TitleScreenActivity extends Activity implements OnClickListener, OnItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
 	private static int RC_SIGN_IN = 9001;
@@ -227,7 +225,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		startButton.setTextColor(Color.WHITE);
 		startButton.setText(R.string.start);
 		startButton.setId(View.generateViewId());
-		startButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		startButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		startButton.setOnClickListener(this);
 		startButton.setX(midX);
 		startButton.setY((int) (height * 5.75 / 10.0));
@@ -238,7 +236,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		shopButton.setTextColor(Color.WHITE);
 		shopButton.setText(R.string.avatar_shop);
 		shopButton.setId(View.generateViewId());
-		shopButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		shopButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		shopButton.setOnClickListener(this);
 		shopButton.setX(midX);
 		shopButton.setY((int) (height * 6.75 / 10.0));
@@ -249,7 +247,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		helpButton.setTextColor(Color.WHITE);
 		helpButton.setText(R.string.how_to_play);
 		helpButton.setId(View.generateViewId());
-		helpButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		helpButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		helpButton.setOnClickListener(this);
 		helpButton.setX(midX);
 		helpButton.setY((int) (height * 7.75 / 10.0));
@@ -260,7 +258,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		settingsButton.setTextColor(Color.WHITE);
 		settingsButton.setText(R.string.options);
 		settingsButton.setId(View.generateViewId());
-		settingsButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		settingsButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		settingsButton.setOnClickListener(this);
 		settingsButton.setX(midX);
 		settingsButton.setY((int) (height * 8.75 / 10.0));
@@ -271,7 +269,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		playOnlineButton.setTextColor(Color.WHITE);
 		playOnlineButton.setText(R.string.play_online);
 		playOnlineButton.setId(View.generateViewId());
-		playOnlineButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		playOnlineButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		playOnlineButton.setOnClickListener(this);
 		playOnlineButton.setX(midX);
 		playOnlineButton.setY(startButton.getY());
@@ -282,7 +280,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		onePlayerButton.setTextColor(Color.WHITE);
 		onePlayerButton.setText(R.string.one_player);
 		onePlayerButton.setId(View.generateViewId());
-		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		onePlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		onePlayerButton.setOnClickListener(this);
 		onePlayerButton.setX(midX);
 		onePlayerButton.setY(shopButton.getY());
@@ -293,7 +291,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		twoPlayerButton.setTextColor(Color.WHITE);
 		twoPlayerButton.setText(R.string.two_player);
 		twoPlayerButton.setId(View.generateViewId());
-		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		twoPlayerButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		twoPlayerButton.setOnClickListener(this);
 		twoPlayerButton.setX(midX);
 		twoPlayerButton.setY(helpButton.getY());
@@ -304,7 +302,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		backButton.setTextColor(Color.WHITE);
 		backButton.setText(R.string.back);
 		backButton.setId(View.generateViewId());
-		backButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		backButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		backButton.setOnClickListener(this);
 		backButton.setX(midX);
 		backButton.setY(settingsButton.getY());
@@ -318,7 +316,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Sets up loading text (shown when BoardActivity is loading)
 		loading = new TextView(this);
 		loading.setId(View.generateViewId());
-		loading.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, titleButtonHeight));
+		loading.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
 		loading.setOnClickListener(this);
 		loading.setGravity(Gravity.CENTER);
 		loading.setTextColor(Color.BLACK);
@@ -995,10 +993,12 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		buttons.setMotionEventSplittingEnabled(false);
 
 		// Set up button for changing avatars
-		TextView setAvatarButton = new AutofitTextView(this);
+		Button setAvatarButton = new Button(this);
+		setAvatarButton.setId(View.generateViewId());
 		setAvatarButton.setBackgroundResource(R.drawable.titlebutton);
-		setAvatarButton.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 2));
+		setAvatarButton.setTextColor(Color.WHITE);
 		setAvatarButton.setText(R.string.change);
+		setAvatarButton.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2));
 		setAvatarButton.setGravity(Gravity.CENTER);
 		setAvatarButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -1009,17 +1009,19 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 		// Create spaces in between buttons
 		Space space1 = new Space(this);
-		space1.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 1));
+		space1.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 		Space space2 = new Space(this);
-		space2.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 1));
+		space2.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 		Space space3 = new Space(this);
-		space3.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 1));
+		space3.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
 		// Set up button for buying avatars
-		TextView buyAvatarButton = new AutofitTextView(this);
+		Button buyAvatarButton = new Button(this);
+		buyAvatarButton.setId(View.generateViewId());
 		buyAvatarButton.setBackgroundResource(R.drawable.titlebutton);
-		buyAvatarButton.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 2));
+		buyAvatarButton.setTextColor(Color.WHITE);
 		buyAvatarButton.setText(R.string.buy);
+		buyAvatarButton.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2));
 		buyAvatarButton.setGravity(Gravity.CENTER);
 		buyAvatarButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -1120,7 +1122,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			sealAnim.start();
 
 			Space space1 = new Space(this);
-			space1.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 1));
+			space1.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 1));
 			rowItem.addView(space1);
 
 			// Set up buy button for this avatar
@@ -1128,7 +1130,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			buyButton.setBackgroundResource(R.drawable.titlebutton);
 			String buyText = Shop.Instance.getCost(s) + " Coin(s)";
 			buyButton.setText(buyText);
-			buyButton.setLayoutParams(new LinearLayout.LayoutParams(0, height / 12, 6));
+			buyButton.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 6));
 			rowItem.addView(buyButton);
 			buyButton.setOnClickListener(new OnClickListener() {
 				@Override
@@ -1154,7 +1156,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			});
 
 			Space space2 = new Space(this);
-			space2.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 1));
+			space2.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 1));
 			rowItem.addView(space2);
 
 			// Add the row to the list of avatars to buy
@@ -1216,20 +1218,20 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Create player 1 text
 		TextView player1 = new TextView(this);
 		player1.setText(R.string.player1);
-		player1.setLayoutParams(new LinearLayout.LayoutParams(0, height/20, 2));
+		player1.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 2));
 		player1.setTextSize(20f);
 		player1.setGravity(Gravity.CENTER);
 		players.addView(player1);
 
 		// Create space in between player texts
 		Space space = new Space(this);
-		space.setLayoutParams(new LinearLayout.LayoutParams(0, height/20, 1));
+		space.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 1));
 		players.addView(space);
 
 		// Create player 2 text
 		TextView player2 = new TextView(this);
 		player2.setText(R.string.player2);
-		player2.setLayoutParams(new LinearLayout.LayoutParams(0, height/20, 2));
+		player2.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 2));
 		player2.setTextSize(20f);
 		player2.setGravity(Gravity.CENTER);
 		players.addView(player2);
@@ -1253,7 +1255,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		firstImage = new ImageView(this);
 		firstImage.setId(View.generateViewId());
 		firstImage.setBackgroundResource(player_id[0]);
-		firstImage.setLayoutParams(new LinearLayout.LayoutParams(0, height/5, 2));
+		firstImage.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 2));
 		firstImage.setOnClickListener(this);
 		icons.addView(firstImage);
 
@@ -1263,7 +1265,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		switchButton.setBackgroundResource(R.drawable.titlebutton);
 		switchButton.setTextColor(Color.WHITE);
 		switchButton.setText(R.string.swap);
-		switchButton.setLayoutParams(new LinearLayout.LayoutParams(0, height/12, 1));
+		switchButton.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 1));
 		switchButton.setOnClickListener(this);
 		icons.addView(switchButton);
 
@@ -1271,7 +1273,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		secondImage = new ImageView(this);
 		secondImage.setId(View.generateViewId());
 		secondImage.setBackgroundResource(player_id[1]);
-		secondImage.setLayoutParams(new LinearLayout.LayoutParams(0, height/5, 2));
+		secondImage.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 2));
 		secondImage.setOnClickListener(this);
 		icons.addView(secondImage);
 

@@ -114,6 +114,7 @@ public class OnlineActivity extends GameActivity
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
 
+	Context context = this;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

@@ -1,20 +1,14 @@
 package com.jeffreychan.yutnori;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -71,7 +65,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 
 	Move currentMoveType;
 
-	Context context = this;
 	Board board = new Board();
 	Player[] players = new Player[2];
 	Piece currentPiece;
@@ -355,7 +348,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			spaceSize = (width - 5 * rollSize - padding)/4.0;
 		}
 		for (int i = 0; i < 5; i++) {
-			rollSlot[i] = new ImageView(context);
+			rollSlot[i] = new ImageView(this);
 			rollSlot[i].setId(View.generateViewId());
 			rollSlot[i].setLayoutParams(new RelativeLayout.LayoutParams((int) rollSize, (int) rollSize));
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
@@ -365,7 +358,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		}
 
 		//Set up TextView for guiding player
-		tips = new AutoResizeTextView(context);
+		tips = new AutoResizeTextView(this);
 		tips.setId(View.generateViewId());
 		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height / 20.0)));
 		tips.setY(heightOffset + (int) (height * 7.7 / 10.0));
@@ -379,7 +372,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		int iconSize = (int) ((width/2 - padding - 2 * space)/4.0);
 		for (int i = 0; i < 2; i++) {
 			// ----------------------------------------------------------Player Logo
-			playerLogo[i] = new ImageView(context);
+			playerLogo[i] = new ImageView(this);
 			playerLogo[i].setId(View.generateViewId());
 			playerLogo[i].setLayoutParams(new RelativeLayout.LayoutParams(iconSize, iconSize));
 
@@ -398,7 +391,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (i == 0){
-					playerOffBoardImages[i][j] = new ImageView(context);
+					playerOffBoardImages[i][j] = new ImageView(this);
 					playerOffBoardImages[i][j].setId(View.generateViewId());
 					playerOffBoardImages[i][j].setLayoutParams(new RelativeLayout.LayoutParams(miniIconSize, miniIconSize));
 					playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][0]);
@@ -407,7 +400,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 					rl.addView(playerOffBoardImages[i][j]);
 				}
 				else {
-					playerOffBoardImages[i][3-j] = new ImageView(context);
+					playerOffBoardImages[i][3-j] = new ImageView(this);
 					playerOffBoardImages[i][3-j].setId(View.generateViewId());
 					playerOffBoardImages[i][3-j].setLayoutParams(new RelativeLayout.LayoutParams(miniIconSize, miniIconSize));
 					playerOffBoardImages[i][3-j].setBackgroundResource(avatarIds[i][0]);
@@ -756,7 +749,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	public void onClick(View v) {}
 
 	public void loadAvatars(){
-		String[] s = Shop.Instance.getAnimals(context);
+		String[] s = Shop.Instance.getAnimals(this);
 		for (int i = 0; i < 2; i++) {
 			avatarIds[i] = Shop.Instance.getImageArray(s[i]);
 			playerTips[i] = "Press any moving " + s[i].toLowerCase();
