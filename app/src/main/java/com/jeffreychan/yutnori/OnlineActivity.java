@@ -83,7 +83,7 @@ import java.util.Set;
  *
  * @author Bruno Oliveira (btco), 2013-04-26
  */
-public class OnlineActivity extends Activity
+public class OnlineActivity extends GameActivity
 		implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
 		View.OnClickListener, RealTimeMessageReceivedListener,
 		RoomStatusUpdateListener, RoomUpdateListener, OnInvitationReceivedListener {
@@ -92,29 +92,7 @@ public class OnlineActivity extends Activity
      * API INTEGRATION SECTION. This section contains the code that integrates
      * the game with the Google Play game services API.
      */
-
 	final static String TAG = "OnlineActivity";
-
-	// Request codes for the UIs that we show with startActivityForResult:
-	final static int RC_SELECT_PLAYERS = 10000;
-	final static int RC_INVITATION_INBOX = 10001;
-	final static int RC_WAITING_ROOM = 10002;
-
-	// Request code used to invoke sign in user interactions.
-	private static final int RC_SIGN_IN = 9001;
-
-	// Client used to interact with Google APIs.
-	private GoogleApiClient client;
-
-	// Are we currently resolving a connection failure?
-	private boolean mResolvingConnectionFailure = false;
-
-	// Has the user clicked the sign-in button?
-	private boolean mSignInClicked = false;
-
-	// Set to true to automatically start the sign in flow when the Activity starts.
-	// Set to false to require the user to click the button in order to sign in.
-	private boolean mAutoStartSignInFlow = true;
 
 	// Room ID where the currently active game is taking place; null if we're
 	// not playing.
@@ -136,92 +114,27 @@ public class OnlineActivity extends Activity
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
 
-	int mpPos;                  // Current position in the song (Updates when the activity is paused)
-	private MediaPlayer mp;
-	private final static int MAX_VOLUME = 100;
-	// Used to access stored information on device
-	SharedPreferences prefs;
-	boolean soundOn = true;
-	Context context = this;
-	float heightOffset;
-	ImageView title;
-	RelativeLayout rl;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.AppTheme);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(R.layout.online);
 
-		mpPos = getIntent().getExtras().getInt("Song");
-
-		// Set up GoogleApiClient
-		client = new GoogleApiClient.Builder(this)
-				.addApi(Games.API)
-				.addScope(Games.SCOPE_GAMES)
-				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this)
-				.build();
-
-		// Create media player for background song
-		mp = MediaPlayer.create(this, R.raw.song);
-		mp.setLooping(true);
-		mp.seekTo(mpPos);
-
-		// Formula to modify volume from https://stackoverflow.com/questions/5215459/android-mediaplayer-setvolume-function
-		int soundVolume = 75;
-		final float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
-		mp.setVolume(volume, volume);
-
-		// Grab saved option for sound on/off
-		prefs = context.getSharedPreferences("sounds", Context.MODE_PRIVATE);
-		int savedSoundOption = prefs.getInt("background", 1);
-		if (savedSoundOption == 0) {
-			soundOn = false;
-		}
-		else {
-			mp.start();
-			soundOn = true;
-		}
-
-		// Get the view of the entire layout
-		rl = findViewById(R.id.rl);
-
-		// Get screen size and adjust based on ad size
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		int width = size.x;
-		int height = size.y - AdSize.SMART_BANNER.getHeightInPixels(this);
-		heightOffset = (float) (height/20.0);
-
-		// Set up ad at bottom of screen
-		Handler handler = new Handler();
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				AdView mAdView = findViewById(R.id.ad_view);
-				AdRequest adRequest = new AdRequest.Builder()
-						.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-						.build();
-				mAdView.loadAd(adRequest);
-			}
-		});
-
-		// Create title image
-//		title = new ImageView(this);
-//		title.setLayoutParams(new RelativeLayout.LayoutParams((int) (height*4.0/10.0), (int) (height*3.0/10.0)));
-//		title.setBackgroundResource(R.drawable.yut);
-//		title.setX((int) (width/2.0 - height*2.0/10.0));
-//		title.setY((int) (height/10.0));
-//		rl.addView(title);
+		// Hide the board until the game starts
+		rl.setVisibility(View.INVISIBLE);
 
 		// set up a click listener for everything we care about
 		for (int id : CLICKABLES) {
 			findViewById(id).setOnClickListener(this);
 		}
+	}
+
+	/*
+	 * Returns the layout for this activity
+	 */
+	@Override
+	protected int getLayoutId(){
+		return R.layout.online;
 	}
 
 	@Override
@@ -382,31 +295,6 @@ public class OnlineActivity extends Activity
 		Games.RealTimeMultiplayer.join(client, roomConfigBuilder.build());
 	}
 
-	/*
- * If the activity is placed in the background, save the current position of the song
- */
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mp.isPlaying()) {
-			mp.pause();
-			mpPos = mp.getCurrentPosition();
-		}
-	}
-
-	/*
-	 * When this activity resumes, return to the saved position in the song
-	 */
-	@Override
-	public void onResume() {
-		super.onResume();
-
-		if (soundOn) {
-			mp.seekTo(mpPos);
-			mp.start();
-		}
-	}
-
 	// Activity is going to the background. We have to leave the current room.
 	@Override
 	public void onStop() {
@@ -424,11 +312,6 @@ public class OnlineActivity extends Activity
 			switchToScreen(R.id.screen_sign_in);
 		}
 		super.onStop();
-
-		if (mp.isPlaying()) {
-			mp.stop();
-			mp.release();
-		}
 	}
 
 	// Activity just got to the foreground. We switch to the wait screen because we will now
@@ -558,31 +441,6 @@ public class OnlineActivity extends Activity
 		}
 		switchToMainScreen();
 
-	}
-
-	@Override
-	public void onConnectionSuspended(int i) {
-		Log.d(TAG, "onConnectionSuspended() called. Trying to reconnect.");
-		client.connect();
-	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
-		Log.d(TAG, "onConnectionFailed() called, result: " + connectionResult);
-
-		if (mResolvingConnectionFailure) {
-			Log.d(TAG, "onConnectionFailed() ignoring connection failure; already resolving.");
-			return;
-		}
-
-		if (mSignInClicked || mAutoStartSignInFlow) {
-			mAutoStartSignInFlow = false;
-			mSignInClicked = false;
-			mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, client,
-					connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
-		}
-
-		switchToScreen(R.id.screen_sign_in);
 	}
 
 	// Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
