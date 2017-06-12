@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="app_name">Yut</string>
-	<string name="loading">Loading&#8230;</string>
-	<string name="computer">Computer is making a move&#8230;</string>
-	<string name="action_settings">Settings</string>
-	<string name="title_activity_main">MainActivity</string>
-	<string name="sticks">Stick animation</string>
-	<string name="rollSlot">Slot displaying roll</string>
-	<string name="topBar">Top Bar for Player 1</string>
-	<string name="bottomBar">Bottom Bar for Player 2</string>
-	<string name="seal">Seal</string>
-	<string name="penguin">Penguin</string>
-	<string name="player1">Player 1</string>
-	<string name="player2">Player 2</string>
-	<string name="seal_icon">Seal Icon</string>
-	<string name="penguin_icon">Penguin Icon</string>
-	<string name="finish">Finish Button</string>
-	<string name="soon">Coming Soon!</string>
+    <string name="app_name">Yut</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="computer">Computer is making a move&#8230;</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="sticks">Stick animation</string>
+    <string name="rollSlot">Slot displaying roll</string>
+    <string name="topBar">Top Bar for Player 1</string>
+    <string name="bottomBar">Bottom Bar for Player 2</string>
+    <string name="seal">Seal</string>
+    <string name="penguin">Penguin</string>
+    <string name="player1">Player 1</string>
+    <string name="player2">Player 2</string>
+    <string name="seal_icon">Seal Icon</string>
+    <string name="penguin_icon">Penguin Icon</string>
+    <string name="finish">Finish Button</string>
+    <string name="soon">Coming Soon!</string>
     <string name="back">Back</string>
     <string name="twenty">20 Coins</string>
-	<string name="future">Check back in the future for new avatars!</string>
-	<string name="set_avatar">Select a different avatar from the drop down menu or press the arrow button to swap the current avatars</string>
-	<string name="change">Change</string>
-	<string name="buy">Buy</string>
-	<string name="welcome">Welcome to the Avatar Shop!</string>
-	<string name="spend">Spend your coins from playing Yut to buy new avatars!</string>
-	<string name="click_me">Press me!</string>
-	<string name="click_yellow">Press a yellow tile to move</string>
-	<string name="click_finish">Press finish to complete current piece(s)</string>
-	<string name="signin_failure">Unable to sign in</string>
-	<string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="future">Check back in the future for new avatars!</string>
+    <string name="set_avatar">Select a different avatar from the drop down menu or press the arrow button to swap the current avatars</string>
+    <string name="change">Change</string>
+    <string name="buy">Buy</string>
+    <string name="welcome">Welcome to the Avatar Shop!</string>
+    <string name="spend">Spend your coins from playing Yut to buy new avatars!</string>
+    <string name="click_me">Press me!</string>
+    <string name="click_yellow">Press a yellow tile to move</string>
+    <string name="click_finish">Press finish to complete current piece(s)</string>
+    <string name="signin_failure">Unable to sign in</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="online_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
     <string name="guide1"><u>OBJECTIVE</u>\n\nThe first player to move all 4 of his or her pieces around the board wins.\n\n<u>ROLL PHASE</u>\n\nDuring your turn, you will be prompted to throw the sticks with the roll button.\n</string>
     <string name="guide2">If you roll a 4 or 5, you get to roll again. In addition, if you land on an opponent\'s piece, you get to roll again.\n\n<u>MOVE PHASE</u>\n\nYour possible moves are shown in the 5 circles near the bottom.\n</string>
@@ -50,26 +51,26 @@
         Edward Kiewra
     </string>
 
-	<string name="sign_out">Sign Out</string>
-	<string name="match_instructions">Type in a new word for the data in this game, then hit done.</string>
-	<string name="quick_match">Quick match</string>
-	<string name="done">Done</string>
-	<string name="leave">Leave</string>
-	<string name="cancel">Cancel</string>
-	<string name="welcome_to_our_skeleton_app_">Welcome to our skeleton app!</string>
-	<string name="check_games">Check games</string>
-	<string name="start_match">Start Match</string>
-	<string name="turn_counter">Turn counter</string>
-	<string name="signin_other_error">There was an issue with sign in.  Please try again later.</string>
-	<string name="hello_world">Hello world!</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="match_instructions">Type in a new word for the data in this game, then hit done.</string>
+    <string name="quick_match">Quick match</string>
+    <string name="done">Done</string>
+    <string name="leave">Leave</string>
+    <string name="cancel">Cancel</string>
+    <string name="welcome_to_our_skeleton_app_">Welcome to our skeleton app!</string>
+    <string name="check_games">Check games</string>
+    <string name="start_match">Start Match</string>
+    <string name="turn_counter">Turn counter</string>
+    <string name="signin_other_error">There was an issue with sign in.  Please try again later.</string>
+    <string name="hello_world">Hello world!</string>
 
-	<string name="status_multiplayer_error_not_trusted_tester">Anyone you invite must be a trusted tester</string>
-	<string name="match_error_already_rematched">This rematch has already been started!</string>
-	<string name="client_reconnect_required">Games client reconnect required</string>
-	<string name="network_error_operation_failed">Network error: Operation failed</string>
-	<string name="internal_error">Internal error</string>
-	<string name="unexpected_status">Unexpected status</string>
-	<string name="match_error_inactive_match">This match is inactive.</string>
-	<string name='match_error_locally_modified'>This match has locally-modified data.  This operation cannot be performed until the match is sent to the server.</string>
+    <string name="status_multiplayer_error_not_trusted_tester">Anyone you invite must be a trusted tester</string>
+    <string name="match_error_already_rematched">This rematch has already been started!</string>
+    <string name="client_reconnect_required">Games client reconnect required</string>
+    <string name="network_error_operation_failed">Network error: Operation failed</string>
+    <string name="internal_error">Internal error</string>
+    <string name="unexpected_status">Unexpected status</string>
+    <string name="match_error_inactive_match">This match is inactive.</string>
+    <string name='match_error_locally_modified'>This match has locally-modified data.  This operation cannot be performed until the match is sent to the server.</string>
 
 </resources>
