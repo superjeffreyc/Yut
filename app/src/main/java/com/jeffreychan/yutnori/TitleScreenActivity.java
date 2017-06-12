@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatchConfig;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.util.ArrayList;
@@ -675,20 +676,14 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 			final boolean isOnePlayer = (v.getId() == onePlayerButton.getId());
 
-			Handler handler = new Handler();
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					Intent intent = new Intent(context, BoardActivity.class);
-					intent.putExtra("Computer", isOnePlayer);
-					if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
-					else intent.putExtra("SignedIn", "Disconnected");
-					intent.putExtra("Song", mp.getCurrentPosition());
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-					startActivity(intent);
-					finish();
-				}
-			});
+			Intent intent = new Intent(context, BoardActivity.class);
+			intent.putExtra("Computer", isOnePlayer);
+			if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
+			else intent.putExtra("SignedIn", "Disconnected");
+			intent.putExtra("Song", mp.getCurrentPosition());
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			startActivity(intent);
+			finish();
 		}
 		else if (v.getId() == startButton.getId()){
 			showModeButtons();  // start animation of right to left
@@ -835,8 +830,19 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			adb.show();
 		}
 		else if (v.getId() == playOnlineButton.getId()){
-			Toast comingSoon = Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT);
-			comingSoon.show();
+
+			// Make sure the user is signed in
+			if (client != null && client.isConnected()) {
+				Intent intent = new Intent(context, OnlineActivity.class);
+				intent.putExtra("Song", mp.getCurrentPosition());
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(intent);
+				finish();
+			}
+			else {
+				Toast t = Toast.makeText(getApplicationContext(), "You must be signed in to Google to play online.", Toast.LENGTH_SHORT);
+				t.show();
+			}
 		}
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);

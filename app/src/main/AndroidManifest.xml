@@ -22,13 +22,20 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.jeffreychan.yutnori.BoardActivity"
+            android:name=".BoardActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait"
+            android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name=".OnlineActivity"
             android:launchMode="singleTask"
             android:theme="@style/SplashTheme"
             android:screenOrientation="portrait"
