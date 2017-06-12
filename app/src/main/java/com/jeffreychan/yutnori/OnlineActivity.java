@@ -21,7 +21,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -126,7 +125,6 @@ public class OnlineActivity extends GameActivity
 		switch (v.getId()) {
 			case R.id.button_sign_in:
 				// start the sign-in flow
-				Log.d(TAG, "Sign-in button clicked");
 				mSignInClicked = true;
 				client.connect();
 				break;
@@ -166,7 +164,6 @@ public class OnlineActivity extends GameActivity
 				// we got the result from the "waiting room" UI.
 				if (responseCode == Activity.RESULT_OK) {
 					// ready to start playing
-					Log.d(TAG, "Starting game (waiting room returned OK).");
 					startGame(true);
 				} else if (responseCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
 					// player indicated that they want to leave the room
@@ -179,8 +176,6 @@ public class OnlineActivity extends GameActivity
 				}
 				break;
 			case RC_SIGN_IN:
-				Log.d(TAG, "onActivityResult with requestCode == RC_SIGN_IN, responseCode="
-						+ responseCode + ", intent=" + intent);
 				mSignInClicked = false;
 				mResolvingConnectionFailure = false;
 				if (responseCode == RESULT_OK) {
@@ -196,8 +191,6 @@ public class OnlineActivity extends GameActivity
 	// Activity is going to the background. We have to leave the current room.
 	@Override
 	public void onStop() {
-		Log.d(TAG, "**** got onStop");
-
 		// if we're in a room, leave it.
 		leaveRoom();
 
@@ -221,12 +214,8 @@ public class OnlineActivity extends GameActivity
 		if (client == null) {
 			switchToScreen(R.id.screen_sign_in);
 		} else if (!client.isConnected()) {
-			Log.d(TAG,"Connecting client.");
 			switchToScreen(R.id.screen_wait);
 			client.connect();
-		} else {
-			Log.w(TAG,
-					"GameHelper: client was already connected on onStart()");
 		}
 		super.onStart();
 	}
@@ -263,7 +252,6 @@ public class OnlineActivity extends GameActivity
 
 	// Leave the room.
 	void leaveRoom() {
-		Log.d(TAG, "Leaving room.");
 		mSecondsLeft = 0;
 		stopKeepingScreenOn();
 		if (mRoomId != null) {
@@ -295,7 +283,6 @@ public class OnlineActivity extends GameActivity
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
-		Log.d(TAG, "onConnected() called. Sign in successful!");
 		switchToMainScreen();
 	}
 
@@ -303,8 +290,6 @@ public class OnlineActivity extends GameActivity
 	// is connected yet).
 	@Override
 	public void onConnectedToRoom(Room room) {
-		Log.d(TAG, "onConnectedToRoom.");
-
 		//get participants and my ID:
 		mParticipants = room.getParticipants();
 		mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(client));
@@ -312,11 +297,6 @@ public class OnlineActivity extends GameActivity
 		// save room ID if its not initialized in onRoomCreated() so we can leave cleanly before the game starts.
 		if(mRoomId==null)
 			mRoomId = room.getRoomId();
-
-		// print out the list of participants (for debug purposes)
-		Log.d(TAG, "Room ID: " + mRoomId);
-		Log.d(TAG, "My ID " + mMyId);
-		Log.d(TAG, "<< CONNECTED TO ROOM>>");
 	}
 
 	// Called when we've successfully left the room (this happens a result of voluntarily leaving
@@ -324,7 +304,6 @@ public class OnlineActivity extends GameActivity
 	@Override
 	public void onLeftRoom(int statusCode, String roomId) {
 		// we have left the room; return to main screen.
-		Log.d(TAG, "onLeftRoom, code " + statusCode);
 		switchToMainScreen();
 	}
 
@@ -344,9 +323,7 @@ public class OnlineActivity extends GameActivity
 	// Called when room has been created
 	@Override
 	public void onRoomCreated(int statusCode, Room room) {
-		Log.d(TAG, "onRoomCreated(" + statusCode + ", " + room + ")");
 		if (statusCode != GamesStatusCodes.STATUS_OK) {
-			Log.e(TAG, "*** Error: onRoomCreated, status " + statusCode);
 			showGameError();
 			return;
 		}
@@ -361,9 +338,7 @@ public class OnlineActivity extends GameActivity
 	// Called when room is fully connected.
 	@Override
 	public void onRoomConnected(int statusCode, Room room) {
-		Log.d(TAG, "onRoomConnected(" + statusCode + ", " + room + ")");
 		if (statusCode != GamesStatusCodes.STATUS_OK) {
-			Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
 			showGameError();
 			return;
 		}
@@ -372,9 +347,7 @@ public class OnlineActivity extends GameActivity
 
 	@Override
 	public void onJoinedRoom(int statusCode, Room room) {
-		Log.d(TAG, "onJoinedRoom(" + statusCode + ", " + room + ")");
 		if (statusCode != GamesStatusCodes.STATUS_OK) {
-			Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
 			showGameError();
 			return;
 		}
@@ -533,7 +506,6 @@ public class OnlineActivity extends GameActivity
 	public void onRealTimeMessageReceived(RealTimeMessage rtm) {
 		byte[] buf = rtm.getMessageData();
 		String sender = rtm.getSenderParticipantId();
-		Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
 
 		if (buf[0] == 'F' || buf[0] == 'U') {
 			// score update.
