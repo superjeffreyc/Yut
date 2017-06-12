@@ -196,7 +196,7 @@ public class BoardActivity extends Activity implements OnClickListener, GoogleAp
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				AdView mAdView = (AdView) findViewById(R.id.ad_view);
+				AdView mAdView = findViewById(R.id.ad_view);
 				AdRequest adRequest = new AdRequest.Builder()
 						.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 						.build();
