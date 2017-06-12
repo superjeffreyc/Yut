@@ -31,8 +31,8 @@
     <color name="PopupTextColor">#ffffff</color>
     <color name="ButtonTextColor">#ffffff</color>
     <color name="BlurbColor">#a0a0a0</color>
-    <color name="SignOutButtonBackground">#e0e0e0</color>
-    <color name="SignOutButtonTextColor">#404040</color>
+    <color name="BackButtonBackground">#e0e0e0</color>
+    <color name="BackButtonTextColor">#404040</color>
 
     <dimen name="TitleSize">30sp</dimen>
 
@@ -121,9 +121,10 @@
         <item name="android:textColor">@color/AccentColor</item>
     </style>
 
-    <style name="SignOutButton" parent="@style/GameButton">
-        <item name="android:background">@color/SignOutButtonBackground</item>
-        <item name="android:textColor">@color/SignOutButtonTextColor</item>
+    <style name="BackButton" parent="@style/GameButton">
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:background">@color/BackButtonBackground</item>
+        <item name="android:textColor">@color/BackButtonTextColor</item>
     </style>
 
     <style name="FigureView">

@@ -69,7 +69,7 @@
         <TextView style="@style/MainScreenButtonBlurb"
                   android:text="@string/quick_game_explanation" />
         <Button android:id="@+id/backButton"
-                style="@style/SignOutButton"
+                style="@style/BackButton"
                 android:onClick="exit"
                 android:text="@string/back" />
         <TextView style="@style/MainScreenButtonBlurb"
