@@ -75,7 +75,7 @@ public class Shop {
 				R.drawable.rabbit_icon
 		});
 
-		addAvatar("Bird", 20, new Integer[]{
+		addAvatar("Bird", 10, new Integer[]{
 				R.drawable.bird1jump1,
 				R.drawable.bird_animation1,
 				R.drawable.bird_animation2,
@@ -145,9 +145,12 @@ public class Shop {
 		}
 
 		// debug
+//		editor.putInt("Rabbit", 0);
 //		editor.putInt("Bird", 0);
-// 		editor.putInt("Polar-Bear", 0);
-//		editor.putInt("coins", 100);
+//		editor.putInt("Polar-Bear", 0);
+//		editor.putInt("Leopard", 0);
+//		editor.putInt("Husky", 0);
+//		editor.putInt("coins", 250);
 //		editor.putString("animals", "Seal Penguin");
 //		playerAnimals = "Seal Penguin";
 //		lastSavedAnimals = playerAnimals;
