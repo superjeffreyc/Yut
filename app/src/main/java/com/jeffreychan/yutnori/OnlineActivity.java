@@ -189,7 +189,7 @@ public class OnlineActivity extends Activity
 
 
 		// Setup back button
-		findViewById(R.id.backButton).setOnClickListener(this);
+//		findViewById(R.id.backButton).setOnClickListener(this);
 
 		// Setup signin and signout buttons
 //		findViewById(R.id.sign_out_button).setOnClickListener(this);
@@ -456,9 +456,11 @@ public class OnlineActivity extends Activity
 		findViewById(R.id.login_layout).setVisibility(View.GONE);
 
 		if (isDoingTurn) {
+			title.setVisibility(View.INVISIBLE);
 			findViewById(R.id.matchup_layout).setVisibility(View.GONE);
 			findViewById(R.id.gameplay_layout).setVisibility(View.VISIBLE);
 		} else {
+			title.setVisibility(View.VISIBLE);
 			findViewById(R.id.matchup_layout).setVisibility(View.VISIBLE);
 			findViewById(R.id.gameplay_layout).setVisibility(View.GONE);
 		}
@@ -912,4 +914,9 @@ public class OnlineActivity extends Activity
 		startActivity(intent);
 		finish();
 	}
+
+	public void exit(View view) {
+		quit();
+	}
+
 }
