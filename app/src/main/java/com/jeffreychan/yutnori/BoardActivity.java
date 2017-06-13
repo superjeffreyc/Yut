@@ -273,6 +273,42 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 	}
 
 	/**
+	 * Highlight possible move locations for the currently selected piece.
+	 *
+	 * @param i The index of the piece to be moved
+	 */
+	protected void showPossibleTiles(int i){
+
+		hidePossibleTiles();
+
+		currentPiece = players[turn].pieces[i];
+		currentPieceImage = playerOnBoardImages[turn][i];
+
+		moveSet = players[turn].pieces[i].calculateMoveset(board.rollArray);
+		for (Integer[] move : moveSet) {
+			int location = move[0];
+
+			if (location == 32) finish.setVisibility(View.VISIBLE);
+			else if (location != -1) {
+				if (specialTiles.contains(location)){
+					tiles[location].setBackgroundResource(R.drawable.orangemarkerflash);
+				} else {
+					tiles[location].setBackgroundResource(R.drawable.bluemarkerflash);
+				}
+				tilesAnimation[location] = (AnimationDrawable) tiles[location].getBackground();
+				tilesAnimation[location].start();
+				isMarked[location] = true;
+			}
+		}
+
+		if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
+		else {
+			if (!isComputerPlaying) tips.setText(R.string.click_yellow);
+			else tips.setText(R.string.computer);
+		}
+	}
+
+	/**
 	 * If the user made a move (STACK, CAPTURE, or NORMAL),
 	 * prepare the board for another move or end the turn
 	 */
@@ -307,6 +343,15 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		else if (!board.rollEmpty() && isComputerPlaying && turn == 1) handleComputerMove();
 
 		capture = false;
+	}
+
+	/**
+	 * End the current player's turn
+	 */
+	protected void endTurn(){
+		board.endTurn();
+		prepareForNextTurn();
+		if (isComputerPlaying && turn == 1) handleComputerRoll();
 	}
 
 	/**
@@ -441,6 +486,34 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 
 		turnText.setText(text);
 		turnText.setVisibility(View.VISIBLE);
+	}
+
+	/**
+	 * Stop all tiles from flashing yellow and prompt user to select a piece
+	 */
+	protected void hidePossibleTiles() {
+
+		finish.setVisibility(View.INVISIBLE);
+
+		if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
+		else {
+			if (turn == 0) tips.setText(playerTips[0]);
+			else if (turn == 1 && !isComputerPlaying) tips.setText(playerTips[1]);
+		}
+
+		if (isComputerPlaying && turn == 1) {
+			tips.setText(R.string.computer);
+		}
+
+		for (int i = 0; i < MAX_TILES; i++) {
+			isMarked[i] = false;
+
+			if (!specialTiles.contains(i)) {
+				tiles[i].setBackgroundResource(R.drawable.blue_marker);
+			} else if (specialTiles.contains(i)) {
+				tiles[i].setBackgroundResource(R.drawable.orange_marker);
+			}
+		}
 	}
 
 	/**

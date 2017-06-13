@@ -74,18 +74,6 @@
                   android:text="@string/return_explanation" />
     </LinearLayout>
 
-    <!-- INVITATION POPUP -->
-    <LinearLayout
-        android:id="@+id/invitation_popup"
-        android:layout_above="@id/ad_view"
-        style="@style/InvPopup">
-
-        <TextView android:id="@+id/incoming_invitation_text" style="@style/InvPopupText" />
-        <Button android:id="@+id/button_accept_popup_invitation"
-                style="@style/InvPopupButton"
-                android:text="@string/accept_popup_invite" />
-    </LinearLayout>
-
     <!-- "PLEASE WAIT" SCREEN -->
     <LinearLayout
         android:id="@+id/screen_wait"
@@ -95,29 +83,7 @@
         <TextView style="@style/Blurb" android:text="@string/please_wait" />
     </LinearLayout>
 
-    <!-- GAMEPLAY SCREEN -->
-    <LinearLayout
-        android:id="@+id/screen_game"
-        android:layout_above="@id/ad_view"
-        style="@style/LLScreen">
-
-        <TextView android:id="@+id/instructions"
-                  style="@style/Instructions" android:text="@string/instructions" />
-        <TextView android:id="@+id/my_score" style="@style/ScoreDisplay" />
-        <Button android:id="@+id/button_click_me"
-                style="@style/GameButton"
-                android:text="@string/click_me"
-                android:layout_marginBottom="20dp" />
-        <TextView android:id="@+id/countdown" style="@style/FigureLabel" />
-
-        <LinearLayout style="@style/ScoresBox">
-            <TextView android:id="@+id/score0" style="@style/ScoreText" />
-            <TextView android:id="@+id/score1" style="@style/ScoreText" />
-            <TextView android:id="@+id/score2" style="@style/ScoreText" />
-            <TextView android:id="@+id/score3" style="@style/ScoreText" />
-        </LinearLayout>
-    </LinearLayout>
-
+    <!--Yut Gameplay-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -126,48 +92,48 @@
         android:layout_above="@id/ad_view"
         android:onClick="onClick" >
 
-    <!--Yut Gameplay-->
-    <LinearLayout
-        android:orientation="vertical"
-        android:id="@+id/board"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="40" >
 
-        <Space
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/board"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="5"/>
+            android:layout_height="match_parent"
+            android:weightSum="40" >
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="25"/>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="5"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:id="@+id/rollButton"
-            android:background="@drawable/rollflashanimation"
-            android:layout_weight="4"
-            android:layout_gravity="center"
-            android:clickable="true"
-            android:onClick="onClick"
-            />
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="25"/>
 
-        <Space
-            android:id="@+id/rollBar"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="4" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:id="@+id/rollButton"
+                android:background="@drawable/rollflashanimation"
+                android:layout_weight="4"
+                android:layout_gravity="center"
+                android:clickable="true"
+                android:onClick="onClick"
+                />
 
-        <Space
-            android:id="@+id/bottomBar"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2" />
+            <Space
+                android:id="@+id/rollBar"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4" />
 
-    </LinearLayout>
+            <Space
+                android:id="@+id/bottomBar"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 </RelativeLayout>

@@ -651,21 +651,51 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	}
 
 	private void signInClicked() {
-		mSignInClicked = true;
-		hasClickedSignIn = true;
-		client.connect();
+
+		// Make sure the user is not connected before trying to connect
+		if (!client.isConnected()) {
+			client.connect();
+		}
+		else {
+			signInStatus = "Sign Out Of Google";
+			return;
+		}
+
+		if (client.isConnected()){
+			mSignInClicked = true;
+			hasClickedSignIn = true;
+			signInStatus = "Sign Out Of Google";
+			Toast t = Toast.makeText(getApplicationContext(), "Successfully connected", Toast.LENGTH_SHORT);
+			t.show();
+		}
+		else {
+			Toast t = Toast.makeText(getApplicationContext(), "Failed to connect", Toast.LENGTH_SHORT);
+			t.show();
+		}
 	}
 
 	private void signOutClicked() {
-		mSignInClicked = false;
-		Games.signOut(client);
-		client.disconnect();
-		if (!client.isConnected()){
-			Toast savedToast = Toast.makeText(getApplicationContext(), "Successfully disconnected", Toast.LENGTH_SHORT);
-			savedToast.show();
+		if (client.isConnected()) {
+			mSignInClicked = false;
+			hasClickedSignIn = false;
+			Games.signOut(client);
+			client.disconnect();
+		}
+		else {
+			signInStatus = "Sign In To Google";
+			return;
 		}
 
-		signInStatus = "Sign In To Google";
+		if (!client.isConnected()){
+			signInStatus = "Sign In To Google";
+			Toast t = Toast.makeText(getApplicationContext(), "Successfully disconnected", Toast.LENGTH_SHORT);
+			t.show();
+		}
+		else {
+			Toast t = Toast.makeText(getApplicationContext(), "Failed to disconnect", Toast.LENGTH_SHORT);
+			t.show();
+		}
+
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode,

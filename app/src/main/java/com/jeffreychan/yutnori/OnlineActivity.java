@@ -19,7 +19,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -75,6 +78,8 @@ public class OnlineActivity extends GameActivity
      * the game with the Google Play game services API.
      */
 
+	int mCurScreen = -1;
+
 	// Room ID where the currently active game is taking place; null if we're
 	// not playing.
 	String mRoomId = null;
@@ -84,7 +89,7 @@ public class OnlineActivity extends GameActivity
 
 	// The participants in the currently active game
 	ArrayList<Participant> mParticipants = null;
-	ArrayList<String> participantIds = null;
+	ArrayList<String> participantIds = new ArrayList<>();
 
 	// My participant ID in the currently active game
 	String mMyId = null;
@@ -137,7 +142,7 @@ public class OnlineActivity extends GameActivity
 		}
 		else if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
 			handleRoll();
-			broadcastClick(Op.CLICK_ROLL_BUTTON, -1);
+			broadcastClick(Op.CLICK_ROLL_BUTTON, rollAmount);
 		}
 		else if (v.getId() == finish.getId()) {
 			movePiece(32, Move.NORMAL); // 32 = finish location
@@ -172,7 +177,7 @@ public class OnlineActivity extends GameActivity
 		rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
 		switchToScreen(R.id.screen_wait);
 		keepScreenOn();
-//		resetGameVars();
+		resetGameVars();
 		Games.RealTimeMultiplayer.create(client, rtmConfigBuilder.build());
 	}
 
@@ -245,7 +250,7 @@ public class OnlineActivity extends GameActivity
 	// Handle back key to make sure we cleanly leave a game if we are in the middle of one
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && mCurScreen == R.id.screen_game) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && mCurScreen == R.id.rl) {
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			TextView tv = new TextView(this);
 			tv.setPadding(0, 40, 0, 40);
@@ -364,20 +369,6 @@ public class OnlineActivity extends GameActivity
 			return;
 		}
 		updateRoom(room);
-
-		// Determine who goes first by sorting all the participant ids. Whoever is first goes first.
-		for (Participant p : mParticipants) {
-			participantIds.add(p.getParticipantId());
-		}
-		Collections.sort(participantIds);
-		if (mMyId.equals(participantIds.get(0))) {
-			turn = 0;
-			opponentId = participantIds.get(1);
-		}
-		else {
-			turn = 1;
-			opponentId = participantIds.get(0);
-		}
 	}
 
 	@Override
@@ -455,7 +446,31 @@ public class OnlineActivity extends GameActivity
 
 	// Start the gameplay phase of the game.
 	void startGame() {
-		switchToScreen(R.id.board);
+		switchToScreen(R.id.rl);
+
+		if (mParticipants == null) leaveRoom();
+
+		// Determine who goes first by sorting all the participant ids. Whoever is first goes first.
+		for (Participant p : mParticipants) {
+			participantIds.add(p.getParticipantId());
+		}
+		Collections.sort(participantIds);
+		if (mMyId.equals(participantIds.get(0))) {
+			turn = 0;
+			board.playerTurn = 0;
+			oppTurn = 1;
+			canRoll = true;
+			turnText.setText(R.string.your_turn);
+			opponentId = participantIds.get(1);
+		}
+		else {
+			turn = 1;
+			board.playerTurn = 1;
+			oppTurn = 0;
+			turnText.setText(R.string.opponent_turn);
+			canRoll = false;
+			opponentId = participantIds.get(0);
+		}
 	}
 
     /*
@@ -475,10 +490,10 @@ public class OnlineActivity extends GameActivity
 		// Get the view that the opponent clicked
 		byte[] arr = { buf[1], buf[2], buf[3], buf[4] };
 		ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
-		int viewId = wrapped.getInt();
+		int extra = wrapped.getInt();
 
 		if (buf[0] == Op.CLICK_ROLL_BUTTON) {
-			handleRoll();
+			handleRoll(extra);
 		}
 		else if (buf[0] == Op.CLICK_FINISH) {
 			movePiece(32, Move.NORMAL); // 32 = finish location
@@ -487,10 +502,10 @@ public class OnlineActivity extends GameActivity
 			showPossibleTiles(players[turn].findAvailablePiece());
 		}
 		else if (buf[0] == Op.CLICK_TILE){    // Activates on tile click
-			handleTileClick(findViewById(viewId));
+			handleTileClick(findViewById(extra));
 		}
 		else if (buf[0] == Op.CLICK_PLAYER){  // Activates on animal click; animal covers tile
-			handlePlayerClick(findViewById(viewId));
+			handlePlayerClick(findViewById(extra));
 		}
 		else if (buf[0] == Op.CLICK_EMPTY){
 			hidePossibleTiles();    // Cancel move by clicking anything else
@@ -530,6 +545,117 @@ public class OnlineActivity extends GameActivity
 		}
 	}
 
+	/**
+	 * Handles the determination of the amount rolled when the roll button is clicked
+	 * Decides what should happen next based on roll.
+	 * Ex: Rolling 4 or 5 allows the user to roll again. Rolling -1 with no pieces on the board ends the turn.
+	 *
+	 * Once the rolling phase is completed, prompt the user to make a move with an appropriate message
+	 */
+	protected void handleRoll(int rAmount){
+		rollAmount = rAmount;
+		rollButton.setVisibility(View.INVISIBLE);
+		turnText.setVisibility(View.INVISIBLE);
+
+		switch (rollAmount) {
+			case -1:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimationminus1);
+				break;
+			case 1:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation1);
+				break;
+			case 2:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation2);
+				break;
+			case 3:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation3);
+				break;
+			case 4:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation4);
+				break;
+			case 5:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation5);
+				break;
+			default:
+		}
+
+		fallingSticks = (AnimationDrawable) sticks.getBackground();
+		sticks.setVisibility(View.VISIBLE);
+		sticks.bringToFront();
+		fallingSticks.setVisible(true, false);
+		fallingSticks.stop();
+		fallingSticks.start();
+
+		// Wait until roll finishes before displaying roll value
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			public void run() {
+				updateRollArray(rollAmount);
+
+				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
+					rollSlotIndex++;
+					String text;
+					if (turn == 1) text = "Opponent Roll Again!";
+					else text = "Roll Again!";
+
+					turnText.setText(text);
+					turnText.setVisibility(View.VISIBLE);
+				}
+				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
+				else {
+					canRoll = false;
+				}
+			}
+		}, 990);
+
+		// Hide the sticks 1 second after the roll is shown
+		Handler handler2 = new Handler();
+		handler2.postDelayed(new Runnable() {
+			public void run() {
+
+				hideSticks();
+
+				if (isEndTurn) endTurn();
+				else if (canRoll) {
+					if (turn == 0) rollButton.setVisibility(View.VISIBLE);
+					else rollButton.setVisibility(View.INVISIBLE);
+				}
+				else {
+					isRollDone = true;
+
+					int posCount = 0;
+					for (int i : board.rollArray) {
+						if (i != 0 && i != -1) {
+							posCount++;
+							break;
+						}
+					}
+
+					tips.setVisibility(View.VISIBLE);
+
+					if (players[turn].getNumPieces() < 4 && posCount > 0) {
+						offBoardPiece.setVisibility(View.VISIBLE);
+						offBoardPieceAnimation.start();
+
+						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
+					} else if (players[turn].hasAllPiecesOnBoard()){
+						tips.setText(playerTips[turn]);
+					}
+
+					for (int j = 0; j < 4; j++){
+						playerAnimation[turn][j].stop();
+						playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+						playerAnimation[turn][j].start();
+					}
+
+					if (turn == 1) {
+						tips.setText(R.string.opponent);
+					}
+				}
+			}
+		}, 1990);
+	}
+
     /*
      * UI SECTION. Methods that implement the game's UI.
      */
@@ -537,15 +663,14 @@ public class OnlineActivity extends GameActivity
 	// This array lists everything that's clickable, so we can install click
 	// event handlers.
 	final static int[] CLICKABLES = {
-			R.id.button_quick_game, R.id.button_sign_in, R.id.button_click_me
+			R.id.button_quick_game, R.id.button_sign_in
 	};
 
 	// This array lists all the individual screens our game has.
 	final static int[] SCREENS = {
-			R.id.screen_game, R.id.screen_main, R.id.screen_sign_in,
+			R.id.screen_main, R.id.screen_sign_in,
 			R.id.screen_wait, R.id.rl
 	};
-	int mCurScreen = -1;
 
 	void switchToScreen(int screenId) {
 		// make the requested screen visible; hide all others.
@@ -553,20 +678,6 @@ public class OnlineActivity extends GameActivity
 			findViewById(id).setVisibility(screenId == id ? View.VISIBLE : View.GONE);
 		}
 		mCurScreen = screenId;
-
-		// should we show the invitation popup?
-		boolean showInvPopup;
-		if (mIncomingInvitationId == null) {
-			// no invitation, so no popup
-			showInvPopup = false;
-		} else if (mMultiplayer) {
-			// if in multiplayer, only show invitation on main screen
-			showInvPopup = (mCurScreen == R.id.screen_main);
-		} else {
-			// single-player: show on main screen and gameplay screen
-			showInvPopup = (mCurScreen == R.id.screen_main || mCurScreen == R.id.screen_game);
-		}
-		findViewById(R.id.invitation_popup).setVisibility(showInvPopup ? View.VISIBLE : View.GONE);
 	}
 
 	void switchToMainScreen() {
@@ -612,5 +723,87 @@ public class OnlineActivity extends GameActivity
 
 	public void exit(View view) {
 		quit();
+	}
+
+	/**
+	 * If the user made a move (STACK, CAPTURE, or NORMAL),
+	 * prepare the board for another move or end the turn
+	 */
+	protected void endMove(){
+
+		if (isGameOver) return;
+
+		if (players[turn].hasAllPiecesOnBoard() || capture){
+			offBoardPiece.setVisibility(View.INVISIBLE);
+			offBoardPieceAnimation.stop();
+			offBoardPieceAnimation.selectDrawable(0);
+		}
+
+		if (capture) {
+			String text;
+			if (turn == 1) text = "Opponent Roll Again!";
+			else text = "Roll Again!";
+
+			turnText.setText(text);
+			turnText.setVisibility(View.VISIBLE);
+			tips.setVisibility(View.INVISIBLE);
+
+			isRollDone = false;
+			canRoll = true;
+		}
+
+		hidePossibleTiles();
+		updateOffBoardImages();
+
+		if ((!capture && board.rollEmpty()) || (board.hasOnlyNegativeRoll() && players[turn].hasNoPiecesOnBoard())) endTurn();
+
+		capture = false;
+	}
+
+	/**
+	 * Displays an AlertDialog with the winner and asks if the user wants to play again.
+	 * Prevents buttons and text from appearing.
+	 */
+	protected void endGame(){
+
+		isGameOver = true;
+
+		Shop.Instance.addCoins(1);
+
+		updateOffBoardImages();
+		rollButton.setVisibility(View.INVISIBLE);
+		turnText.setVisibility(View.INVISIBLE);
+		tips.setVisibility(View.INVISIBLE);
+
+		AlertDialog.Builder adb = new AlertDialog.Builder(this);
+		TextView tv = new TextView(this);
+		tv.setPadding(0, 40, 0, 40);
+
+		// Display message notifying winner and amount of coins earned
+		String winner = "\nYou now have " + Shop.Instance.getCoins() + " coin(s)";
+		if (players[0].hasWon()) winner = "You win!\n\nYou have earned 1 coins!" + winner;
+		else winner = "Opponent wins!\n\nYou still earned 1 coin!" + winner;
+		tv.setText(winner);
+
+		tv.setTextSize(20f);
+		tv.setGravity(Gravity.CENTER_HORIZONTAL);
+		adb.setView(tv);
+		adb.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				leaveRoom();
+			}
+		});
+		adb.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				leaveRoom();
+				Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
+				startActivity(intent);
+			}
+		});
+		adb.show();
+	}
+
+	protected void resetGameVars() {
+
 	}
 }

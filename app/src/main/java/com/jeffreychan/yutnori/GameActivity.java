@@ -868,8 +868,11 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			}
 		}
 
-		if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
-		else tips.setText(R.string.click_yellow);
+		if (turn == 1) tips.setText(R.string.opponent);
+		else {
+			if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
+			else tips.setText(R.string.click_yellow);
+		}
 	}
 
 	/**
@@ -916,7 +919,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		order = board.calculatePath(currentPiece.getLocation(), dest, numMoves);
 	}
 
-	public void loadAvatars(){
+	protected void loadAvatars(){
 		String[] s = Shop.Instance.getAnimals(this);
 		for (int i = 0; i < 2; i++) {
 			avatarIds[i] = Shop.Instance.getImageArray(s[i]);
@@ -1176,11 +1179,8 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 
 		finish.setVisibility(View.INVISIBLE);
 
-		if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
-		else {
-			if (turn == 0) tips.setText(playerTips[0]);
-			else if (turn == 1) tips.setText(playerTips[1]);
-		}
+		if (players[0].hasNoPiecesOnBoard() && turn == 0) tips.setText(R.string.click_me);
+		else if (turn == 0) tips.setText(playerTips[0]);
 
 		for (int i = 0; i < MAX_TILES; i++) {
 			isMarked[i] = false;

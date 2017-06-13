@@ -33,7 +33,7 @@ public class Board {
 
 	public int[] rollArray = new int[5];    // Max number of rolls that can be stored is 5
 	int rollIndex = 0;                      // The index pointing to the first empty roll slot
-	int playerTurn = 0;                     // Current turn (0 = Player 1, 1 = Player 2)
+	public int playerTurn = 0;                     // Current turn (0 = Player 1, 1 = Player 2)
 
 	// These tiles must be handled differently. You cannot simply add moves to these tiles to calculate move locations.
 	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 15, 20, 21, 22, 23, 24, 25, 26, 27));
