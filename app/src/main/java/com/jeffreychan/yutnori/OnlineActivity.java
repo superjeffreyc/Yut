@@ -23,10 +23,12 @@ import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -92,11 +94,15 @@ public class OnlineActivity extends GameActivity
 	// Opponent participant ID in the currently active game
 	String opponentId = null;
 
+	SparseIntArray IDtoRID = new SparseIntArray();;
+	SparseIntArray RIDtoID = new SparseIntArray();;
+
+
 	/*
 	 * Message buffer for sending messages
 	 *
 	 * Byte 0 = Op
-	 * Bytes 1-4 = Op Specific. 0 otherwise.
+	 * Bytes 1-4 = An integer that is op specific. -1 if unused.
 	 */
 	byte[] mMsgBuf = new byte[5];
 
@@ -122,8 +128,8 @@ public class OnlineActivity extends GameActivity
 	@Override
 	public void onClick(View v) {
 
-		if (isGameOver) return;
-		if (turn == 1) return;  // not your turn
+		if (isGameOver && mCurScreen == R.id.rl) return;
+		if (turn == 1 && mCurScreen == R.id.rl) return;  // not your turn
 
 		if (v.getId() == R.id.button_sign_in) {
 			mSignInClicked = true;
@@ -146,11 +152,11 @@ public class OnlineActivity extends GameActivity
 		}
 		else if (tile_ids.contains(v.getId())){    // Activates on tile click
 			handleTileClick(v);
-			broadcastClick(Op.CLICK_TILE, v.getId());
+			broadcastClick(Op.CLICK_TILE, RIDtoID.get(v.getId()));
 		}
 		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
 			handlePlayerClick(v);
-			broadcastClick(Op.CLICK_PLAYER, v.getId());
+			broadcastClick(Op.CLICK_PLAYER, RIDtoID.get(v.getId()));
 		}
 		else {
 			hidePossibleTiles();    // Cancel move by clicking anything else
@@ -442,6 +448,9 @@ public class OnlineActivity extends GameActivity
 
 		if (mParticipants == null) leaveRoom();
 
+		// Clear previous IDs
+		participantIds.clear();
+
 		// Determine who goes first by sorting all the participant ids. Whoever is first goes first.
 		for (Participant p : mParticipants) {
 			participantIds.add(p.getParticipantId());
@@ -460,9 +469,28 @@ public class OnlineActivity extends GameActivity
 			board.playerTurn = 1;
 			oppTurn = 0;
 			turnText.setText(R.string.opponent_turn);
+			rollButton.setVisibility(View.INVISIBLE);
 			canRoll = false;
 			opponentId = participantIds.get(0);
 		}
+
+		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
+
+		if (turn == 1) {
+			bottomBar.setBackgroundResource(R.drawable.bar1);
+			bottomBar.setAlpha(1.0f);
+			topBar.setBackgroundResource(R.drawable.bar2);
+			topBar.setAlpha(0.25f);
+		} else {
+			topBar.setBackgroundResource(R.drawable.bar1);
+			topBar.setAlpha(1.0f);
+			bottomBar.setBackgroundResource(R.drawable.bar2);
+			bottomBar.setAlpha(0.25f);
+		}
+
+		// Set up dictionary of ID conversions
+		setupIDs();
+
 	}
 
     /*
@@ -494,10 +522,10 @@ public class OnlineActivity extends GameActivity
 			showPossibleTiles(players[turn].findAvailablePiece());
 		}
 		else if (buf[0] == Op.CLICK_TILE){    // Activates on tile click
-			handleTileClick(findViewById(extra));
+			handleTileClick(findViewById(IDtoRID.get(extra)));
 		}
 		else if (buf[0] == Op.CLICK_PLAYER){  // Activates on animal click; animal covers tile
-			handlePlayerClick(findViewById(extra));
+			handlePlayerClick(findViewById(IDtoRID.get(extra)));
 		}
 		else if (buf[0] == Op.CLICK_EMPTY){
 			hidePossibleTiles();    // Cancel move by clicking anything else
@@ -773,7 +801,7 @@ public class OnlineActivity extends GameActivity
 
 		// Display message notifying winner and amount of coins earned
 		String winner = "\nYou now have " + Shop.Instance.getCoins() + " coin(s)";
-		if (players[0].hasWon()) winner = "You win!\n\nYou have earned 1 coins!" + winner;
+		if (players[0].hasWon()) winner = "You win!\n\nYou have earned 1 coin!" + winner;
 		else winner = "Opponent wins!\n\nYou still earned 1 coin!" + winner;
 		tv.setText(winner);
 
@@ -801,21 +829,112 @@ public class OnlineActivity extends GameActivity
 
 		// Reset Board values
 		board.playerTurn = 0;
-		for (int i = 0; i < 5; i++) {
-			board.rollArray[i] = 0;
-		}
 		board.rollIndex = 0;
+		board.resetRollArray();
 
-		// Reset Player values
+		// Reset Player values and their pieces
 		players[0].reset();
 		players[1].reset();
 
-		// Reset Piece values
-		for (int i = 0; i < 4; i++) {
-			players[0].pieces[i].reset();
-			players[1].pieces[i].reset();
+		hidePossibleTiles();
+		updateOffBoardImages();
+
+		offBoardPiece.setVisibility(View.INVISIBLE);
+		offBoardPieceAnimation.stop();
+		offBoardPieceAnimation.selectDrawable(0);
+
+		tips.setVisibility(View.INVISIBLE);
+		tips.setText(playerTips[turn]);
+		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
+
+		if (turn == 1) {
+			bottomBar.setBackgroundResource(R.drawable.bar1);
+			bottomBar.setAlpha(1.0f);
+			topBar.setBackgroundResource(R.drawable.bar2);
+			topBar.setAlpha(0.25f);
+		} else {
+			topBar.setBackgroundResource(R.drawable.bar1);
+			topBar.setAlpha(1.0f);
+			bottomBar.setBackgroundResource(R.drawable.bar2);
+			bottomBar.setAlpha(0.25f);
 		}
 
-		updateOffBoardImages();
+		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
+
+		for (int i = 0; i < 5; i++) {
+			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+		}
+
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				playerAnimation[i][j].stop();
+				playerAnimation[i][j].selectDrawable(0);
+			}
+		}
+
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				players[i].pieces[j].setLocation(-1);
+				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
+				playerOnBoardImages[i][j].setX(-width);
+			}
+		}
+
+		rollSlotIndex = 0;
+		isRollDone = false;
+		canRoll = true;
+		isEndTurn = false;
+		isGameOver = false;
+		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
+
+		String text;
+		if (turn == 1) text = "Opponent's Turn";
+		else text = "Your Turn";
+
+		turnText.setText(text);
+		turnText.setVisibility(View.VISIBLE);
+	}
+
+	/*
+	 * Create mappings of agreed upon IDs to the IDs of the views
+	 */
+	protected void setupIDs() {
+
+		// Reset the dictionary of ID conversions
+		IDtoRID.clear();
+		RIDtoID.clear();
+
+		int ID = 0;
+		for(ImageView tile : tiles) {
+			IDtoRID.put(ID, tile.getId());
+			RIDtoID.put(tile.getId(), ID);
+			ID++;
+		}
+
+		// Make sure both clients have these view IDs in the same order
+		if (turn == 0) {
+			for (int i = 0; i < 4; i++) {
+				IDtoRID.put(ID, playerOnBoardImages[0][i].getId());
+				RIDtoID.put(playerOnBoardImages[0][i].getId(), ID);
+				ID++;
+			}
+			for (int i = 0; i < 4; i++) {
+				IDtoRID.put(ID, playerOnBoardImages[1][i].getId());
+				RIDtoID.put(playerOnBoardImages[1][i].getId(), ID);
+				ID++;
+			}
+		}
+		else {
+			for (int i = 0; i < 4; i++) {
+				IDtoRID.put(ID, playerOnBoardImages[1][i].getId());
+				RIDtoID.put(playerOnBoardImages[1][i].getId(), ID);
+				ID++;
+			}
+			for (int i = 0; i < 4; i++) {
+				IDtoRID.put(ID, playerOnBoardImages[0][i].getId());
+				RIDtoID.put(playerOnBoardImages[0][i].getId(), ID);
+				ID++;
+			}
+		}
 	}
 }

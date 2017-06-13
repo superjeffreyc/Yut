@@ -46,5 +46,9 @@ public class Player {
 	public void reset() {
 		score = 0;
 		numPieces = 0;
+
+		for (int i = 0; i < 4; i++) {
+			pieces[i].reset();
+		}
 	}
 }
