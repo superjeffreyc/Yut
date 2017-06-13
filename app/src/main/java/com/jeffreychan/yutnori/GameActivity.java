@@ -744,9 +744,177 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		super.onStart();
 	}
 
-
+	/**
+	 * Once a player has won, prevent any further click events
+	 * Otherwise, call the handleClick method if it is not the computer's turn
+	 * Also, check that an animation is not in progress
+	 *
+	 * @param v The view being clicked on
+	 */
 	@Override
-	public void onClick(View v) {}
+	public void onClick(View v) {
+		if (isGameOver) return;
+
+		if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
+			handleRoll();
+		}
+		else if (v.getId() == finish.getId()) {
+			movePiece(32, Move.NORMAL); // 32 = finish location
+		}
+		else if (v.getId() == offBoardPiece.getId()) {  // Image that represents both players' off board pieces
+			showPossibleTiles(players[turn].findAvailablePiece());
+		}
+		else if (tile_ids.contains(v.getId())){    // Activates on tile click
+			handleTileClick(v);
+		}
+		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
+			handlePlayerClick(v);
+		}
+		else {
+			hidePossibleTiles();    // Cancel move by clicking anything else
+		}
+	}
+
+	/**
+	 * Handles logic for tile clicks
+	 *
+	 * The STACK and CAPTURE moves here only applies to the computer because a user
+	 * would not be able to click the tile since having a piece on the tile
+	 * would cover the tile and make it un-clickable.
+	 *
+	 * However, the computer AI has access to the tile
+	 *
+	 * @param v The tile being clicked on
+	 */
+	protected void handleTileClick(View v){
+		Move m = Move.NORMAL;
+		for (int i = 0; i < MAX_TILES; i++) {
+			if (v.getId() == tiles[i].getId() && isMarked[i]) {
+				for (int j = 0; j < 4; j++){
+					if (players[turn].pieces[j].getLocation() == i){
+						m = Move.STACK;
+						break;
+					} else if (players[oppTurn].pieces[j].getLocation() == i){
+						m = Move.CAPTURE;
+						break;
+					}
+				}
+
+				movePiece(i, m);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Handles the logic for player character clicks. There are three possible situations
+	 * when a player character is clicked:
+	 *
+	 * 1) User wants to see possible move locations
+	 * 2) User wants to stack multiple team piece(s)
+	 * 3) User wants to capture opponent's piece(s)
+	 *
+	 * @param v The player character being clicked on
+	 */
+	protected void handlePlayerClick(View v){
+		if (isRollDone) {
+			for (int i = 0; i < 4; i++) {
+
+				int myLocation = players[turn].pieces[i].getLocation();
+				int oppLocation = players[oppTurn].pieces[i].getLocation();
+
+				// Show possible move locations
+				if (v.getId() == playerOnBoardImages[turn][i].getId() && myLocation != -1 && myLocation != 32 && !isMarked[players[turn].pieces[i].getLocation()]) {
+					showPossibleTiles(i);
+				}
+				// Same team
+				else if (v.getId() == playerOnBoardImages[turn][i].getId() && myLocation != -1 && myLocation != 32 && isMarked[players[turn].pieces[i].getLocation()]) {
+					movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
+				}
+				// Opponent's pieces
+				else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && oppLocation != -1 && oppLocation != 32 && isMarked[players[oppTurn].pieces[i].getLocation()]) {
+					movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Highlight possible move locations for the currently selected piece.
+	 *
+	 * @param i The index of the piece to be moved
+	 */
+	protected void showPossibleTiles(int i){
+
+		hidePossibleTiles();
+
+		currentPiece = players[turn].pieces[i];
+		currentPieceImage = playerOnBoardImages[turn][i];
+
+		moveSet = players[turn].pieces[i].calculateMoveset(board.rollArray);
+		for (Integer[] move : moveSet) {
+			int location = move[0];
+
+			if (location == 32) finish.setVisibility(View.VISIBLE);
+			else if (location != -1) {
+				if (specialTiles.contains(location)){
+					tiles[location].setBackgroundResource(R.drawable.orangemarkerflash);
+				} else {
+					tiles[location].setBackgroundResource(R.drawable.bluemarkerflash);
+				}
+				tilesAnimation[location] = (AnimationDrawable) tiles[location].getBackground();
+				tilesAnimation[location].start();
+				isMarked[location] = true;
+			}
+		}
+
+		if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
+		else tips.setText(R.string.click_yellow);
+	}
+
+	/**
+	 * Moves the currently selected piece to a new location.
+	 * Additional actions are required if the move involved stacking your own piece or capturing an enemy piece
+	 *
+	 * @param dest The location destination to move to
+	 * @param m The type of Move: STACK, CAPTURE, NORMAL
+	 */
+	protected void movePiece(int dest, Move m){
+
+		isMoveInProgress = true;
+		hidePossibleTiles();
+
+		offBoardPiece.setVisibility(View.INVISIBLE);
+		tips.setVisibility(View.INVISIBLE);
+
+		if (currentPiece.getLocation() == -1) {
+			players[turn].addNumPieces(1);
+			currentPieceImage.setX(tiles[0].getX());
+			currentPieceImage.setY(tiles[0].getY());
+		}
+
+		// Find the roll amount
+		int numMoves = 0;
+		for (int i = 0; i < 5; i++){
+			if (moveSet[i][0] == dest){
+				numMoves = moveSet[i][1];
+				break;
+			}
+		}
+		calculateAnimationOrder(dest, numMoves);
+		startNextAnimation();
+
+		currentPiece.setLocation(dest);
+		currentMoveType = m;
+	}
+
+	/*
+	 * Calculates the path the piece needs to take to move to it's destination and saves it to the
+	 * char array, order
+	 */
+	protected void calculateAnimationOrder(int dest, int numMoves){
+		order = board.calculatePath(currentPiece.getLocation(), dest, numMoves);
+	}
 
 	public void loadAvatars(){
 		String[] s = Shop.Instance.getAnimals(this);
@@ -872,9 +1040,139 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	}
 
 	/**
+	 * Handles the determination of the amount rolled when the roll button is clicked
+	 * Decides what should happen next based on roll.
+	 * Ex: Rolling 4 or 5 allows the user to roll again. Rolling -1 with no pieces on the board ends the turn.
+	 *
+	 * Once the rolling phase is completed, prompt the user to make a move with an appropriate message
+	 */
+	protected void handleRoll(){
+		rollAmount = board.throwSticks();
+		rollButton.setVisibility(View.INVISIBLE);
+		turnText.setVisibility(View.INVISIBLE);
+
+		switch (rollAmount) {
+			case -1:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimationminus1);
+				break;
+			case 1:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation1);
+				break;
+			case 2:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation2);
+				break;
+			case 3:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation3);
+				break;
+			case 4:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation4);
+				break;
+			case 5:
+				sticks.setBackgroundResource(R.drawable.fallingstickanimation5);
+				break;
+			default:
+		}
+
+		fallingSticks = (AnimationDrawable) sticks.getBackground();
+		sticks.setVisibility(View.VISIBLE);
+		sticks.bringToFront();
+		fallingSticks.setVisible(true, false);
+		fallingSticks.stop();
+		fallingSticks.start();
+
+		// Wait until roll finishes before displaying roll value
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			public void run() {
+				updateRollArray(rollAmount);
+
+				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
+					rollSlotIndex++;
+					String text;
+					if (turn == 1) text = "Opponent Roll Again!";
+					else text = "Roll Again!";
+
+					turnText.setText(text);
+					turnText.setVisibility(View.VISIBLE);
+				}
+				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
+				else {
+					canRoll = false;
+				}
+			}
+		}, 990);
+
+		// Hide the sticks 1 second after the roll is shown
+		Handler handler2 = new Handler();
+		handler2.postDelayed(new Runnable() {
+			public void run() {
+
+				hideSticks();
+
+				if (isEndTurn) endTurn();
+				else if (canRoll) {
+					if (turn == 0) rollButton.setVisibility(View.VISIBLE);
+					else rollButton.setVisibility(View.INVISIBLE);
+				}
+				else {
+					isRollDone = true;
+
+					int posCount = 0;
+					for (int i : board.rollArray) {
+						if (i != 0 && i != -1) {
+							posCount++;
+							break;
+						}
+					}
+
+					tips.setVisibility(View.VISIBLE);
+
+					if (players[turn].getNumPieces() < 4 && posCount > 0) {
+						offBoardPiece.setVisibility(View.VISIBLE);
+						offBoardPieceAnimation.start();
+
+						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
+					} else if (players[turn].hasAllPiecesOnBoard()){
+						tips.setText(playerTips[turn]);
+					}
+
+					for (int j = 0; j < 4; j++){
+						playerAnimation[turn][j].stop();
+						playerAnimation[turn][j] = (AnimationDrawable) playerOnBoardImages[turn][j].getBackground();
+						playerAnimation[turn][j].start();
+					}
+
+					if (turn == 1) {
+						tips.setText(R.string.opponent);
+					}
+				}
+			}
+		}, 1990);
+	}
+
+	/**
+	 * Update the board's rollArray and call function to update the roll slot images
+	 *
+	 * @param rollAmount The roll to be added
+	 */
+	protected void updateRollArray(int rollAmount){
+		board.addRoll(rollAmount);
+		updateRollSlots(rollSlotIndex, rollAmount);
+		fallingSticks.setVisible(false, false);
+	}
+
+	/**
+	 * Hide the sticks once the rolling is complete
+	 */
+	protected void hideSticks(){
+		sticks.setVisibility(View.INVISIBLE);
+		fallingSticks.setVisible(false, false);
+	}
+
+	/**
 	 * Stop all tiles from flashing yellow and prompt user to select a piece
 	 */
-	private void hidePossibleTiles() {
+	protected void hidePossibleTiles() {
 
 		finish.setVisibility(View.INVISIBLE);
 
@@ -925,6 +1223,34 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	}
 
 	/**
+	 * Show completed pieces as images with a gold medal
+	 * Hide pieces that are on the board
+	 * Otherwise, show images as a plain seal or penguin
+	 */
+	protected void updateOffBoardImages(){
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < players[i].getScore(); j++) {
+				if (i == 0) {
+					playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+					playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][5]);
+				}
+				else {
+					playerOffBoardImages[i][3-j].setVisibility(View.VISIBLE);
+					playerOffBoardImages[i][3-j].setBackgroundResource(avatarIds[i][5]);
+				}
+			}
+			for (int j = players[i].getScore(); j < players[i].getNumPieces(); j++) {
+				if (i == 0) playerOffBoardImages[i][j].setVisibility(View.INVISIBLE);
+				else playerOffBoardImages[i][3-j].setVisibility(View.INVISIBLE);
+			}
+			for (int j = players[i].getNumPieces(); j < 4; j++) {
+				if (i == 0) playerOffBoardImages[i][j].setVisibility(View.VISIBLE);
+				else playerOffBoardImages[i][3-j].setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
+	/**
 	 * Update the images in the roll slots near the bottom
 	 *
 	 * @param index The slot to update
@@ -953,6 +1279,73 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			default:
 				rollSlot[index].setBackgroundResource(R.drawable.white_marker);
 		}
+	}
+
+	/**
+	 * Prepares the board for the next player's turn
+	 */
+	protected void prepareForNextTurn(){
+		turn = board.getPlayerTurn();
+		oppTurn = (turn + 1) % 2;
+
+		offBoardPiece.setVisibility(View.INVISIBLE);
+		offBoardPieceAnimation.stop();
+		offBoardPieceAnimation.selectDrawable(0);
+
+		tips.setVisibility(View.INVISIBLE);
+		tips.setText(playerTips[turn]);
+		if (turn == 1) {
+			offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
+
+			bottomBar.setBackgroundResource(R.drawable.bar1);
+			bottomBar.setAlpha(1.0f);
+			topBar.setBackgroundResource(R.drawable.bar2);
+			topBar.setAlpha(0.25f);
+		} else {
+			offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
+
+			topBar.setBackgroundResource(R.drawable.bar1);
+			topBar.setAlpha(1.0f);
+			bottomBar.setBackgroundResource(R.drawable.bar2);
+			bottomBar.setAlpha(0.25f);
+		}
+
+		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
+
+		for (int i = 0; i < 5; i++) {
+			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+		}
+
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				playerAnimation[i][j].stop();
+				playerAnimation[i][j].selectDrawable(0);
+			}
+		}
+
+		board.resetRollArray();
+		hidePossibleTiles();
+
+		rollSlotIndex = 0;
+		isRollDone = false;
+		canRoll = true;
+		isEndTurn = false;
+		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
+
+		String text;
+		if (turn == 1) text = "Opponent's Turn";
+		else text = "Your Turn";
+
+		turnText.setText(text);
+		turnText.setVisibility(View.VISIBLE);
+	}
+
+	/**
+	 * End the current player's turn
+	 */
+	protected void endTurn(){
+		board.endTurn();
+		prepareForNextTurn();
 	}
 
 	/**

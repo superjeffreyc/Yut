@@ -20,7 +20,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -41,12 +40,11 @@ import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 
 import com.google.example.games.basegameutils.BaseGameUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Button Clicker 2000. A minimalistic game showing the multiplayer features of
@@ -76,7 +74,6 @@ public class OnlineActivity extends GameActivity
      * API INTEGRATION SECTION. This section contains the code that integrates
      * the game with the Google Play game services API.
      */
-	final static String TAG = "OnlineActivity";
 
 	// Room ID where the currently active game is taking place; null if we're
 	// not playing.
@@ -87,24 +84,29 @@ public class OnlineActivity extends GameActivity
 
 	// The participants in the currently active game
 	ArrayList<Participant> mParticipants = null;
+	ArrayList<String> participantIds = null;
 
 	// My participant ID in the currently active game
 	String mMyId = null;
+	// Opponent participant ID in the currently active game
+	String opponentId = null;
 
 	// If non-null, this is the id of the invitation we received via the
 	// invitation listener
 	String mIncomingInvitationId = null;
 
-	// Message buffer for sending messages
-	byte[] mMsgBuf = new byte[2];
+	/*
+	 * Message buffer for sending messages
+	 *
+	 * Byte 0 = Op
+	 * Bytes 1-4 = Op Specific. 0 otherwise.
+	 */
+	byte[] mMsgBuf = new byte[5];
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.AppTheme);
 		super.onCreate(savedInstanceState);
-
-		// Hide the board until the game starts
-		rl.setVisibility(View.INVISIBLE);
 
 		// set up a click listener for everything we care about
 		for (int id : CLICKABLES) {
@@ -122,20 +124,40 @@ public class OnlineActivity extends GameActivity
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.button_sign_in:
-				// start the sign-in flow
-				mSignInClicked = true;
-				client.connect();
-				break;
-			case R.id.button_quick_game:
-				// user wants to play against a random opponent right now
-				startQuickGame();
-				break;
-			case R.id.button_click_me:
-				// (gameplay) user clicked the "click me" button
-				scoreOnePoint();
-				break;
+
+		if (isGameOver) return;
+		if (turn == 1) return;  // not your turn
+
+		if (v.getId() == R.id.button_sign_in) {
+			mSignInClicked = true;
+			client.connect();
+		}
+		else if (v.getId() == R.id.button_quick_game) {
+			startQuickGame();   			// User wants to play against a random opponent right now
+		}
+		else if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
+			handleRoll();
+			broadcastClick(Op.CLICK_ROLL_BUTTON, -1);
+		}
+		else if (v.getId() == finish.getId()) {
+			movePiece(32, Move.NORMAL); // 32 = finish location
+			broadcastClick(Op.CLICK_FINISH, -1);
+		}
+		else if (v.getId() == offBoardPiece.getId()) {  // Image that represents both players' off board pieces
+			showPossibleTiles(players[turn].findAvailablePiece());
+			broadcastClick(Op.CLICK_OFF_BOARD_PIECE, -1);
+		}
+		else if (tile_ids.contains(v.getId())){    // Activates on tile click
+			handleTileClick(v);
+			broadcastClick(Op.CLICK_TILE, v.getId());
+		}
+		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
+			handlePlayerClick(v);
+			broadcastClick(Op.CLICK_PLAYER, v.getId());
+		}
+		else {
+			hidePossibleTiles();    // Cancel move by clicking anything else
+			broadcastClick(Op.CLICK_EMPTY, -1);
 		}
 	}
 
@@ -150,7 +172,7 @@ public class OnlineActivity extends GameActivity
 		rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
 		switchToScreen(R.id.screen_wait);
 		keepScreenOn();
-		resetGameVars();
+//		resetGameVars();
 		Games.RealTimeMultiplayer.create(client, rtmConfigBuilder.build());
 	}
 
@@ -164,7 +186,7 @@ public class OnlineActivity extends GameActivity
 				// we got the result from the "waiting room" UI.
 				if (responseCode == Activity.RESULT_OK) {
 					// ready to start playing
-					startGame(true);
+					startGame();
 				} else if (responseCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
 					// player indicated that they want to leave the room
 					leaveRoom();
@@ -252,7 +274,6 @@ public class OnlineActivity extends GameActivity
 
 	// Leave the room.
 	void leaveRoom() {
-		mSecondsLeft = 0;
 		stopKeepingScreenOn();
 		if (mRoomId != null) {
 			Games.RealTimeMultiplayer.leave(client, this, mRoomId);
@@ -343,6 +364,20 @@ public class OnlineActivity extends GameActivity
 			return;
 		}
 		updateRoom(room);
+
+		// Determine who goes first by sorting all the participant ids. Whoever is first goes first.
+		for (Participant p : mParticipants) {
+			participantIds.add(p.getParticipantId());
+		}
+		Collections.sort(participantIds);
+		if (mMyId.equals(participantIds.get(0))) {
+			turn = 0;
+			opponentId = participantIds.get(1);
+		}
+		else {
+			turn = 1;
+			opponentId = participantIds.get(0);
+		}
 	}
 
 	@Override
@@ -412,76 +447,15 @@ public class OnlineActivity extends GameActivity
 		if (room != null) {
 			mParticipants = room.getParticipants();
 		}
-		if (mParticipants != null) {
-			updatePeerScoresDisplay();
-		}
 	}
 
     /*
      * GAME LOGIC SECTION. Methods that implement the game's rules.
      */
 
-	// Current state of the game:
-	int mSecondsLeft = -1; // how long until the game ends (seconds)
-	final static int GAME_DURATION = 20; // game duration, seconds.
-	int mScore = 0; // user's current score
-
-	// Reset game variables in preparation for a new game.
-	void resetGameVars() {
-		mSecondsLeft = GAME_DURATION;
-		mScore = 0;
-		mParticipantScore.clear();
-		mFinishedParticipants.clear();
-	}
-
 	// Start the gameplay phase of the game.
-	void startGame(boolean multiplayer) {
-		mMultiplayer = multiplayer;
-		updateScoreDisplay();
-		broadcastScore(false);
-		switchToScreen(R.id.screen_game);
-
-		findViewById(R.id.button_click_me).setVisibility(View.VISIBLE);
-
-		// run the gameTick() method every second to update the game.
-		final Handler h = new Handler();
-		h.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if (mSecondsLeft <= 0)
-					return;
-				gameTick();
-				h.postDelayed(this, 1000);
-			}
-		}, 1000);
-	}
-
-	// Game tick -- update countdown, check if game ended.
-	void gameTick() {
-		if (mSecondsLeft > 0)
-			--mSecondsLeft;
-
-		// update countdown
-		((TextView) findViewById(R.id.countdown)).setText("0:" +
-				(mSecondsLeft < 10 ? "0" : "") + String.valueOf(mSecondsLeft));
-
-		if (mSecondsLeft <= 0) {
-			// finish game
-			findViewById(R.id.button_click_me).setVisibility(View.GONE);
-			broadcastScore(true);
-		}
-	}
-
-	// indicates the player scored one point
-	void scoreOnePoint() {
-		if (mSecondsLeft <= 0)
-			return; // too late!
-		++mScore;
-		updateScoreDisplay();
-		updatePeerScoresDisplay();
-
-		// broadcast our new score to our peers
-		broadcastScore(false);
+	void startGame() {
+		switchToScreen(R.id.board);
 	}
 
     /*
@@ -489,77 +463,70 @@ public class OnlineActivity extends GameActivity
      * protocol.
      */
 
-	// Score of other participants. We update this as we receive their scores
-	// from the network.
-	Map<String, Integer> mParticipantScore = new HashMap<>();
-
-	// Participants who sent us their final score.
-	Set<String> mFinishedParticipants = new HashSet<>();
-
 	// Called when we receive a real-time message from the network.
-	// Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'
-	// indicating
-	// whether it's a final or interim score. The second byte is the score.
-	// There is also the
-	// 'S' message, which indicates that the game should start.
 	@Override
 	public void onRealTimeMessageReceived(RealTimeMessage rtm) {
 		byte[] buf = rtm.getMessageData();
 		String sender = rtm.getSenderParticipantId();
 
-		if (buf[0] == 'F' || buf[0] == 'U') {
-			// score update.
-			int existingScore = mParticipantScore.containsKey(sender) ?
-					mParticipantScore.get(sender) : 0;
-			int thisScore = (int) buf[1];
-			if (thisScore > existingScore) {
-				// this check is necessary because packets may arrive out of
-				// order, so we
-				// should only ever consider the highest score we received, as
-				// we know in our
-				// game there is no way to lose points. If there was a way to
-				// lose points,
-				// we'd have to add a "serial number" to the packet.
-				mParticipantScore.put(sender, thisScore);
-			}
+		// Try to verify the sender of the data
+		if (!sender.equals(opponentId)) leaveRoom();
 
-			// update the scores on the screen
-			updatePeerScoresDisplay();
+		// Get the view that the opponent clicked
+		byte[] arr = { buf[1], buf[2], buf[3], buf[4] };
+		ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
+		int viewId = wrapped.getInt();
 
-			// if it's a final score, mark this participant as having finished
-			// the game
-			if ((char) buf[0] == 'F') {
-				mFinishedParticipants.add(rtm.getSenderParticipantId());
-			}
+		if (buf[0] == Op.CLICK_ROLL_BUTTON) {
+			handleRoll();
+		}
+		else if (buf[0] == Op.CLICK_FINISH) {
+			movePiece(32, Move.NORMAL); // 32 = finish location
+		}
+		else if (buf[0] == Op.CLICK_OFF_BOARD_PIECE) {  // Image that represents both players' off board pieces
+			showPossibleTiles(players[turn].findAvailablePiece());
+		}
+		else if (buf[0] == Op.CLICK_TILE){    // Activates on tile click
+			handleTileClick(findViewById(viewId));
+		}
+		else if (buf[0] == Op.CLICK_PLAYER){  // Activates on animal click; animal covers tile
+			handlePlayerClick(findViewById(viewId));
+		}
+		else if (buf[0] == Op.CLICK_EMPTY){
+			hidePossibleTiles();    // Cancel move by clicking anything else
+		}
+		else {  // Invalid op
+			leaveRoom();
 		}
 	}
 
 	// Broadcast my score to everybody else.
-	void broadcastScore(boolean finalScore) {
-		if (!mMultiplayer)
-			return; // playing single-player mode
+	void broadcastClick(byte op, int viewId) {
 
-		// First byte in message indicates whether it's a final score or not
-		mMsgBuf[0] = (byte) (finalScore ? 'F' : 'U');
+		// First byte in message indicates the type of click
+		mMsgBuf[0] = op;
 
-		// Second byte is the score.
-		mMsgBuf[1] = (byte) mScore;
+		// Bytes 1-4 indicate the viewId (if applicable)
+		ByteBuffer b = ByteBuffer.allocate(4);
+		b.order(ByteOrder.BIG_ENDIAN);
+		b.putInt(viewId);
+		byte[] bytes = b.array();
+		mMsgBuf[1] = bytes[0];
+		mMsgBuf[2] = bytes[1];
+		mMsgBuf[3] = bytes[2];
+		mMsgBuf[4] = bytes[3];
 
-		// Send to every other participant.
+		// Send to opponent
 		for (Participant p : mParticipants) {
 			if (p.getParticipantId().equals(mMyId))
 				continue;
 			if (p.getStatus() != Participant.STATUS_JOINED)
 				continue;
-			if (finalScore) {
-				// final score notification must be sent via reliable message
-				Games.RealTimeMultiplayer.sendReliableMessage(client, null, mMsgBuf,
+
+			// Send the data
+			Games.RealTimeMultiplayer.sendReliableMessage(client, null, mMsgBuf,
 						mRoomId, p.getParticipantId());
-			} else {
-				// it's an interim score notification, so we can use unreliable
-				Games.RealTimeMultiplayer.sendUnreliableMessage(client, mMsgBuf, mRoomId,
-						p.getParticipantId());
-			}
+
 		}
 	}
 
@@ -570,14 +537,13 @@ public class OnlineActivity extends GameActivity
 	// This array lists everything that's clickable, so we can install click
 	// event handlers.
 	final static int[] CLICKABLES = {
-			R.id.button_accept_popup_invitation, R.id.button_quick_game,
-			R.id.button_sign_in, R.id.button_click_me, R.id.button_single_player
+			R.id.button_quick_game, R.id.button_sign_in, R.id.button_click_me
 	};
 
 	// This array lists all the individual screens our game has.
 	final static int[] SCREENS = {
 			R.id.screen_game, R.id.screen_main, R.id.screen_sign_in,
-			R.id.screen_wait
+			R.id.screen_wait, R.id.rl
 	};
 	int mCurScreen = -1;
 
@@ -609,46 +575,6 @@ public class OnlineActivity extends GameActivity
 		}
 		else {
 			switchToScreen(R.id.screen_sign_in);
-		}
-	}
-
-	// updates the label that shows my score
-	void updateScoreDisplay() {
-		((TextView) findViewById(R.id.my_score)).setText(formatScore(mScore));
-	}
-
-	// formats a score as a three-digit number
-	String formatScore(int i) {
-		if (i < 0)
-			i = 0;
-		String s = String.valueOf(i);
-		return s.length() == 1 ? "00" + s : s.length() == 2 ? "0" + s : s;
-	}
-
-	// updates the screen with the scores from our peers
-	void updatePeerScoresDisplay() {
-		((TextView) findViewById(R.id.score0)).setText(formatScore(mScore) + " - Me");
-		int[] arr = {
-				R.id.score1, R.id.score2, R.id.score3
-		};
-		int i = 0;
-
-		if (mRoomId != null) {
-			for (Participant p : mParticipants) {
-				String pid = p.getParticipantId();
-				if (pid.equals(mMyId))
-					continue;
-				if (p.getStatus() != Participant.STATUS_JOINED)
-					continue;
-				int score = mParticipantScore.containsKey(pid) ? mParticipantScore.get(pid) : 0;
-				((TextView) findViewById(arr[i])).setText(formatScore(score) + " - " +
-						p.getDisplayName());
-				++i;
-			}
-		}
-
-		for (; i < arr.length; ++i) {
-			((TextView) findViewById(arr[i])).setText("");
 		}
 	}
 
