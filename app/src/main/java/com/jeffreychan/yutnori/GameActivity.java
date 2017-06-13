@@ -9,6 +9,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -128,8 +129,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	ArrayList<Integer> player_ids = new ArrayList<>();  // Contains the click ids for all player pieces
 
 	// Request codes for the UIs that we show with startActivityForResult:
-	final static int RC_SELECT_PLAYERS = 10000;
-	final static int RC_INVITATION_INBOX = 10001;
 	final static int RC_WAITING_ROOM = 10002;
 
 	// Request code used to invoke sign in user interactions.
@@ -685,7 +684,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	}
 
 	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
+	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
 		if (mResolvingConnectionFailure) {
 			return;

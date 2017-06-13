@@ -656,7 +656,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		}
 		else {
 			signInStatus = "Sign Out Of Google";
-			return;
 		}
 	}
 

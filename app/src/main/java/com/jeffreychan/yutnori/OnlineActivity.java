@@ -77,15 +77,11 @@ public class OnlineActivity extends GameActivity
      * API INTEGRATION SECTION. This section contains the code that integrates
      * the game with the Google Play game services API.
      */
-
 	int mCurScreen = -1;
 
 	// Room ID where the currently active game is taking place; null if we're
 	// not playing.
 	String mRoomId = null;
-
-	// Are we playing in multiplayer mode?
-	boolean mMultiplayer = false;
 
 	// The participants in the currently active game
 	ArrayList<Participant> mParticipants = null;
@@ -95,10 +91,6 @@ public class OnlineActivity extends GameActivity
 	String mMyId = null;
 	// Opponent participant ID in the currently active game
 	String opponentId = null;
-
-	// If non-null, this is the id of the invitation we received via the
-	// invitation listener
-	String mIncomingInvitationId = null;
 
 	/*
 	 * Message buffer for sending messages
