@@ -66,4 +66,8 @@ public class Piece {
 	 */
 	public void addValue(int v) { value += v; }
 
+	public void reset() {
+		location = -1;
+		value = 1;
+	}
 }

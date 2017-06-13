@@ -436,7 +436,7 @@ public class OnlineActivity extends GameActivity
      * GAME LOGIC SECTION. Methods that implement the game's rules.
      */
 
-	// Start the gameplay phase of the game.
+	// Start the game and determine who goes first
 	void startGame() {
 		switchToScreen(R.id.rl);
 
@@ -796,6 +796,26 @@ public class OnlineActivity extends GameActivity
 	}
 
 	protected void resetGameVars() {
+		turn = 0;
+		oppTurn = 1;
 
+		// Reset Board values
+		board.playerTurn = 0;
+		for (int i = 0; i < 5; i++) {
+			board.rollArray[i] = 0;
+		}
+		board.rollIndex = 0;
+
+		// Reset Player values
+		players[0].reset();
+		players[1].reset();
+
+		// Reset Piece values
+		for (int i = 0; i < 4; i++) {
+			players[0].pieces[i].reset();
+			players[1].pieces[i].reset();
+		}
+
+		updateOffBoardImages();
 	}
 }

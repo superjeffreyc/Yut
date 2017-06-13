@@ -42,4 +42,9 @@ public class Player {
 	public boolean hasAllPiecesOnBoard() { return (numPieces == 4); }
 
 	public boolean hasWon() { return (score == 4); }
+
+	public void reset() {
+		score = 0;
+		numPieces = 0;
+	}
 }
