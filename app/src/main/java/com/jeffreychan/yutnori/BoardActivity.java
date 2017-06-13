@@ -303,7 +303,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 
 		if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
 		else {
-			if (!isComputerPlaying) tips.setText(R.string.click_yellow);
+			if (turn == 0 || (!isComputerPlaying && turn == 1)) tips.setText(R.string.click_yellow);
 			else tips.setText(R.string.computer);
 		}
 	}

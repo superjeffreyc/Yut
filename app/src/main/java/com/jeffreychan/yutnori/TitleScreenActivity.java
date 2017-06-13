@@ -54,6 +54,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	private boolean mAutoStartSignInFlow = true;
 	private boolean mSignInClicked = false;
 
+	Context context = this;
+
 	Button startButton;
 	Button helpButton;
 	Button settingsButton;
@@ -98,7 +100,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	int[] player_id = new int[2];       // Holds each player's avatar id
 
 	boolean isLeft = false;             // Are the initial buttons (Start, How To Play, Quit) off screen to the left
-	boolean hasClickedSignIn;           // Was sign in clicked?
 	boolean fromBoard;                  // Is this activity being launched from BoardActivity?
 	boolean isP1spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
 	boolean isP2spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
@@ -527,9 +528,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	}
 
 
-	public void onConnected(Bundle connectionHint){
-		signInStatus = "Sign Out Of Google";
-	}
+	public void onConnected(Bundle connectionHint){}
 
 	public void onConnectionSuspended(int cause){
 		// Attempt to reconnect
@@ -547,14 +546,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		if (mSignInClicked || mAutoStartSignInFlow) {
 			mAutoStartSignInFlow = false;
 			mSignInClicked = false;
-			mResolvingConnectionFailure = true;
-
-			// Attempt to resolve the connection failure using BaseGameUtils.
-			if (!BaseGameUtils.resolveConnectionFailure(this,
-					client, connectionResult,
-					RC_SIGN_IN, "There was an issue with sign-in, please try again later.")) {
-				mResolvingConnectionFailure = false;
-			}
+			mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, client,
+					connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
 		}
 	}
 
@@ -581,11 +574,14 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			mp.seekTo(mpPos);
 			mp.start();
 		}
+	}
 
-		if (hasClickedSignIn) {
-			hasClickedSignIn = false;
+	@Override
+	public void onStart() {
+		if (!client.isConnected()) {
 			client.connect();
 		}
+		super.onStart();
 	}
 
 	/*
@@ -652,6 +648,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 	private void signInClicked() {
 
+		mSignInClicked = true;
+
 		// Make sure the user is not connected before trying to connect
 		if (!client.isConnected()) {
 			client.connect();
@@ -660,24 +658,14 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			signInStatus = "Sign Out Of Google";
 			return;
 		}
-
-		if (client.isConnected()){
-			mSignInClicked = true;
-			hasClickedSignIn = true;
-			signInStatus = "Sign Out Of Google";
-			Toast t = Toast.makeText(getApplicationContext(), "Successfully connected", Toast.LENGTH_SHORT);
-			t.show();
-		}
-		else {
-			Toast t = Toast.makeText(getApplicationContext(), "Failed to connect", Toast.LENGTH_SHORT);
-			t.show();
-		}
 	}
 
 	private void signOutClicked() {
+
+		mSignInClicked = false;
+
+		// Verify that the user is currently connected before trying to sign out
 		if (client.isConnected()) {
-			mSignInClicked = false;
-			hasClickedSignIn = false;
 			Games.signOut(client);
 			client.disconnect();
 		}
@@ -686,13 +674,14 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			return;
 		}
 
+		// Verify successful sign out
 		if (!client.isConnected()){
 			signInStatus = "Sign In To Google";
-			Toast t = Toast.makeText(getApplicationContext(), "Successfully disconnected", Toast.LENGTH_SHORT);
+			Toast t = Toast.makeText(context, "Successfully disconnected", Toast.LENGTH_SHORT);
 			t.show();
 		}
 		else {
-			Toast t = Toast.makeText(getApplicationContext(), "Failed to disconnect", Toast.LENGTH_SHORT);
+			Toast t = Toast.makeText(context, "Failed to disconnect", Toast.LENGTH_SHORT);
 			t.show();
 		}
 
@@ -707,7 +696,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				client.connect();
 			} else {
 				// Bring up an error dialog to alert the user that sign-in failed
-				Toast savedToast = Toast.makeText(getApplicationContext(), "Unable to sign in to Google", Toast.LENGTH_SHORT);
+				Toast savedToast = Toast.makeText(context, "Unable to sign in to Google", Toast.LENGTH_SHORT);
 				savedToast.show();
 			}
 		}
@@ -762,7 +751,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			adb.setTitle("How to play");
 			ScrollView sv = new ScrollView(this);
-			sv.setPadding(10, 0, 10, 0); // set padding to the left and right
+			sv.setPadding(15, 0, 15, 0); // set padding to the left and right
 
 			LinearLayout layout = new LinearLayout(this);
 			layout.setOrientation(LinearLayout.VERTICAL);
@@ -887,7 +876,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				finish();
 			}
 			else {
-				Toast t = Toast.makeText(getApplicationContext(), "You must be signed in to Google to play online.", Toast.LENGTH_SHORT);
+				Toast t = Toast.makeText(context, "You must be signed in to Google to play online.", Toast.LENGTH_SHORT);
 				t.show();
 			}
 		}
@@ -917,7 +906,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 						if (client.isConnected()) {
 							startActivityForResult(Games.Achievements.getAchievementsIntent(client), 0);
 						} else {
-							Toast savedToast = Toast.makeText(getApplicationContext(), "You must be signed in to view achievements", Toast.LENGTH_SHORT);
+							Toast savedToast = Toast.makeText(context, "You must be signed in to view achievements", Toast.LENGTH_SHORT);
 							savedToast.show();
 						}
 					}
@@ -930,10 +919,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 						else turnOffSound();
 					}
 					else if (item == 5){
-						AlertDialog.Builder adb = new AlertDialog.Builder(getApplicationContext());
+						AlertDialog.Builder adb = new AlertDialog.Builder(context);
 						adb.setTitle("Credits");
-						ScrollView sv = new ScrollView(getApplicationContext());
-						TextView tv = new TextView(getApplicationContext());
+						ScrollView sv = new ScrollView(context);
+						TextView tv = new TextView(context);
 						tv.setPadding(0, 40, 0, 40);
 						tv.setText(R.string.credits);
 						tv.setTextSize(20f);
@@ -1093,6 +1082,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// LinearLayout to hold everything in this dialog
 		LinearLayout linearLayout = new LinearLayout(this);
 		linearLayout.setOrientation(LinearLayout.VERTICAL);
+		linearLayout.setPadding(15, 0, 15, 0);
 
 		// Message describing this dialog to the user
 		TextView spendText = new TextView(this);
@@ -1156,7 +1146,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			// Set up buy button for this avatar
 			Button buyButton = new Button(this);
 			buyButton.setBackgroundResource(R.drawable.titlebutton);
-			String buyText = Shop.Instance.getCost(s) + " Coin(s)";
+			String buyText = Shop.Instance.getCost(s) + " Coins";
 			buyButton.setText(buyText);
 			buyButton.setLayoutParams(new LinearLayout.LayoutParams(0, RelativeLayout.LayoutParams.WRAP_CONTENT, 6));
 			rowItem.addView(buyButton);
@@ -1171,13 +1161,13 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 						String currentCoins = "You have " + Shop.Instance.getCoins() + " coin(s) remaining";
 						coinText.setText(currentCoins);
 
-						Toast savedToast = Toast.makeText(getApplicationContext(), "Purchase successful", Toast.LENGTH_SHORT);
+						Toast savedToast = Toast.makeText(context, "Purchase successful", Toast.LENGTH_SHORT);
 						savedToast.show();
 
 						if (Shop.Instance.getLockedAvatars().size() == 0) noAvatarText.setVisibility(View.VISIBLE);
 
 					} else {            // User does not have enough coins
-						Toast savedToast = Toast.makeText(getApplicationContext(), "Not enough coins", Toast.LENGTH_SHORT);
+						Toast savedToast = Toast.makeText(context, "Not enough coins", Toast.LENGTH_SHORT);
 						savedToast.show();
 					}
 				}
@@ -1224,6 +1214,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Create a linear layout to hold all the items
 		LinearLayout linearLayout = new LinearLayout(this);
 		linearLayout.setOrientation(LinearLayout.VERTICAL);
+		linearLayout.setPadding(15, 0, 15, 0);
 
 		TextView tv = new TextView(this);
 		tv.setPadding(0, 40, 0, 40);
@@ -1367,15 +1358,15 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		// Save button - checks that the two avatars are not the same
 		adb.setPositiveButton("Save", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				String[] s = Shop.Instance.getAnimals(getApplicationContext());
+				String[] s = Shop.Instance.getAnimals(context);
 
 				if (s[0].equals(s[1])){
 					Shop.Instance.reset();
-					Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+					Toast savedToast = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
 					savedToast.show();
 				}
 				else {
-					Shop.Instance.saveAvatars(getApplicationContext());
+					Shop.Instance.saveAvatars(context);
 					dialog.cancel();
 				}
 			}
@@ -1404,7 +1395,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				Shop.Instance.changeAvatar(1, item, this);
 				firstImage.setBackgroundResource(Shop.Instance.getImage(item));
 			} else if (s[1].equalsIgnoreCase(item)){
-				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+				Toast savedToast = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
 				savedToast.show();
 			}
 		} else if (parent.getId() == p2spin.getId()) {
@@ -1414,7 +1405,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				Shop.Instance.changeAvatar(2, item, this);
 				secondImage.setBackgroundResource(Shop.Instance.getImage(item));
 			} else if (s[0].equalsIgnoreCase(item)){
-				Toast savedToast = Toast.makeText(getApplicationContext(), "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+				Toast savedToast = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
 				savedToast.show();
 			}
 		}

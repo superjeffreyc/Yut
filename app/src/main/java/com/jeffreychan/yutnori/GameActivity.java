@@ -699,6 +699,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		}
 
 	}
+
 	/*
 	 * If the activity is placed in the background, save the current position of the song
 	 */
