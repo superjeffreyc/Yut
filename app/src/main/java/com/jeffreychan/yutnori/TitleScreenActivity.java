@@ -13,6 +13,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
@@ -118,6 +119,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	int titleButtonWidth;
 	int titleButtonHeight;
 
+	long lastTimeButtonClicked = SystemClock.elapsedRealtime();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.AppTheme);
@@ -167,6 +170,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		}
 
 		rl = findViewById(R.id.rl);    // All views will be placed in this layout
+		rl.setMotionEventSplittingEnabled(false);	// Prevent multi-touch
 
 		// Get screen dimensions
 		Display display = getWindowManager().getDefaultDisplay();
@@ -724,220 +728,240 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			showModeButtons();  // start animation of right to left
 		}
 		else if (switchButton != null && v.getId() == switchButton.getId()){
-			Shop.Instance.switchAvatars();
+			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+				lastTimeButtonClicked = SystemClock.elapsedRealtime();
 
-			float x = firstImage.getX();
-			firstImage.setX(secondImage.getX());
-			secondImage.setX(x);
+				Shop.Instance.switchAvatars();
 
-			ImageView tempImage = firstImage;
-			firstImage = secondImage;
-			secondImage = tempImage;
+				float x = firstImage.getX();
+				firstImage.setX(secondImage.getX());
+				secondImage.setX(x);
+
+				ImageView tempImage = firstImage;
+				firstImage = secondImage;
+				secondImage = tempImage;
+			}
 		}
 		else if (firstImage != null && v.getId() == firstImage.getId()){
-			p1spin.performClick();
+			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500){
+				lastTimeButtonClicked = SystemClock.elapsedRealtime();
+				p1spin.performClick();
+			}
 		}
 		else if (secondImage != null && v.getId() == secondImage.getId()){
-			p2spin.performClick();
+			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+				lastTimeButtonClicked = SystemClock.elapsedRealtime();
+				p2spin.performClick();
+			}
 		}
 		else if (v.getId() == backButton.getId()) {
 			showInitialButtons();   // start animation of left to right
 		}
 		else if (v.getId() == shopButton.getId()) {
-			showShop();             // Show the shop interface
+			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+				lastTimeButtonClicked = SystemClock.elapsedRealtime();
+				showShop();             // Show the shop interface
+			}
 		}
 		else if (v.getId() == helpButton.getId()){  // Bring up how to play dialog
-			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			adb.setTitle("How to play");
-			ScrollView sv = new ScrollView(this);
-			sv.setPadding(15, 0, 15, 0); // set padding to the left and right
+			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+				lastTimeButtonClicked = SystemClock.elapsedRealtime();
 
-			LinearLayout layout = new LinearLayout(this);
-			layout.setOrientation(LinearLayout.VERTICAL);
-			layout.setGravity(Gravity.CENTER);
-			layout.setPadding(0, 20, 0, 0);
+				AlertDialog.Builder adb = new AlertDialog.Builder(this);
+				adb.setTitle("How to play");
+				ScrollView sv = new ScrollView(this);
+				sv.setPadding(15, 0, 15, 0); // set padding to the left and right
 
-			ImageView logo = new ImageView(this);
-			logo.setBackgroundResource(R.drawable.banner);
-			logo.setLayoutParams(new LinearLayout.LayoutParams(width, width/2));
-			logo.setPadding(0, 0, 0, 30);
-			layout.addView(logo);
+				LinearLayout layout = new LinearLayout(this);
+				layout.setOrientation(LinearLayout.VERTICAL);
+				layout.setGravity(Gravity.CENTER);
+				layout.setPadding(0, 20, 0, 0);
 
-			TextView tv = new TextView(this);
-			tv.setText(R.string.guide1);
-			tv.setTextSize(20f);
-			tv.setPadding(0, 30, 0, 0);
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-			layout.addView(tv);
+				ImageView logo = new ImageView(this);
+				logo.setBackgroundResource(R.drawable.banner);
+				logo.setLayoutParams(new LinearLayout.LayoutParams(width, width / 2));
+				logo.setPadding(0, 0, 0, 30);
+				layout.addView(logo);
 
-			ImageView roll = new ImageView(this);
-			roll.setBackgroundResource(R.drawable.rollbutton1);
-			roll.setPadding(20, 0, 20, 30);
-			roll.setLayoutParams(new LinearLayout.LayoutParams(width*9/10, width*9/44));
-			layout.addView(roll);
+				TextView tv = new TextView(this);
+				tv.setText(R.string.guide1);
+				tv.setTextSize(20f);
+				tv.setPadding(0, 30, 0, 0);
+				tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+				layout.addView(tv);
 
-			TextView tv2 = new TextView(this);
-			tv2.setText(R.string.guide2);
-			tv2.setPadding(0, 30, 0, 0);
-			tv2.setTextSize(20f);
-			tv2.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-			layout.addView(tv2);
+				ImageView roll = new ImageView(this);
+				roll.setBackgroundResource(R.drawable.rollbutton1);
+				roll.setPadding(20, 0, 20, 30);
+				roll.setLayoutParams(new LinearLayout.LayoutParams(width * 9 / 10, width * 9 / 44));
+				layout.addView(roll);
 
-			ImageView rollExample = new ImageView(this);
-			rollExample.setBackgroundResource(R.drawable.roll_example);
-			rollExample.setPadding(20, 0, 20, 30);
-			rollExample.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int)(width*8.5/60)));
-			layout.addView(rollExample);
+				TextView tv2 = new TextView(this);
+				tv2.setText(R.string.guide2);
+				tv2.setPadding(0, 30, 0, 0);
+				tv2.setTextSize(20f);
+				tv2.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+				layout.addView(tv2);
 
-			TextView tv3 = new TextView(this);
-			tv3.setText(R.string.guide3);
-			tv3.setPadding(0, 30, 0, 0);
-			tv3.setTextSize(20f);
-			tv3.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-			layout.addView(tv3);
+				ImageView rollExample = new ImageView(this);
+				rollExample.setBackgroundResource(R.drawable.roll_example);
+				rollExample.setPadding(20, 0, 20, 30);
+				rollExample.setLayoutParams(new LinearLayout.LayoutParams((int) (width * 8.5 / 10), (int) (width * 8.5 / 60)));
+				layout.addView(rollExample);
 
-			ImageView yellowExample = new ImageView(this);
-			yellowExample.setBackgroundResource(R.drawable.yellow_tile_example);
-			yellowExample.setPadding(20, 0, 20, 30);
-			yellowExample.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int)(width*8.5/10)));
-			layout.addView(yellowExample);
+				TextView tv3 = new TextView(this);
+				tv3.setText(R.string.guide3);
+				tv3.setPadding(0, 30, 0, 0);
+				tv3.setTextSize(20f);
+				tv3.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+				layout.addView(tv3);
 
-			TextView tv4 = new TextView(this);
-			tv4.setText(R.string.guide4);
-			tv4.setPadding(0, 30, 0, 0);
-			tv4.setTextSize(20f);
-			tv4.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-			layout.addView(tv4);
+				ImageView yellowExample = new ImageView(this);
+				yellowExample.setBackgroundResource(R.drawable.yellow_tile_example);
+				yellowExample.setPadding(20, 0, 20, 30);
+				yellowExample.setLayoutParams(new LinearLayout.LayoutParams((int) (width * 8.5 / 10), (int) (width * 8.5 / 10)));
+				layout.addView(yellowExample);
 
-			int[] rollImages = new int[]{R.drawable.circleminus1, R.drawable.circle1, R.drawable.circle2, R.drawable.circle3, R.drawable.circle4, R.drawable.circle5};
-			LinearLayout rollNumbers = new LinearLayout(this);
-			rollNumbers.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int) (width*8.5/60)));
-			rollNumbers.setOrientation(LinearLayout.HORIZONTAL);
-			rollNumbers.setPadding(0, 0, 0, 30);
-			for (int image : rollImages){
-				ImageView iv = new ImageView(this);
-				iv.setBackgroundResource(image);
-				iv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
-				rollNumbers.addView(iv);
-			}
-			layout.addView(rollNumbers);
+				TextView tv4 = new TextView(this);
+				tv4.setText(R.string.guide4);
+				tv4.setPadding(0, 30, 0, 0);
+				tv4.setTextSize(20f);
+				tv4.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+				layout.addView(tv4);
 
-			TextView tv5 = new TextView(this);
-			tv5.setText(R.string.guide5);
-			tv5.setPadding(0, 30, 0, 0);
-			tv5.setTextSize(20f);
-			tv5.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-			layout.addView(tv5);
-
-			ImageView rollBarExample = new ImageView(this);
-			rollBarExample.setBackgroundResource(R.drawable.rollbar_example);
-			rollBarExample.setPadding(20, 0, 20, 30);
-			rollBarExample.setLayoutParams(new LinearLayout.LayoutParams((int)(width*8.5/10), (int)(width*8.5/60)));
-			layout.addView(rollBarExample);
-
-			TextView tv6 = new TextView(this);
-			tv6.setText(R.string.guide6);
-			tv6.setPadding(0, 30, 0, 0);
-			tv6.setTextSize(20f);
-			tv6.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-			layout.addView(tv6);
-
-			ImageView avatarShopExample = new ImageView(this);
-			avatarShopExample.setBackgroundResource(R.drawable.welcome);
-			avatarShopExample.setPadding(20, 0, 20, 30);
-			avatarShopExample.setLayoutParams(new LinearLayout.LayoutParams(width*9/10, width*6/10));
-			layout.addView(avatarShopExample);
-
-			TextView tv7 = new TextView(this);
-			tv7.setText(R.string.guide7);
-			tv7.setPadding(0, 30, 0, 0);
-			tv7.setTextSize(20f);
-			tv7.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-			layout.addView(tv7);
-
-			sv.addView(layout);
-			adb.setView(sv);
-			adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.cancel();
+				int[] rollImages = new int[]{R.drawable.circleminus1, R.drawable.circle1, R.drawable.circle2, R.drawable.circle3, R.drawable.circle4, R.drawable.circle5};
+				LinearLayout rollNumbers = new LinearLayout(this);
+				rollNumbers.setLayoutParams(new LinearLayout.LayoutParams((int) (width * 8.5 / 10), (int) (width * 8.5 / 60)));
+				rollNumbers.setOrientation(LinearLayout.HORIZONTAL);
+				rollNumbers.setPadding(0, 0, 0, 30);
+				for (int image : rollImages) {
+					ImageView iv = new ImageView(this);
+					iv.setBackgroundResource(image);
+					iv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+					rollNumbers.addView(iv);
 				}
-			});
-			adb.show();
+				layout.addView(rollNumbers);
+
+				TextView tv5 = new TextView(this);
+				tv5.setText(R.string.guide5);
+				tv5.setPadding(0, 30, 0, 0);
+				tv5.setTextSize(20f);
+				tv5.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+				layout.addView(tv5);
+
+				ImageView rollBarExample = new ImageView(this);
+				rollBarExample.setBackgroundResource(R.drawable.rollbar_example);
+				rollBarExample.setPadding(20, 0, 20, 30);
+				rollBarExample.setLayoutParams(new LinearLayout.LayoutParams((int) (width * 8.5 / 10), (int) (width * 8.5 / 60)));
+				layout.addView(rollBarExample);
+
+				TextView tv6 = new TextView(this);
+				tv6.setText(R.string.guide6);
+				tv6.setPadding(0, 30, 0, 0);
+				tv6.setTextSize(20f);
+				tv6.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+				layout.addView(tv6);
+
+				ImageView avatarShopExample = new ImageView(this);
+				avatarShopExample.setBackgroundResource(R.drawable.welcome);
+				avatarShopExample.setPadding(20, 0, 20, 30);
+				avatarShopExample.setLayoutParams(new LinearLayout.LayoutParams(width * 9 / 10, width * 6 / 10));
+				layout.addView(avatarShopExample);
+
+				TextView tv7 = new TextView(this);
+				tv7.setText(R.string.guide7);
+				tv7.setPadding(0, 30, 0, 0);
+				tv7.setTextSize(20f);
+				tv7.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+				layout.addView(tv7);
+
+				sv.addView(layout);
+				adb.setView(sv);
+				adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.cancel();
+					}
+				});
+				adb.show();
+
+			}
 		}
 		else if (v.getId() == playOnlineButton.getId()){
+			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+				lastTimeButtonClicked = SystemClock.elapsedRealtime();
 
-			// Make sure the user is signed in
-			if (client != null && client.isConnected()) {
-				Intent intent = new Intent(this, OnlineActivity.class);
-				intent.putExtra("Song", mp.getCurrentPosition());
-				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-				startActivity(intent);
-				finish();
-			}
-			else {
-				Toast t = Toast.makeText(context, "You must be signed in to Google to play online.", Toast.LENGTH_SHORT);
-				t.show();
+				// Make sure the user is signed in
+				if (client != null && client.isConnected()) {
+					Intent intent = new Intent(this, OnlineActivity.class);
+					intent.putExtra("Song", mp.getCurrentPosition());
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+					startActivity(intent);
+					finish();
+				} else {
+					Toast t = Toast.makeText(context, "You must be signed in to Google to play online.", Toast.LENGTH_SHORT);
+					t.show();
+				}
+
 			}
 		}
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
+			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+				lastTimeButtonClicked = SystemClock.elapsedRealtime();
 
-			// Display the correct message for Google Sign In based on client status
-			if (client.isConnected()) signInStatus = "Sign Out Of Google";
-			else signInStatus = "Sign In To Google";
+				// Display the correct message for Google Sign In based on client status
+				if (client.isConnected()) signInStatus = "Sign Out Of Google";
+				else signInStatus = "Sign In To Google";
 
-			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			final CharSequence[] items = {"Share", "Rate This App", "Achievements", signInStatus, soundStatus, "Credits", "Close"};
-			adb.setTitle("Options");
-			adb.setItems(items, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int item) {
-					if (item == 0){
-						String message = "I am playing a board game for Android called Yut! Try it out at https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori";
-						Intent share = new Intent(Intent.ACTION_SEND);
-						share.setType("text/plain");
-						share.putExtra(Intent.EXTRA_TEXT, message);
-						startActivity(Intent.createChooser(share, "Share"));
-					}
-					else if (item == 1){
-						Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
-						startActivity(intent);
-					}
-					else if (item == 2){
-						if (client.isConnected()) {
-							startActivityForResult(Games.Achievements.getAchievementsIntent(client), 0);
-						} else {
-							Toast savedToast = Toast.makeText(context, "You must be signed in to view achievements", Toast.LENGTH_SHORT);
-							savedToast.show();
+				AlertDialog.Builder adb = new AlertDialog.Builder(this);
+				final CharSequence[] items = {"Share", "Rate This App", "Achievements", signInStatus, soundStatus, "Credits", "Close"};
+				adb.setTitle("Options");
+				adb.setItems(items, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int item) {
+						if (item == 0) {
+							String message = "I am playing a board game for Android called Yut! Try it out at https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori";
+							Intent share = new Intent(Intent.ACTION_SEND);
+							share.setType("text/plain");
+							share.putExtra(Intent.EXTRA_TEXT, message);
+							startActivity(Intent.createChooser(share, "Share"));
+						} else if (item == 1) {
+							Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
+							startActivity(intent);
+						} else if (item == 2) {
+							if (client.isConnected()) {
+								startActivityForResult(Games.Achievements.getAchievementsIntent(client), 0);
+							} else {
+								Toast savedToast = Toast.makeText(context, "You must be signed in to view achievements", Toast.LENGTH_SHORT);
+								savedToast.show();
+							}
+						} else if (item == 3) {
+							if (signInStatus.equals("Sign In To Google")) signInClicked();
+							else signOutClicked();
+						} else if (item == 4) {
+							if (soundStatus.equals("Unmute Sound")) turnOnSound();
+							else turnOffSound();
+						} else if (item == 5) {
+							AlertDialog.Builder adb = new AlertDialog.Builder(context);
+							adb.setTitle("Credits");
+							ScrollView sv = new ScrollView(context);
+							TextView tv = new TextView(context);
+							tv.setPadding(0, 40, 0, 40);
+							tv.setText(R.string.credits);
+							tv.setTextSize(20f);
+							tv.setGravity(Gravity.CENTER);
+							sv.addView(tv);
+							adb.setView(sv);
+							adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int whichButton) {
+									dialog.cancel();
+								}
+							});
+							adb.show();
 						}
 					}
-					else if (item == 3){
-						if (signInStatus.equals("Sign In To Google")) signInClicked();
-						else signOutClicked();
-					}
-					else if (item == 4){
-						if (soundStatus.equals("Unmute Sound")) turnOnSound();
-						else turnOffSound();
-					}
-					else if (item == 5){
-						AlertDialog.Builder adb = new AlertDialog.Builder(context);
-						adb.setTitle("Credits");
-						ScrollView sv = new ScrollView(context);
-						TextView tv = new TextView(context);
-						tv.setPadding(0, 40, 0, 40);
-						tv.setText(R.string.credits);
-						tv.setTextSize(20f);
-						tv.setGravity(Gravity.CENTER);
-						sv.addView(tv);
-						adb.setView(sv);
-						adb.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int whichButton) {
-								dialog.cancel();
-							}
-						});
-						adb.show();
-					}
-				}
-			});
-			adb.show();
+				});
+				adb.show();
+
+			}
 		}
 	}
 
@@ -1009,7 +1033,9 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		buttons.setMotionEventSplittingEnabled(false);
 
 		// Set up button for changing avatars
-		Button setAvatarButton = new Button(this);
+		final Button setAvatarButton = new Button(this);
+		final Button buyAvatarButton = new Button(this);
+
 		setAvatarButton.setId(View.generateViewId());
 		setAvatarButton.setBackgroundResource(R.drawable.titlebutton);
 		setAvatarButton.setTextColor(Color.WHITE);
@@ -1019,7 +1045,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		setAvatarButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				setAvatar();
+				if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+					lastTimeButtonClicked = SystemClock.elapsedRealtime();
+					setAvatar();
+				}
 			}
 		});
 
@@ -1032,7 +1061,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		space3.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
 		// Set up button for buying avatars
-		Button buyAvatarButton = new Button(this);
 		buyAvatarButton.setId(View.generateViewId());
 		buyAvatarButton.setBackgroundResource(R.drawable.titlebutton);
 		buyAvatarButton.setTextColor(Color.WHITE);
@@ -1042,7 +1070,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		buyAvatarButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				buyAvatar();
+				if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
+					lastTimeButtonClicked = SystemClock.elapsedRealtime();
+					buyAvatar();
+				}
 			}
 		});
 

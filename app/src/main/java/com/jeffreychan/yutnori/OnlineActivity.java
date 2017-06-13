@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -84,6 +85,7 @@ public class OnlineActivity extends GameActivity
 	// Room ID where the currently active game is taking place; null if we're
 	// not playing.
 	String mRoomId = null;
+	Room room;
 
 	// The participants in the currently active game
 	ArrayList<Participant> mParticipants = null;
@@ -97,6 +99,7 @@ public class OnlineActivity extends GameActivity
 	SparseIntArray IDtoRID = new SparseIntArray();;
 	SparseIntArray RIDtoID = new SparseIntArray();;
 
+	boolean userPressedLeave = false;
 
 	/*
 	 * Message buffer for sending messages
@@ -129,7 +132,10 @@ public class OnlineActivity extends GameActivity
 	public void onClick(View v) {
 
 		if (isGameOver && mCurScreen == R.id.rl) return;
-		if (turn == 1 && mCurScreen == R.id.rl) return;  // not your turn
+		if (turn == 1 && mCurScreen == R.id.rl) {   // not your turn
+			checkRoomStatus();
+			return;
+		}
 
 		if (v.getId() == R.id.button_sign_in) {
 			mSignInClicked = true;
@@ -139,6 +145,7 @@ public class OnlineActivity extends GameActivity
 			startQuickGame();   			// User wants to play against a random opponent right now
 		}
 		else if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
+			checkRoomStatus();
 			handleRoll();
 			broadcastClick(Op.CLICK_ROLL_BUTTON, rollAmount);
 		}
@@ -258,6 +265,7 @@ public class OnlineActivity extends GameActivity
 			adb.setView(tv);
 			adb.setPositiveButton("Leave", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
+					userPressedLeave = true;
 					leaveRoom();
 				}
 			});
@@ -278,9 +286,11 @@ public class OnlineActivity extends GameActivity
 	// Leave the room.
 	void leaveRoom() {
 		stopKeepingScreenOn();
+		opponentId = null;
 		if (mRoomId != null) {
 			Games.RealTimeMultiplayer.leave(client, this, mRoomId);
 			mRoomId = null;
+			room = null;
 			switchToScreen(R.id.screen_wait);
 		} else {
 			switchToMainScreen();
@@ -321,6 +331,7 @@ public class OnlineActivity extends GameActivity
 		// save room ID if its not initialized in onRoomCreated() so we can leave cleanly before the game starts.
 		if(mRoomId==null)
 			mRoomId = room.getRoomId();
+			this.room = room;
 	}
 
 	// Called when we've successfully left the room (this happens a result of voluntarily leaving
@@ -335,6 +346,7 @@ public class OnlineActivity extends GameActivity
 	@Override
 	public void onDisconnectedFromRoom(Room room) {
 		mRoomId = null;
+		this.room = null;
 		showGameError();
 	}
 
@@ -354,6 +366,7 @@ public class OnlineActivity extends GameActivity
 
 		// save room ID so we can leave cleanly before the game starts.
 		mRoomId = room.getRoomId();
+		this.room = room;
 
 		// show the waiting room UI
 		showWaitingRoom(room);
@@ -435,6 +448,7 @@ public class OnlineActivity extends GameActivity
 	void updateRoom(Room room) {
 		if (room != null) {
 			mParticipants = room.getParticipants();
+			this.room = room;
 		}
 	}
 
@@ -446,7 +460,7 @@ public class OnlineActivity extends GameActivity
 	void startGame() {
 		switchToScreen(R.id.rl);
 
-		if (mParticipants == null) leaveRoom();
+		checkRoomStatus();
 
 		// Clear previous IDs
 		participantIds.clear();
@@ -474,6 +488,7 @@ public class OnlineActivity extends GameActivity
 			opponentId = participantIds.get(0);
 		}
 
+		turnText.setVisibility(View.VISIBLE);
 		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
 
 		if (turn == 1) {
@@ -693,6 +708,23 @@ public class OnlineActivity extends GameActivity
 	};
 
 	void switchToScreen(int screenId) {
+
+		if (mCurScreen == R.id.rl) {
+			if (mParticipants != null) {
+				for (Participant p: mParticipants) {
+					if (p.getParticipantId().equals(mMyId))
+						continue;
+					// Status can be STATUS_LEFT or STATUS_JOINED (doesn't seem to update quick enough)
+					if (!userPressedLeave && (p.getStatus() == Participant.STATUS_LEFT || p.getStatus() == Participant.STATUS_JOINED)) {
+						Toast t = Toast.makeText(this, "Opponent has left the game", Toast.LENGTH_SHORT);
+						t.show();
+					}
+				}
+			}
+		}
+
+		userPressedLeave = false;
+
 		// make the requested screen visible; hide all others.
 		for (int id : SCREENS) {
 			findViewById(id).setVisibility(screenId == id ? View.VISIBLE : View.GONE);
@@ -752,6 +784,8 @@ public class OnlineActivity extends GameActivity
 	protected void endMove(){
 
 		if (isGameOver) return;
+
+		checkRoomStatus();
 
 		if (players[turn].hasAllPiecesOnBoard() || capture){
 			offBoardPiece.setVisibility(View.INVISIBLE);
@@ -887,12 +921,6 @@ public class OnlineActivity extends GameActivity
 		isGameOver = false;
 		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
 
-		String text;
-		if (turn == 1) text = "Opponent's Turn";
-		else text = "Your Turn";
-
-		turnText.setText(text);
-		turnText.setVisibility(View.VISIBLE);
 	}
 
 	/*
@@ -934,6 +962,21 @@ public class OnlineActivity extends GameActivity
 				IDtoRID.put(ID, playerOnBoardImages[0][i].getId());
 				RIDtoID.put(playerOnBoardImages[0][i].getId(), ID);
 				ID++;
+			}
+		}
+	}
+
+	/*
+	 * Verify that the room still has 2 users
+	 */
+	void checkRoomStatus() {
+		if (mParticipants != null) {
+			for (Participant p: mParticipants) {
+				if (p.getParticipantId().equals(mMyId))
+					continue;
+				if (p.getStatus() == Participant.STATUS_LEFT) {
+					leaveRoom();
+				}
 			}
 		}
 	}
