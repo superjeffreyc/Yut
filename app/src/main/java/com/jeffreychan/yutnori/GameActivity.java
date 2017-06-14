@@ -144,9 +144,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	// Set to false to require the user to click the button in order to sign in.
 	boolean mAutoStartSignInFlow = true;
 
-	int width;  // width of screen
-
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -196,7 +193,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		width = size.x;
+		int width = size.x;
 		int height = size.y - AdSize.SMART_BANNER.getHeightInPixels(this);
 		heightOffset = (float) (height/20.0);
 

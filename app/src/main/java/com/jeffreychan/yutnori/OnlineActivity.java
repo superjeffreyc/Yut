@@ -17,6 +17,7 @@ package com.jeffreychan.yutnori;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
@@ -45,6 +46,9 @@ import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListene
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 
 import com.google.example.games.basegameutils.BaseGameUtils;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -82,10 +86,14 @@ public class OnlineActivity extends GameActivity
      */
 	int mCurScreen = -1;
 
+	Context context = this;
+	Thread thread;
+
 	// Room ID where the currently active game is taking place; null if we're
 	// not playing.
 	String mRoomId = null;
 	Room room;
+	int version = 0;
 
 	// The participants in the currently active game
 	ArrayList<Participant> mParticipants = null;
@@ -96,8 +104,8 @@ public class OnlineActivity extends GameActivity
 	// Opponent participant ID in the currently active game
 	String opponentId = null;
 
-	SparseIntArray IDtoRID = new SparseIntArray();;
-	SparseIntArray RIDtoID = new SparseIntArray();;
+	SparseIntArray IDtoRID = new SparseIntArray();
+	SparseIntArray RIDtoID = new SparseIntArray();
 
 	boolean userPressedLeave = false;
 
@@ -142,7 +150,9 @@ public class OnlineActivity extends GameActivity
 			client.connect();
 		}
 		else if (v.getId() == R.id.button_quick_game) {
-			startQuickGame();   			// User wants to play against a random opponent right now
+			switchToScreen(R.id.screen_wait);
+			getVersion();
+			verifyVersion();
 		}
 		else if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
 			checkRoomStatus();
@@ -180,7 +190,6 @@ public class OnlineActivity extends GameActivity
 		rtmConfigBuilder.setMessageReceivedListener(this);
 		rtmConfigBuilder.setRoomStatusUpdateListener(this);
 		rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
-		switchToScreen(R.id.screen_wait);
 		keepScreenOn();
 		resetGameVars();
 		Games.RealTimeMultiplayer.create(client, rtmConfigBuilder.build());
@@ -474,7 +483,6 @@ public class OnlineActivity extends GameActivity
 			turn = 0;
 			board.playerTurn = 0;
 			oppTurn = 1;
-			canRoll = true;
 			turnText.setText(R.string.your_turn);
 			opponentId = participantIds.get(1);
 		}
@@ -484,12 +492,12 @@ public class OnlineActivity extends GameActivity
 			oppTurn = 0;
 			turnText.setText(R.string.opponent_turn);
 			rollButton.setVisibility(View.INVISIBLE);
-			canRoll = false;
 			opponentId = participantIds.get(0);
 		}
 
 		turnText.setVisibility(View.VISIBLE);
 		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
+		currentPieceImage = offBoardPiece;
 
 		if (turn == 1) {
 			bottomBar.setBackgroundResource(R.drawable.bar1);
@@ -635,6 +643,7 @@ public class OnlineActivity extends GameActivity
 
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
+					canRoll = true;
 				}
 				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
 				else {
@@ -909,8 +918,9 @@ public class OnlineActivity extends GameActivity
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
 				players[i].pieces[j].setLocation(-1);
+				playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][0]);
 				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
-				playerOnBoardImages[i][j].setX(-width);
+				playerOnBoardImages[i][j].setX(-tiles[0].getX());
 			}
 		}
 
@@ -978,6 +988,64 @@ public class OnlineActivity extends GameActivity
 					leaveRoom();
 				}
 			}
+		}
+	}
+
+	void getVersion() {
+
+		thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try  {
+					Document doc = Jsoup.connect("https://superjeffreyc.github.io/yut_version").get();
+					version = Integer.parseInt(doc.body().text());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		thread.start();
+
+		// Wait for the thread to finish
+		try {
+			thread.join();
+		}
+		catch (InterruptedException e) {
+			version = 0;
+		}
+	}
+
+	void verifyVersion() {
+		if (version == 0) {
+			Toast t = Toast.makeText(context, "Failed to verify app version. Please make sure you are connected to the Internet.", Toast.LENGTH_SHORT);
+			t.show();
+		}
+		else if (version > BuildConfig.VERSION_CODE) {
+			AlertDialog.Builder adb = new AlertDialog.Builder(context);
+			TextView tv = new TextView(context);
+			tv.setPadding(0, 40, 0, 40);
+			tv.setText(R.string.update);
+			tv.setTextSize(20f);
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			adb.setView(tv);
+			adb.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					quit();
+					Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
+					startActivity(intent);
+				}
+			});
+			adb.setNegativeButton("Later", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					quit();
+				}
+			});
+			adb.show();
+		}
+		else {
+			startQuickGame();            // User wants to play against a random opponent right now
 		}
 	}
 }
