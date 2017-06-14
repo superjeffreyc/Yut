@@ -40,6 +40,7 @@ import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
+import com.google.android.gms.games.multiplayer.realtime.RealTimeMultiplayer;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
@@ -108,14 +109,20 @@ public class OnlineActivity extends GameActivity
 	SparseIntArray RIDtoID = new SparseIntArray();
 
 	boolean userPressedLeave = false;
+	boolean isSendingData = false;
+	int frame = 0;
+	int currentAckFrame = 0;
 
 	/*
 	 * Message buffer for sending messages
 	 *
 	 * Byte 0 = Op
 	 * Bytes 1-4 = An integer that is op specific. -1 if unused.
+	 * Bytes 5-8 = Frame Number
 	 */
-	byte[] mMsgBuf = new byte[5];
+	byte[] mMsgBuf = new byte[9];
+
+	int ackcount = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -144,7 +151,11 @@ public class OnlineActivity extends GameActivity
 			return;
 		}
 		if (isMoveInProgress && mCurScreen == R.id.rl) return;
-
+		if (isSendingData && mCurScreen == R.id.rl) return;
+		if (mCurScreen == R.id.rl) {
+			isSendingData = true;
+			frame++;
+		}
 
 		if (v.getId() == R.id.button_sign_in) {
 			mSignInClicked = true;
@@ -156,28 +167,28 @@ public class OnlineActivity extends GameActivity
 			verifyVersion();
 		}
 		else if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
-			broadcastClick(Op.CLICK_ROLL_BUTTON, rollAmount);
 			handleRoll();
+			broadcastClick(Op.CLICK_ROLL_BUTTON, rollAmount, frame);
 		}
 		else if (v.getId() == finish.getId()) {
-			broadcastClick(Op.CLICK_FINISH, -1);
 			movePiece(32, Move.NORMAL); // 32 = finish location
+			broadcastClick(Op.CLICK_FINISH, -1, frame);
 		}
 		else if (v.getId() == offBoardPiece.getId()) {  // Image that represents both players' off board pieces
-			broadcastClick(Op.CLICK_OFF_BOARD_PIECE, -1);
-			showPossibleTiles(players[turn].findAvailablePiece());
+			showPossibleTiles(players[0].findAvailablePiece());
+			broadcastClick(Op.CLICK_OFF_BOARD_PIECE, -1, frame);
 		}
 		else if (tile_ids.contains(v.getId())){    // Activates on tile click
-			broadcastClick(Op.CLICK_TILE, RIDtoID.get(v.getId()));
 			handleTileClick(v);
+			broadcastClick(Op.CLICK_TILE, RIDtoID.get(v.getId()), frame);
 		}
 		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
-			broadcastClick(Op.CLICK_PLAYER, RIDtoID.get(v.getId()));
 			handlePlayerClick(v);
+			broadcastClick(Op.CLICK_PLAYER, RIDtoID.get(v.getId()), frame);
 		}
 		else {
-			broadcastClick(Op.CLICK_EMPTY, -1);
 			hidePossibleTiles();    // Cancel move by clicking anything else
+			broadcastClick(Op.CLICK_EMPTY, -1, frame);
 		}
 	}
 
@@ -484,14 +495,14 @@ public class OnlineActivity extends GameActivity
 			turn = 0;
 			board.playerTurn = 0;
 			oppTurn = 1;
-			turnText.setText(R.string.your_turn);
+			turnText.setText("");
 			opponentId = participantIds.get(1);
 		}
 		else {
 			turn = 1;
 			board.playerTurn = 1;
 			oppTurn = 0;
-			turnText.setText(R.string.opponent_turn);
+			turnText.setText("");
 			rollButton.setVisibility(View.INVISIBLE);
 			opponentId = participantIds.get(0);
 		}
@@ -533,48 +544,82 @@ public class OnlineActivity extends GameActivity
 		if (!sender.equals(opponentId)) leaveRoom();
 
 		// Get the view that the opponent clicked
-		byte[] arr = { buf[1], buf[2], buf[3], buf[4] };
-		ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
-		int extra = wrapped.getInt();
+		byte[] arr1 = { buf[1], buf[2], buf[3], buf[4] };
+		byte[] arr2 = { buf[5], buf[6], buf[7], buf[8] };
+		ByteBuffer bb1 = ByteBuffer.wrap(arr1); // big-endian by default
+		ByteBuffer bb2 = ByteBuffer.wrap(arr2); // big-endian by default
+		int data = bb1.getInt();
+		int frame = bb2.getInt();
+
+		// Already received this frame
+		if (buf[0] != Op.ACK && frame <= this.frame) {
+			broadcastClick(Op.ACK, -1, frame);  // Re-send ACK
+			return;
+		}
 
 		if (buf[0] == Op.CLICK_ROLL_BUTTON) {
-			handleRoll(extra);
+			handleRoll(data);
 		}
 		else if (buf[0] == Op.CLICK_FINISH) {
 			movePiece(32, Move.NORMAL); // 32 = finish location
 		}
 		else if (buf[0] == Op.CLICK_OFF_BOARD_PIECE) {  // Image that represents both players' off board pieces
-			showPossibleTiles(players[turn].findAvailablePiece());
+			showPossibleTiles(players[1].findAvailablePiece());
 		}
 		else if (buf[0] == Op.CLICK_TILE){    // Activates on tile click
-			handleTileClick(findViewById(IDtoRID.get(extra)));
+			handleTileClick(findViewById(IDtoRID.get(data)));
 		}
 		else if (buf[0] == Op.CLICK_PLAYER){  // Activates on animal click; animal covers tile
-			handlePlayerClick(findViewById(IDtoRID.get(extra)));
+			handlePlayerClick(findViewById(IDtoRID.get(data)));
 		}
 		else if (buf[0] == Op.CLICK_EMPTY){
 			hidePossibleTiles();    // Cancel move by clicking anything else
 		}
+		else if (buf[0] == Op.ACK) {
+			if (frame == this.frame) {
+				currentAckFrame = frame;
+				isSendingData = false;
+				ackcount = 0;
+			}
+		}
 		else {  // Invalid op
 			leaveRoom();
+		}
+
+		// If this is not an ACK, tell the other user that we received the message
+		if (buf[0] != Op.ACK ) {
+			if (frame == this.frame + 1) {     // ACK
+				this.frame += 1;
+				currentAckFrame = frame;
+				broadcastClick(Op.ACK, -1, frame);
+				tips.setText("FRAME: " + Integer.valueOf(frame).toString());
+			}
+			else {                                  // Too far out of sync
+				leaveRoom();
+			}
 		}
 	}
 
 	// Broadcast my score to everybody else.
-	void broadcastClick(byte op, int viewId) {
+	void broadcastClick(byte op, int viewId, int frame) {
 
 		// First byte in message indicates the type of click
 		mMsgBuf[0] = op;
 
 		// Bytes 1-4 indicate the viewId (if applicable)
-		ByteBuffer b = ByteBuffer.allocate(4);
+		ByteBuffer b = ByteBuffer.allocate(8);
 		b.order(ByteOrder.BIG_ENDIAN);
 		b.putInt(viewId);
+		b.putInt(frame);
 		byte[] bytes = b.array();
 		mMsgBuf[1] = bytes[0];
 		mMsgBuf[2] = bytes[1];
 		mMsgBuf[3] = bytes[2];
 		mMsgBuf[4] = bytes[3];
+		mMsgBuf[5] = bytes[4];
+		mMsgBuf[6] = bytes[5];
+		mMsgBuf[7] = bytes[6];
+		mMsgBuf[8] = bytes[7];
 
 		// Send to opponent
 		for (Participant p : mParticipants) {
@@ -584,9 +629,23 @@ public class OnlineActivity extends GameActivity
 				continue;
 
 			// Send the data
-			Games.RealTimeMultiplayer.sendReliableMessage(client, null, mMsgBuf,
-						mRoomId, p.getParticipantId());
+			Games.RealTimeMultiplayer.sendReliableMessage(client, new RealTimeMultiplayer.ReliableMessageSentCallback() {
 
+				@Override
+				public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId){
+					if (statusCode == GamesStatusCodes.STATUS_OK) {
+//						tips.setText("STATUS_OK");
+					}
+					else {
+						tips.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
+						turnText.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
+						turnText.setVisibility(View.VISIBLE);
+					}
+				}}, mMsgBuf, mRoomId, p.getParticipantId());
+
+			if (op != Op.ACK) {
+				waitForACK(frame);
+			}
 		}
 	}
 
@@ -643,7 +702,7 @@ public class OnlineActivity extends GameActivity
 					if (turn == 1) text = "Opponent Roll Again!";
 					else text = "Roll Again!";
 
-					turnText.setText(text);
+//					turnText.setText(text);TODO
 					turnText.setVisibility(View.VISIBLE);
 					canRoll = true;
 				}
@@ -683,9 +742,9 @@ public class OnlineActivity extends GameActivity
 						offBoardPiece.setVisibility(View.VISIBLE);
 						offBoardPieceAnimation.start();
 
-						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
+//						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);TODO
 					} else if (players[turn].hasAllPiecesOnBoard()){
-						tips.setText(playerTips[turn]);
+//						tips.setText(playerTips[turn]);TODO
 					}
 
 					for (int j = 0; j < 4; j++){
@@ -695,7 +754,7 @@ public class OnlineActivity extends GameActivity
 					}
 
 					if (turn == 1) {
-						tips.setText(R.string.opponent);
+//						tips.setText(R.string.opponent);TODO
 					}
 				}
 			}
@@ -807,9 +866,9 @@ public class OnlineActivity extends GameActivity
 			if (turn == 1) text = "Opponent Roll Again!";
 			else text = "Roll Again!";
 
-			turnText.setText(text);
+//			turnText.setText(text); TODO
 			turnText.setVisibility(View.VISIBLE);
-			tips.setVisibility(View.INVISIBLE);
+//			tips.setVisibility(View.INVISIBLE); TODO
 
 			isRollDone = false;
 			canRoll = true;
@@ -837,7 +896,7 @@ public class OnlineActivity extends GameActivity
 		updateOffBoardImages();
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
-		tips.setVisibility(View.INVISIBLE);
+//		tips.setVisibility(View.INVISIBLE);TODO
 
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);
 		TextView tv = new TextView(this);
@@ -870,6 +929,16 @@ public class OnlineActivity extends GameActivity
 	}
 
 	protected void resetGameVars() {
+
+		// Reset frames
+		frame = 0;
+		currentAckFrame = 0;
+
+		// Clear message buffer
+		for (int i = 0; i < 9; i++) {
+			mMsgBuf[i] = 0;
+		}
+
 		turn = 0;
 		oppTurn = 1;
 
@@ -889,8 +958,8 @@ public class OnlineActivity extends GameActivity
 		offBoardPieceAnimation.stop();
 		offBoardPieceAnimation.selectDrawable(0);
 
-		tips.setVisibility(View.INVISIBLE);
-		tips.setText(playerTips[turn]);
+//		tips.setVisibility(View.INVISIBLE);//TODO
+//		tips.setText(playerTips[turn]);TODO
 		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
 
 		if (turn == 1) {
@@ -1054,27 +1123,59 @@ public class OnlineActivity extends GameActivity
 	}
 
 	void updateOnBoardImages() {
-		String s = "";
+
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
 				int location = players[i].pieces[j].getLocation();
 				if (location != -1 && location != 32) {
 					playerOnBoardImages[i][j].setX(tiles[location].getX());
 					playerOnBoardImages[i][j].setY(tiles[location].getY());
+					playerOnBoardImages[i][j].bringToFront();
+					turnText.bringToFront();
 				}
-
-				s += location + " ";
-
 			}
 		}
-
-		tips.setVisibility(View.VISIBLE);
-		tips.setText(s);
 
 	}
 
 	protected void prepareForNextTurn() {
-		super.prepareForNextTurn();
 		updateOnBoardImages();
+		super.prepareForNextTurn();
+	}
+
+	void waitForACK(final int waitFrame) {
+		tips.setText("ACK: " + Integer.valueOf(ackcount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
+
+
+		final Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+
+				if (waitFrame - currentAckFrame == 1) {
+
+					ackcount++;
+					tips.setText("ACK: " + Integer.valueOf(ackcount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
+
+					// Send the data
+					Games.RealTimeMultiplayer.sendReliableMessage(client, new RealTimeMultiplayer.ReliableMessageSentCallback() {
+
+						@Override
+						public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId){
+							if (statusCode == GamesStatusCodes.STATUS_OK) {
+//								tips.setText("STATUS_OK");
+							}
+							else {
+								tips.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
+								turnText.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
+								turnText.setVisibility(View.VISIBLE);
+							}
+						}}, mMsgBuf, mRoomId, opponentId);
+
+					handler.postDelayed(this, 3000);
+				}
+			}
+		}, 1000);
 	}
 }
