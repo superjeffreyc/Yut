@@ -141,9 +141,10 @@ public class OnlineActivity extends GameActivity
 
 		if (isGameOver && mCurScreen == R.id.rl) return;
 		if (turn == 1 && mCurScreen == R.id.rl) {   // not your turn
-			checkRoomStatus();
 			return;
 		}
+		if (isMoveInProgress && mCurScreen == R.id.rl) return;
+
 
 		if (v.getId() == R.id.button_sign_in) {
 			mSignInClicked = true;
@@ -155,29 +156,28 @@ public class OnlineActivity extends GameActivity
 			verifyVersion();
 		}
 		else if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
-			checkRoomStatus();
-			handleRoll();
 			broadcastClick(Op.CLICK_ROLL_BUTTON, rollAmount);
+			handleRoll();
 		}
 		else if (v.getId() == finish.getId()) {
-			movePiece(32, Move.NORMAL); // 32 = finish location
 			broadcastClick(Op.CLICK_FINISH, -1);
+			movePiece(32, Move.NORMAL); // 32 = finish location
 		}
 		else if (v.getId() == offBoardPiece.getId()) {  // Image that represents both players' off board pieces
-			showPossibleTiles(players[turn].findAvailablePiece());
 			broadcastClick(Op.CLICK_OFF_BOARD_PIECE, -1);
+			showPossibleTiles(players[turn].findAvailablePiece());
 		}
 		else if (tile_ids.contains(v.getId())){    // Activates on tile click
-			handleTileClick(v);
 			broadcastClick(Op.CLICK_TILE, RIDtoID.get(v.getId()));
+			handleTileClick(v);
 		}
 		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
-			handlePlayerClick(v);
 			broadcastClick(Op.CLICK_PLAYER, RIDtoID.get(v.getId()));
+			handlePlayerClick(v);
 		}
 		else {
-			hidePossibleTiles();    // Cancel move by clicking anything else
 			broadcastClick(Op.CLICK_EMPTY, -1);
+			hidePossibleTiles();    // Cancel move by clicking anything else
 		}
 	}
 
@@ -232,6 +232,9 @@ public class OnlineActivity extends GameActivity
 	// Activity is going to the background. We have to leave the current room.
 	@Override
 	public void onStop() {
+
+		userPressedLeave = true;
+
 		// if we're in a room, leave it.
 		leaveRoom();
 
@@ -467,8 +470,6 @@ public class OnlineActivity extends GameActivity
 
 	// Start the game and determine who goes first
 	void startGame() {
-		switchToScreen(R.id.rl);
-
 		checkRoomStatus();
 
 		// Clear previous IDs
@@ -497,7 +498,7 @@ public class OnlineActivity extends GameActivity
 
 		turnText.setVisibility(View.VISIBLE);
 		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
-		currentPieceImage = offBoardPiece;
+		currentPieceImage = playerOnBoardImages[turn][0];
 
 		if (turn == 1) {
 			bottomBar.setBackgroundResource(R.drawable.bar1);
@@ -514,6 +515,7 @@ public class OnlineActivity extends GameActivity
 		// Set up dictionary of ID conversions
 		setupIDs();
 
+		switchToScreen(R.id.rl);
 	}
 
     /*
@@ -794,8 +796,6 @@ public class OnlineActivity extends GameActivity
 
 		if (isGameOver) return;
 
-		checkRoomStatus();
-
 		if (players[turn].hasAllPiecesOnBoard() || capture){
 			offBoardPiece.setVisibility(View.INVISIBLE);
 			offBoardPieceAnimation.stop();
@@ -817,6 +817,7 @@ public class OnlineActivity extends GameActivity
 
 		hidePossibleTiles();
 		updateOffBoardImages();
+		updateOnBoardImages();
 
 		if ((!capture && board.rollEmpty()) || (board.hasOnlyNegativeRoll() && players[turn].hasNoPiecesOnBoard())) endTurn();
 
@@ -851,13 +852,15 @@ public class OnlineActivity extends GameActivity
 		tv.setTextSize(20f);
 		tv.setGravity(Gravity.CENTER_HORIZONTAL);
 		adb.setView(tv);
-		adb.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+		adb.setNegativeButton("Close", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
+				userPressedLeave = true;
 				leaveRoom();
 			}
 		});
 		adb.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
+				userPressedLeave = true;
 				leaveRoom();
 				Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
 				startActivity(intent);
@@ -929,6 +932,7 @@ public class OnlineActivity extends GameActivity
 		canRoll = true;
 		isEndTurn = false;
 		isGameOver = false;
+		isMoveInProgress = false;
 		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
 
 	}
@@ -1047,5 +1051,30 @@ public class OnlineActivity extends GameActivity
 		else {
 			startQuickGame();            // User wants to play against a random opponent right now
 		}
+	}
+
+	void updateOnBoardImages() {
+		String s = "";
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				int location = players[i].pieces[j].getLocation();
+				if (location != -1 && location != 32) {
+					playerOnBoardImages[i][j].setX(tiles[location].getX());
+					playerOnBoardImages[i][j].setY(tiles[location].getY());
+				}
+
+				s += location + " ";
+
+			}
+		}
+
+		tips.setVisibility(View.VISIBLE);
+		tips.setText(s);
+
+	}
+
+	protected void prepareForNextTurn() {
+		super.prepareForNextTurn();
+		updateOnBoardImages();
 	}
 }

@@ -104,13 +104,11 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	int[] player_id = new int[2];       // Holds each player's avatar id
 
 	boolean isLeft = false;             // Are the initial buttons (Start, How To Play, Quit) off screen to the left
-	boolean fromBoard;                  // Is this activity being launched from BoardActivity?
 	boolean isP1spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
 	boolean isP2spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
 
 	GoogleApiClient client;
 	String signInStatus = "Sign In To Google";
-	String connectedStatus = "";
 
 	String soundStatus = "Mute Sound";
 	boolean soundOn = true;
@@ -136,10 +134,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		mp = MediaPlayer.create(this, R.raw.song);
 		mp.setLooping(true);
 		if (getIntent().hasExtra("Song")) mpPos = getIntent().getExtras().getInt("Song");
-		if (getIntent().hasExtra("Board")) fromBoard = true;
-		if (getIntent().hasExtra("SignedIn")) connectedStatus = getIntent().getExtras().getString("SignedIn");
-
-
 		mp.seekTo(mpPos);
 
 		// Create client to connect to Google Play Games
@@ -150,7 +144,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				.addOnConnectionFailedListener(this)
 				.build();
 
-		if (!fromBoard || connectedStatus.equals("Connected")) client.connect();
 		if (client.isConnected()) signInStatus = "Sign Out Of Google";
 
 		// Formula to modify volume from https://stackoverflow.com/questions/5215459/android-mediaplayer-setvolume-function

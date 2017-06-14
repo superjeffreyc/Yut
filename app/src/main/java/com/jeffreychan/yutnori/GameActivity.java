@@ -46,7 +46,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	boolean isGameOver;         // Is the game over
 	boolean isMoveInProgress;
 
-	String connectedStatus = "";
 	String[] playerTips = new String[2];
 
 	int rollAmount;
@@ -157,7 +156,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		loadAvatars();
 
 		// Gets mode selected from TitleScreenActivity
-		connectedStatus = getIntent().getExtras().getString("SignedIn");
 		mpPos = getIntent().getExtras().getInt("Song");
 
 		// Set up GoogleApiClient
@@ -425,6 +423,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
+		currentPieceImage = playerOnBoardImages[turn][0];
 
 		// Set up character that represents off board pieces
 		offBoardPiece = new ImageView(this);
@@ -437,7 +436,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		offBoardPiece.setVisibility(View.INVISIBLE);
 		rl.addView(offBoardPiece);
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
-		currentPieceImage = offBoardPiece;
 
 		// Roll button animation
 		AnimationDrawable rollFlash = (AnimationDrawable) rollButton.getBackground();
@@ -655,7 +653,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() - diagonalMoveSize));
 				currentPieceImage.setY((float) (currentPieceImage.getY() + diagonalMoveSize));
-				currentPieceImage.setVisibility(View.GONE);
+				currentPieceImage.setVisibility(View.INVISIBLE);
 				endAnimation();
 			}
 
@@ -904,11 +902,11 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				break;
 			}
 		}
-		calculateAnimationOrder(dest, numMoves);
-		startNextAnimation();
 
-		currentPiece.setLocation(dest);
 		currentMoveType = m;
+		calculateAnimationOrder(dest, numMoves);
+		currentPiece.setLocation(dest);
+		startNextAnimation();
 	}
 
 	/*
@@ -943,7 +941,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 * B = Move down and right
 	 * C = Move down and left
 	 * E = Move up and left
-	 * F = Set visibility to gone
+	 * F = Set visibility to invisible
 	 *
 	 * Shown as an image:
 	 *
@@ -982,6 +980,9 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			hidePossibleTiles();
 
 			if (players[turn].hasWon()) endGame();
+		}
+		else {
+			currentPieceImage.setX(tiles[currentPiece.getLocation()].getX());
 		}
 
 		// Set off board piece visible if not the end of game
