@@ -360,9 +360,9 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		tips.setLayoutParams(new RelativeLayout.LayoutParams(width, (int) (height / 20.0)));
 		tips.setY(heightOffset + (int) (height * 7.7 / 10.0));
 		tips.setGravity(Gravity.CENTER);
-//		tips.setText(R.string.click_me);TODO
+		tips.setText(R.string.click_me);
 		tips.setTextColor(Color.BLACK);
-//		tips.setVisibility(View.INVISIBLE);TODO
+		tips.setVisibility(View.INVISIBLE);
 		rl.addView(tips);
 
 		// Set up player bars
@@ -463,7 +463,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		turnText.setY(heightOffset + (int) (height * 2 / 10.0));
 		turnText.setGravity(Gravity.CENTER);
 		String text = "Player 1's Turn";
-//		turnText.setText(text);TODO
+		turnText.setText(text);
 		turnText.setTextColor(Color.WHITE);
 		turnText.setBackgroundColor(Color.parseColor("#56AFC1"));
 		turnText.setAlpha(0.8f);    // Set slight transparency so users can see pieces behind it
@@ -863,12 +863,12 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				isMarked[location] = true;
 			}
 		}
-//TODO UNCOMMENT THIS BLOCK
-//		if (turn == 1) tips.setText(R.string.opponent);
-//		else {
-//			if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
-//			else tips.setText(R.string.click_yellow);
-//		}
+
+		if (turn == 1) tips.setText(R.string.opponent);
+		else {
+			if (finish.getVisibility() == View.VISIBLE) tips.setText(R.string.click_finish);
+			else tips.setText(R.string.click_yellow);
+		}
 	}
 
 	/**
@@ -884,7 +884,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		hidePossibleTiles();
 
 		offBoardPiece.setVisibility(View.INVISIBLE);
-//		tips.setVisibility(View.INVISIBLE);TODO
+		tips.setVisibility(View.INVISIBLE);
 
 		if (currentPiece.getLocation() == -1) {
 			players[turn].addNumPieces(1);
@@ -1094,7 +1094,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 					if (turn == 1) text = "Opponent Roll Again!";
 					else text = "Roll Again!";
 
-//					turnText.setText(text);TODO
+					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
 				}
 				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
@@ -1133,9 +1133,9 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 						offBoardPiece.setVisibility(View.VISIBLE);
 						offBoardPieceAnimation.start();
 
-//						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);TODO
+						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
 					} else if (players[turn].hasAllPiecesOnBoard()){
-//						tips.setText(playerTips[turn]);TODO
+						tips.setText(playerTips[turn]);
 					}
 
 					for (int j = 0; j < 4; j++){
@@ -1145,7 +1145,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 					}
 
 					if (turn == 1) {
-//						tips.setText(R.string.opponent);TODO
+						tips.setText(R.string.opponent);
 					}
 				}
 			}
@@ -1178,8 +1178,10 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 
 		finish.setVisibility(View.INVISIBLE);
 
-//		if (players[0].hasNoPiecesOnBoard() && turn == 0) tips.setText(R.string.click_me);TODO
-//		else if (turn == 0) tips.setText(playerTips[0]);TODO
+		if (isRollDone) {
+			if (players[0].hasNoPiecesOnBoard() && turn == 0) tips.setText(R.string.click_me);
+			else if (turn == 0) tips.setText(playerTips[0]);
+		}
 
 		for (int i = 0; i < MAX_TILES; i++) {
 			isMarked[i] = false;
@@ -1291,8 +1293,8 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		offBoardPieceAnimation.stop();
 		offBoardPieceAnimation.selectDrawable(0);
 
-//		tips.setVisibility(View.INVISIBLE);TODO
-//		tips.setText(playerTips[turn]);TODO
+		tips.setVisibility(View.INVISIBLE);
+		tips.setText(playerTips[turn]);
 		if (turn == 1) {
 			offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
 
@@ -1335,7 +1337,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		if (turn == 1) text = "Opponent's Turn";
 		else text = "Your Turn";
 
-//		turnText.setText(text);TODO
+		turnText.setText(text);
 		turnText.setVisibility(View.VISIBLE);
 	}
 

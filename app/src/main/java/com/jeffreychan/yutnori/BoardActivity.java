@@ -528,10 +528,12 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 
 		finish.setVisibility(View.INVISIBLE);
 
-		if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
-		else {
-			if (turn == 0) tips.setText(playerTips[0]);
-			else if (turn == 1 && !isComputerPlaying) tips.setText(playerTips[1]);
+		if (isRollDone) {
+			if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
+			else {
+				if (turn == 0) tips.setText(playerTips[0]);
+				else if (turn == 1 && !isComputerPlaying) tips.setText(playerTips[1]);
+			}
 		}
 
 		if (isComputerPlaying && turn == 1) {

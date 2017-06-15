@@ -161,9 +161,8 @@ public class OnlineActivity extends GameActivity
 	public void onClick(View v) {
 
 		if (isGameOver && mCurScreen == R.id.rl) return;
-		if (turn == 1 && mCurScreen == R.id.rl) {   // not your turn
-			return;
-		}
+		if (turn == 1 && mCurScreen == R.id.rl) return; // not your turn
+		if (mCurScreen == R.id.rl && rollButton.getVisibility() == View.VISIBLE && v.getId() != rollButton.getId()) return;
 		if (isMoveInProgress && mCurScreen == R.id.rl) return;
 		if (isSendingData && mCurScreen == R.id.rl) return;
 		if (mCurScreen == R.id.rl) {
@@ -512,14 +511,14 @@ public class OnlineActivity extends GameActivity
 			turn = 0;
 			board.playerTurn = 0;
 			oppTurn = 1;
-			turnText.setText("");
+			turnText.setText(R.string.your_turn);
 			opponentId = participantIds.get(1);
 		}
 		else {
 			turn = 1;
 			board.playerTurn = 1;
 			oppTurn = 0;
-			turnText.setText("");
+			turnText.setText(R.string.opponent_turn);
 			rollButton.setVisibility(View.INVISIBLE);
 			opponentId = participantIds.get(0);
 		}
@@ -540,7 +539,7 @@ public class OnlineActivity extends GameActivity
 			bottomBar.setAlpha(0.25f);
 		}
 
-		// Set up dictionary of ID conversions
+		// Set up conversions from intermediate IDs to view IDs
 		setupIDs();
 
 		switchToScreen(R.id.rl);
@@ -609,7 +608,6 @@ public class OnlineActivity extends GameActivity
 				this.frame += 1;
 				currentAckFrame = frame;
 				broadcastClick(Op.ACK, -1, frame);
-				tips.setText("FRAME: " + Integer.valueOf(frame).toString());
 			}
 			else {                                  // Too far out of sync
 				leaveRoom();
@@ -707,7 +705,7 @@ public class OnlineActivity extends GameActivity
 					if (turn == 1) text = "Opponent Roll Again!";
 					else text = "Roll Again!";
 
-//					turnText.setText(text);TODO
+					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
 					canRoll = true;
 				}
@@ -747,9 +745,9 @@ public class OnlineActivity extends GameActivity
 						offBoardPiece.setVisibility(View.VISIBLE);
 						offBoardPieceAnimation.start();
 
-//						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);TODO
+						if (players[turn].hasNoPiecesOnBoard()) tips.setText(R.string.click_me);
 					} else if (players[turn].hasAllPiecesOnBoard()){
-//						tips.setText(playerTips[turn]);TODO
+						tips.setText(playerTips[turn]);
 					}
 
 					for (int j = 0; j < 4; j++){
@@ -759,7 +757,7 @@ public class OnlineActivity extends GameActivity
 					}
 
 					if (turn == 1) {
-//						tips.setText(R.string.opponent);TODO
+						tips.setText(R.string.opponent);
 					}
 				}
 			}
@@ -873,9 +871,9 @@ public class OnlineActivity extends GameActivity
 			if (turn == 1) text = "Opponent Roll Again!";
 			else text = "Roll Again!";
 
-//			turnText.setText(text); TODO
+			turnText.setText(text);
 			turnText.setVisibility(View.VISIBLE);
-//			tips.setVisibility(View.INVISIBLE); TODO
+			tips.setVisibility(View.INVISIBLE);
 
 			isRollDone = false;
 			canRoll = true;
@@ -903,7 +901,7 @@ public class OnlineActivity extends GameActivity
 		updateOffBoardImages();
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
-//		tips.setVisibility(View.INVISIBLE);TODO
+		tips.setVisibility(View.INVISIBLE);
 
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);
 		TextView tv = new TextView(this);
@@ -965,8 +963,8 @@ public class OnlineActivity extends GameActivity
 		offBoardPieceAnimation.stop();
 		offBoardPieceAnimation.selectDrawable(0);
 
-//		tips.setVisibility(View.INVISIBLE);//TODO
-//		tips.setText(playerTips[turn]);TODO
+		tips.setVisibility(View.INVISIBLE);
+		tips.setText(playerTips[turn]);
 		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
 
 		if (turn == 1) {
@@ -993,6 +991,7 @@ public class OnlineActivity extends GameActivity
 			for (int j = 0; j < 4; j++) {
 				playerAnimation[i][j].stop();
 				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
+				playerOnBoardImages[i][j].setVisibility(View.VISIBLE);
 				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
@@ -1012,6 +1011,7 @@ public class OnlineActivity extends GameActivity
 		isEndTurn = false;
 		isGameOver = false;
 		isMoveInProgress = false;
+		isSendingData = false;
 		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
 
 	}
@@ -1157,9 +1157,6 @@ public class OnlineActivity extends GameActivity
 	}
 
 	void waitForACK(final int waitFrame) {
-		tips.setText("ACK: " + Integer.valueOf(resendCount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
-
-
 		final Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
 
@@ -1169,15 +1166,19 @@ public class OnlineActivity extends GameActivity
 				if (waitFrame - currentAckFrame == 1) {
 
 					resendCount++;
-					if (resendCount > 30) leaveRoom();  // No response from opponent
-					tips.setText("ACK: " + Integer.valueOf(resendCount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
 
-					// Send the data
-					Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
+					if (resendCount > 20) {
+						leaveRoom();  // No response from opponent after 20 attempts to resend
+					}
+					else {
+						// Re-send the data
+						Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
 
-					handler.postDelayed(this, 100);
+						// Check again in a bit
+						handler.postDelayed(this, 500);
+					}
 				}
 			}
-		}, 100);
+		}, 500);
 	}
 }
