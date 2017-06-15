@@ -1420,9 +1420,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			else if (!s[1].equalsIgnoreCase(item) && !s[0].equalsIgnoreCase(item)) {
 				Shop.Instance.changeAvatar(1, item, this);
 				firstImage.setBackgroundResource(Shop.Instance.getImage(item));
-			} else if (s[1].equalsIgnoreCase(item)){
-				Toast savedToast = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
-				savedToast.show();
+			}
+			else {
+				Toast t = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+				t.show();
 			}
 		} else if (parent.getId() == p2spin.getId()) {
 
@@ -1430,9 +1431,10 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			else if (!s[0].equalsIgnoreCase(item) && !s[1].equalsIgnoreCase(item)) {
 				Shop.Instance.changeAvatar(2, item, this);
 				secondImage.setBackgroundResource(Shop.Instance.getImage(item));
-			} else if (s[0].equalsIgnoreCase(item)){
-				Toast savedToast = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
-				savedToast.show();
+			}
+			else {
+				Toast t = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+				t.show();
 			}
 		}
 	}

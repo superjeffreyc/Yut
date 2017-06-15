@@ -110,6 +110,39 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 	}
 
 	/**
+	 * Handles the logic for player character clicks. There are three possible situations
+	 * when a player character is clicked:
+	 *
+	 * 1) User wants to see possible move locations
+	 * 2) User wants to stack multiple team piece(s)
+	 * 3) User wants to capture opponent's piece(s)
+	 *
+	 * @param v The player character being clicked on
+	 */
+	protected void handlePlayerClick(View v){
+		if (isRollDone) {
+			for (int i = 0; i < 4; i++) {
+
+				int myLocation = players[turn].pieces[i].getLocation();
+				int oppLocation = players[oppTurn].pieces[i].getLocation();
+
+				// Show possible move locations
+				if (v.getId() == playerOnBoardImages[turn][i].getId() && myLocation != -1 && myLocation != 32 && !isMarked[players[turn].pieces[i].getLocation()]) {
+					showPossibleTiles(i);
+				}
+				// Same team
+				else if (v.getId() == playerOnBoardImages[turn][i].getId() && myLocation != -1 && myLocation != 32 && isMarked[players[turn].pieces[i].getLocation()]) {
+					movePiece(players[turn].pieces[i].getLocation(), Move.STACK);
+				}
+				// Opponent's pieces
+				else if (v.getId() == playerOnBoardImages[oppTurn][i].getId() && oppLocation != -1 && oppLocation != 32 && isMarked[players[oppTurn].pieces[i].getLocation()]) {
+					movePiece(players[oppTurn].pieces[i].getLocation(), Move.CAPTURE);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Handles the determination of the amount rolled when the roll button is clicked
 	 * Decides what should happen next based on roll.
 	 * Ex: Rolling 4 or 5 allows the user to roll again. Rolling -1 with no pieces on the board ends the turn.

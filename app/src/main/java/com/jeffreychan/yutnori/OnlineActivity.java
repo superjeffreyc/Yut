@@ -308,6 +308,7 @@ public class OnlineActivity extends GameActivity
 
 	// Leave the room.
 	void leaveRoom() {
+		ackcount = 0;
 		stopKeepingScreenOn();
 		opponentId = null;
 		if (mRoomId != null) {
@@ -403,6 +404,8 @@ public class OnlineActivity extends GameActivity
 			return;
 		}
 		updateRoom(room);
+
+		checkRoomStatus();
 	}
 
 	@Override
@@ -800,6 +803,8 @@ public class OnlineActivity extends GameActivity
 			findViewById(id).setVisibility(screenId == id ? View.VISIBLE : View.GONE);
 		}
 		mCurScreen = screenId;
+
+		if (mCurScreen == R.id.rl) checkRoomStatus();
 	}
 
 	void switchToMainScreen() {
@@ -980,10 +985,13 @@ public class OnlineActivity extends GameActivity
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
 		}
 
+		loadAvatars();
+
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
 				playerAnimation[i][j].stop();
-				playerAnimation[i][j].selectDrawable(0);
+				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
+				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
 
@@ -1054,6 +1062,9 @@ public class OnlineActivity extends GameActivity
 	 */
 	void checkRoomStatus() {
 		if (mParticipants != null) {
+
+			if (mParticipants.size() != 2) leaveRoom();
+
 			for (Participant p: mParticipants) {
 				if (p.getParticipantId().equals(mMyId))
 					continue;
@@ -1156,6 +1167,7 @@ public class OnlineActivity extends GameActivity
 				if (waitFrame - currentAckFrame == 1) {
 
 					ackcount++;
+					if (ackcount > 30) leaveRoom();  // No response from opponent
 					tips.setText("ACK: " + Integer.valueOf(ackcount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
 
 					// Send the data
@@ -1173,9 +1185,9 @@ public class OnlineActivity extends GameActivity
 							}
 						}}, mMsgBuf, mRoomId, opponentId);
 
-					handler.postDelayed(this, 3000);
+					handler.postDelayed(this, 100);
 				}
 			}
-		}, 1000);
+		}, 100);
 	}
 }
