@@ -122,8 +122,22 @@ public class OnlineActivity extends GameActivity
 	 */
 	byte[] mMsgBuf = new byte[9];
 
-	int ackcount = 0;
+	int resendCount = 0;
 
+	private final RealTimeMultiplayer.ReliableMessageSentCallback mReliableMessageSentCallback =
+			new RealTimeMultiplayer.ReliableMessageSentCallback() {
+				@Override
+				public void onRealTimeMessageSent(final int statusCode, final int tokenId,
+				                                  final String recipientParticipantId) {
+
+					if (statusCode != GamesStatusCodes.STATUS_OK) {
+						Toast t = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+						t.show();
+						leaveRoom();
+					}
+				}
+			};
+			
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.AppTheme);
@@ -308,7 +322,7 @@ public class OnlineActivity extends GameActivity
 
 	// Leave the room.
 	void leaveRoom() {
-		ackcount = 0;
+		resendCount = 0;
 		stopKeepingScreenOn();
 		opponentId = null;
 		if (mRoomId != null) {
@@ -582,7 +596,7 @@ public class OnlineActivity extends GameActivity
 			if (frame == this.frame) {
 				currentAckFrame = frame;
 				isSendingData = false;
-				ackcount = 0;
+				resendCount = 0;
 			}
 		}
 		else {  // Invalid op
@@ -632,19 +646,7 @@ public class OnlineActivity extends GameActivity
 				continue;
 
 			// Send the data
-			Games.RealTimeMultiplayer.sendReliableMessage(client, new RealTimeMultiplayer.ReliableMessageSentCallback() {
-
-				@Override
-				public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId){
-					if (statusCode == GamesStatusCodes.STATUS_OK) {
-//						tips.setText("STATUS_OK");
-					}
-					else {
-						tips.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
-						turnText.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
-						turnText.setVisibility(View.VISIBLE);
-					}
-				}}, mMsgBuf, mRoomId, p.getParticipantId());
+			Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, p.getParticipantId());
 
 			if (op != Op.ACK) {
 				waitForACK(frame);
@@ -1155,7 +1157,7 @@ public class OnlineActivity extends GameActivity
 	}
 
 	void waitForACK(final int waitFrame) {
-		tips.setText("ACK: " + Integer.valueOf(ackcount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
+		tips.setText("ACK: " + Integer.valueOf(resendCount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
 
 
 		final Handler handler = new Handler();
@@ -1166,24 +1168,12 @@ public class OnlineActivity extends GameActivity
 
 				if (waitFrame - currentAckFrame == 1) {
 
-					ackcount++;
-					if (ackcount > 30) leaveRoom();  // No response from opponent
-					tips.setText("ACK: " + Integer.valueOf(ackcount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
+					resendCount++;
+					if (resendCount > 30) leaveRoom();  // No response from opponent
+					tips.setText("ACK: " + Integer.valueOf(resendCount).toString() + " FRAME: " + Integer.valueOf(frame).toString());
 
 					// Send the data
-					Games.RealTimeMultiplayer.sendReliableMessage(client, new RealTimeMultiplayer.ReliableMessageSentCallback() {
-
-						@Override
-						public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId){
-							if (statusCode == GamesStatusCodes.STATUS_OK) {
-//								tips.setText("STATUS_OK");
-							}
-							else {
-								tips.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
-								turnText.setText("ERROR!!!: " + Integer.valueOf(statusCode).toString());
-								turnText.setVisibility(View.VISIBLE);
-							}
-						}}, mMsgBuf, mRoomId, opponentId);
+					Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
 
 					handler.postDelayed(this, 100);
 				}
