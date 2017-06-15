@@ -143,6 +143,8 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	// Set to false to require the user to click the button in order to sign in.
 	boolean mAutoStartSignInFlow = true;
 
+	boolean isRollInProgress = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -1049,6 +1051,8 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 * Once the rolling phase is completed, prompt the user to make a move with an appropriate message
 	 */
 	protected void handleRoll(){
+		isRollInProgress = true;
+
 		rollAmount = board.throwSticks();
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
@@ -1158,6 +1162,8 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 						tips.setText(R.string.opponent);
 					}
 				}
+
+				isRollInProgress = false;
 			}
 		}, 1990);
 	}

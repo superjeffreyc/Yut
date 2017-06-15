@@ -110,6 +110,7 @@ public class OnlineActivity extends GameActivity
 
 	boolean userPressedLeave = false;
 	boolean isSendingData = false;
+	boolean hasNetworkError = false;
 	int frame = 0;
 	int currentAckFrame = 0;
 
@@ -131,9 +132,10 @@ public class OnlineActivity extends GameActivity
 				                                  final String recipientParticipantId) {
 
 					if (statusCode != GamesStatusCodes.STATUS_OK) {
+						hasNetworkError = true;
 						Toast t = Toast.makeText(context, "A network error has occurred.", Toast.LENGTH_SHORT);
 						t.show();
-						leaveRoom();
+						quit();
 					}
 				}
 			};
@@ -160,12 +162,12 @@ public class OnlineActivity extends GameActivity
 	@Override
 	public void onClick(View v) {
 
-		if (isGameOver && mCurScreen == R.id.rl) return;
-		if (turn == 1 && mCurScreen == R.id.rl) return; // not your turn
-		if (mCurScreen == R.id.rl && rollButton.getVisibility() == View.VISIBLE && v.getId() != rollButton.getId()) return;
-		if (isMoveInProgress && mCurScreen == R.id.rl) return;
-		if (isSendingData && mCurScreen == R.id.rl) return;
 		if (mCurScreen == R.id.rl) {
+			if (isGameOver) return;
+			if (turn == 1) return; // not your turn
+			if (rollButton.getVisibility() == View.VISIBLE && v.getId() != rollButton.getId()) return;
+			if (isRollInProgress || isMoveInProgress || isSendingData) return;
+
 			isSendingData = true;
 			frame++;
 		}
@@ -261,6 +263,9 @@ public class OnlineActivity extends GameActivity
 
 		// if we're in a room, leave it.
 		leaveRoom();
+
+		// Disconnect from Google Play Services
+		client.disconnect();
 
 		// stop trying to keep the screen on
 		stopKeepingScreenOn();
@@ -417,8 +422,6 @@ public class OnlineActivity extends GameActivity
 			return;
 		}
 		updateRoom(room);
-
-		checkRoomStatus();
 	}
 
 	@Override
@@ -488,6 +491,8 @@ public class OnlineActivity extends GameActivity
 		if (room != null) {
 			mParticipants = room.getParticipants();
 			this.room = room;
+
+			if (mCurScreen == R.id.rl) checkRoomStatus();
 		}
 	}
 
@@ -1023,6 +1028,7 @@ public class OnlineActivity extends GameActivity
 		isEndTurn = false;
 		isGameOver = false;
 		isMoveInProgress = false;
+		isRollInProgress = false;
 		isSendingData = false;
 		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
 
@@ -1117,8 +1123,9 @@ public class OnlineActivity extends GameActivity
 
 	void verifyVersion() {
 		if (version == 0) {
-			Toast t = Toast.makeText(context, "Failed to verify app version. Please make sure you are connected to the Internet.", Toast.LENGTH_SHORT);
+			Toast t = Toast.makeText(context, "Failed to verify app version. Please make sure you are connected to the Internet and try again.", Toast.LENGTH_SHORT);
 			t.show();
+			switchToMainScreen();
 		}
 		else if (version > BuildConfig.VERSION_CODE) {
 			AlertDialog.Builder adb = new AlertDialog.Builder(context);
@@ -1175,7 +1182,7 @@ public class OnlineActivity extends GameActivity
 			@Override
 			public void run() {
 
-				if (waitFrame - currentAckFrame == 1) {
+				if (!hasNetworkError && waitFrame - currentAckFrame == 1) {
 
 					resendCount++;
 
