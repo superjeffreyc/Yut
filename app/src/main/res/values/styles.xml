@@ -80,7 +80,7 @@
     </style>
 
     <style name="GameBlurb" parent="@style/Blurb">
-        <item name="android:text">@string/game_blurb</item>
+        <item name="android:text">@string/sign_in_online</item>
         <item name="android:layout_marginBottom">40dp</item>
     </style>
 
