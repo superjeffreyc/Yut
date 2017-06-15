@@ -665,6 +665,7 @@ public class OnlineActivity extends GameActivity
 		turnText.setVisibility(View.INVISIBLE);
 
 		board.addRoll(rollAmount);
+		final int currentIndex = rollSlotIndex;
 
 		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 			rollSlotIndex++;
@@ -711,7 +712,7 @@ public class OnlineActivity extends GameActivity
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
 			public void run() {
-				updateRollArray(rollAmount);
+				updateRollArray(currentIndex, rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 					String text;

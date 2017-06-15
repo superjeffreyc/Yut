@@ -1054,6 +1054,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		turnText.setVisibility(View.INVISIBLE);
 
 		board.addRoll(rollAmount);
+		final int currentIndex = rollSlotIndex;
 
 		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 			rollSlotIndex++;
@@ -1100,7 +1101,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
 			public void run() {
-				updateRollArray(rollAmount);
+				updateRollArray(currentIndex, rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 					String text;
@@ -1166,8 +1167,8 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 *
 	 * @param rollAmount The roll to be added
 	 */
-	protected void updateRollArray(int rollAmount){
-		updateRollSlots(rollSlotIndex, rollAmount);
+	protected void updateRollArray(int index, int rollAmount){
+		updateRollSlots(index, rollAmount);
 		fallingSticks.setVisible(false, false);
 	}
 

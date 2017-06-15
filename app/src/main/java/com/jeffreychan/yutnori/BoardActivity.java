@@ -155,6 +155,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		turnText.setVisibility(View.INVISIBLE);
 
 		board.addRoll(rollAmount);
+		final int currentIndex = rollSlotIndex;
 
 		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 			rollSlotIndex++;
@@ -201,7 +202,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
 			public void run() {
-				updateRollArray(rollAmount);
+				updateRollArray(currentIndex, rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 					String text;
