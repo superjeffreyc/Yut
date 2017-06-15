@@ -1109,7 +1109,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 					String text;
-					if (turn == 1) text = "Opponent Roll Again!";
+					if (turn == 1) text = "Opponent Rolls Again!";
 					else text = "Roll Again!";
 
 					turnText.setText(text);

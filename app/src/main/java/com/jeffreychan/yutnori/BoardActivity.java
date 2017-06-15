@@ -206,7 +206,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 					String text;
-					if (isComputerPlaying && turn == 1) text = "Computer Roll Again!";
+					if (isComputerPlaying && turn == 1) text = "Computer Rolls Again!";
 					else text = "Player " + (turn+1) + " Roll Again!";
 
 					turnText.setText(text);
@@ -367,7 +367,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 
 		if (capture) {
 			String text;
-			if (isComputerPlaying && turn == 1) text = "Computer Roll Again!";
+			if (isComputerPlaying && turn == 1) text = "Computer Rolls Again!";
 			else text = "Player " + (turn+1) + " Roll Again!";
 
 			turnText.setText(text);

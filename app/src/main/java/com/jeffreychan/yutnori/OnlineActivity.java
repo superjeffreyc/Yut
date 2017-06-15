@@ -721,7 +721,7 @@ public class OnlineActivity extends GameActivity
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 					String text;
-					if (turn == 1) text = "Opponent Roll Again!";
+					if (turn == 1) text = "Opponent Rolls Again!";
 					else text = "Roll Again!";
 
 					turnText.setText(text);
@@ -862,6 +862,9 @@ public class OnlineActivity extends GameActivity
 		finish();
 	}
 
+	/*
+	 * Called from this activity's layout
+	 */
 	public void exit(View view) {
 		quit();
 	}
@@ -882,7 +885,7 @@ public class OnlineActivity extends GameActivity
 
 		if (capture) {
 			String text;
-			if (turn == 1) text = "Opponent Roll Again!";
+			if (turn == 1) text = "Opponent Rolls Again!";
 			else text = "Roll Again!";
 
 			turnText.setText(text);
