@@ -664,6 +664,20 @@ public class OnlineActivity extends GameActivity
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
 
+		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
+			rollSlotIndex++;
+			canRoll = true;
+		}
+		else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) {
+			isEndTurn = true;
+			canRoll = false;
+		}
+		else {
+			canRoll = false;
+		}
+
+		board.addRoll(rollAmount);
+
 		switch (rollAmount) {
 			case -1:
 				sticks.setBackgroundResource(R.drawable.fallingstickanimationminus1);
@@ -700,18 +714,12 @@ public class OnlineActivity extends GameActivity
 				updateRollArray(rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
-					rollSlotIndex++;
 					String text;
 					if (turn == 1) text = "Opponent Roll Again!";
 					else text = "Roll Again!";
 
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
-					canRoll = true;
-				}
-				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
-				else {
-					canRoll = false;
 				}
 			}
 		}, 990);
@@ -894,13 +902,16 @@ public class OnlineActivity extends GameActivity
 	 */
 	protected void endGame(){
 
+		if (players[0].hasWon()) turnText.setText(R.string.you_win);
+		else turnText.setText(R.string.opponent_wins);
+		turnText.setVisibility(View.VISIBLE);
+
 		isGameOver = true;
 
 		Shop.Instance.addCoins(1);
 
 		updateOffBoardImages();
 		rollButton.setVisibility(View.INVISIBLE);
-		turnText.setVisibility(View.INVISIBLE);
 		tips.setVisibility(View.INVISIBLE);
 
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);

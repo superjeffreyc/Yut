@@ -154,6 +154,20 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
 
+		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
+			rollSlotIndex++;
+			canRoll = true;
+		}
+		else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) {
+			isEndTurn = true;
+			canRoll = false;
+		}
+		else {
+			canRoll = false;
+		}
+
+		board.addRoll(rollAmount);
+
 		switch (rollAmount) {
 			case -1:
 				sticks.setBackgroundResource(R.drawable.fallingstickanimationminus1);
@@ -190,17 +204,12 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 				updateRollArray(rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
-					rollSlotIndex++;
 					String text;
 					if (isComputerPlaying && turn == 1) text = "Computer Roll Again!";
 					else text = "Player " + (turn+1) + " Roll Again!";
 
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
-				}
-				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
-				else {
-					canRoll = false;
 				}
 			}
 		}, 990);
@@ -393,6 +402,12 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 	 */
 	protected void endGame(){
 
+		if (players[0].hasWon() && !isComputerPlaying) turnText.setText(R.string.player1_wins);
+		else if (players[0].hasWon() && isComputerPlaying) turnText.setText(R.string.you_win);
+		else if (players[1].hasWon() && !isComputerPlaying) turnText.setText(R.string.player2_wins);
+		else turnText.setText(R.string.computer_wins);
+		turnText.setVisibility(View.VISIBLE);
+
 		isGameOver = true;
 
 		// Check for computer match and user won
@@ -418,7 +433,6 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 
 		updateOffBoardImages();
 		rollButton.setVisibility(View.INVISIBLE);
-		turnText.setVisibility(View.INVISIBLE);
 		tips.setVisibility(View.INVISIBLE);
 
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);

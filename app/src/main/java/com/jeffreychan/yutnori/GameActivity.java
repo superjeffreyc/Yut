@@ -1053,6 +1053,20 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
 
+		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
+			rollSlotIndex++;
+			canRoll = true;
+		}
+		else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) {
+			isEndTurn = true;
+			canRoll = false;
+		}
+		else {
+			canRoll = false;
+		}
+
+		board.addRoll(rollAmount);
+
 		switch (rollAmount) {
 			case -1:
 				sticks.setBackgroundResource(R.drawable.fallingstickanimationminus1);
@@ -1089,17 +1103,12 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				updateRollArray(rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
-					rollSlotIndex++;
 					String text;
 					if (turn == 1) text = "Opponent Roll Again!";
 					else text = "Roll Again!";
 
 					turnText.setText(text);
 					turnText.setVisibility(View.VISIBLE);
-				}
-				else if (rollAmount == -1 && rollSlotIndex == 0 && players[turn].hasNoPiecesOnBoard()) isEndTurn = true;
-				else {
-					canRoll = false;
 				}
 			}
 		}, 990);
@@ -1158,7 +1167,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 * @param rollAmount The roll to be added
 	 */
 	protected void updateRollArray(int rollAmount){
-		board.addRoll(rollAmount);
 		updateRollSlots(rollSlotIndex, rollAmount);
 		fallingSticks.setVisible(false, false);
 	}

@@ -41,6 +41,11 @@
     <string name="click_me">Press me!</string>
     <string name="click_yellow">Press a yellow tile to move</string>
     <string name="click_finish">Press finish to complete current piece(s)</string>
+    <string name="you_win">You win!</string>
+    <string name="opponent_wins">Opponent wins!</string>
+    <string name="player1_wins">Player 1 wins!</string>
+    <string name="player2_wins">Player 2 wins!</string>
+    <string name="computer_wins">Computer wins!</string>
     <string name="signin_failure">Unable to sign in</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="online_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
