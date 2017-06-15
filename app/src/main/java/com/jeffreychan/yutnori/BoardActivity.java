@@ -154,6 +154,8 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
 
+		board.addRoll(rollAmount);
+
 		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 			rollSlotIndex++;
 			canRoll = true;
@@ -165,8 +167,6 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		else {
 			canRoll = false;
 		}
-
-		board.addRoll(rollAmount);
 
 		switch (rollAmount) {
 			case -1:

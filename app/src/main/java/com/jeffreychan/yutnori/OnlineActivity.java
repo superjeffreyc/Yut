@@ -664,6 +664,8 @@ public class OnlineActivity extends GameActivity
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
 
+		board.addRoll(rollAmount);
+
 		if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
 			rollSlotIndex++;
 			canRoll = true;
@@ -675,8 +677,6 @@ public class OnlineActivity extends GameActivity
 		else {
 			canRoll = false;
 		}
-
-		board.addRoll(rollAmount);
 
 		switch (rollAmount) {
 			case -1:
