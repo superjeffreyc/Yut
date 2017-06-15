@@ -131,7 +131,7 @@ public class OnlineActivity extends GameActivity
 				                                  final String recipientParticipantId) {
 
 					if (statusCode != GamesStatusCodes.STATUS_OK) {
-						Toast t = Toast.makeText(context, "Cannot have duplicate animals", Toast.LENGTH_SHORT);
+						Toast t = Toast.makeText(context, "A network error has occurred.", Toast.LENGTH_SHORT);
 						t.show();
 						leaveRoom();
 					}
@@ -789,7 +789,7 @@ public class OnlineActivity extends GameActivity
 						continue;
 					// Status can be STATUS_LEFT or STATUS_JOINED (doesn't seem to update quick enough)
 					if (!userPressedLeave && (p.getStatus() == Participant.STATUS_LEFT || p.getStatus() == Participant.STATUS_JOINED)) {
-						Toast t = Toast.makeText(this, "Opponent has left the game", Toast.LENGTH_SHORT);
+						Toast t = Toast.makeText(this, "Opponent has left the game.", Toast.LENGTH_SHORT);
 						t.show();
 					}
 				}
