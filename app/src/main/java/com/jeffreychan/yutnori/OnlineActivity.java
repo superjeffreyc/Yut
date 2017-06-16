@@ -58,23 +58,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Button Clicker 2000. A minimalistic game showing the multiplayer features of
- * the Google Play game services API. The objective of this game is clicking a
- * button. Whoever clicks the button the most times within a 20 second interval
- * wins. It's that simple. This game can be played with 2, 3 or 4 players. The
- * code is organized in sections in order to make understanding as clear as
- * possible. We start with the integration section where we show how the game
- * is integrated with the Google Play game services API, then move on to
- * game-specific UI and logic.
- *
- * INSTRUCTIONS: To run this sample, please set up
- * a project in the Developer Console. Then, place your app ID on
- * res/values/ids.xml. Also, change the package name to the package name you
- * used to create the client ID in Developer Console. Make sure you sign the
- * APK with the certificate whose fingerprint you entered in Developer Console
- * when creating your Client Id.
- *
- * @author Bruno Oliveira (btco), 2013-04-26
+ * Online mode for Yut
  */
 public class OnlineActivity extends GameActivity
 		implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -270,11 +254,9 @@ public class OnlineActivity extends GameActivity
 		// stop trying to keep the screen on
 		stopKeepingScreenOn();
 
-		if (client != null && client.isConnected()) {
-			switchToMainScreen();
-		} else {
-			switchToScreen(R.id.screen_sign_in);
-		}
+		// Go back to the main screen
+		switchToMainScreen();
+
 		super.onStop();
 	}
 
@@ -284,9 +266,7 @@ public class OnlineActivity extends GameActivity
 	// this flow simply succeeds and is imperceptible).
 	@Override
 	public void onStart() {
-		if (client == null) {
-			switchToScreen(R.id.screen_sign_in);
-		} else if (!client.isConnected()) {
+		if (!client.isConnected()) {
 			switchToScreen(R.id.screen_wait);
 			client.connect();
 		}
@@ -822,11 +802,12 @@ public class OnlineActivity extends GameActivity
 	}
 
 	void switchToMainScreen() {
-		if (client != null && client.isConnected()) {
-			switchToScreen(R.id.screen_main);
+		if (!client.isConnected()) {
+			switchToScreen(R.id.screen_wait);
+			client.connect();
 		}
 		else {
-			switchToScreen(R.id.screen_sign_in);
+			switchToScreen(R.id.screen_main);
 		}
 	}
 
