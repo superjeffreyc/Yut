@@ -28,7 +28,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		super.onCreate(savedInstanceState);
 
 		isComputerPlaying = getIntent().getExtras().getBoolean("Computer");
-
+		updateTurnText();
 	}
 
 	/*

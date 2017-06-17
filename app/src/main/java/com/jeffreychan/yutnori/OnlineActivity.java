@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.SparseIntArray;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -1001,6 +1000,7 @@ public class OnlineActivity extends GameActivity
 	}
 
 	void waitForACK(final int waitFrame) {
+		final int RESEND_DELAY_IN_MILLISECONDS = 500;
 		final Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
 
@@ -1019,11 +1019,11 @@ public class OnlineActivity extends GameActivity
 						Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
 
 						// Check again in a bit
-						handler.postDelayed(this, 500);
+						handler.postDelayed(this, RESEND_DELAY_IN_MILLISECONDS);
 					}
 				}
 			}
-		}, 500);
+		}, RESEND_DELAY_IN_MILLISECONDS);
 	}
 
 	protected void showGameOverDialog() {

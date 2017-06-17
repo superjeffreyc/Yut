@@ -17,7 +17,7 @@
     <string name="player1_turn">Player 1\'s Turn</string>
     <string name="player2_turn">Player 2\'s Turn</string>
     <string name="your_turn">Your Turn</string>
-    <string name="computer_turn">Your Turn</string>
+    <string name="computer_turn">Computer\'s Turn</string>
     <string name="update">A newer version is available! Please update before playing online.</string>
     <string name="opponent_turn">Opponent\'s Turn</string>
     <string name="title_activity_main">MainActivity</string>
