@@ -205,12 +205,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 				updateRollArray(currentIndex, rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
-					String text;
-					if (isComputerPlaying && turn == 1) text = "Computer Rolls Again!";
-					else text = "Player " + (turn+1) + " Roll Again!";
-
-					turnText.setText(text);
-					turnText.setVisibility(View.VISIBLE);
+					updateTurnText();
 				}
 			}
 		}, 990);
@@ -366,12 +361,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		}
 
 		if (capture) {
-			String text;
-			if (isComputerPlaying && turn == 1) text = "Computer Rolls Again!";
-			else text = "Player " + (turn+1) + " Roll Again!";
-
-			turnText.setText(text);
-			turnText.setVisibility(View.VISIBLE);
+			updateTurnText();
 			tips.setVisibility(View.INVISIBLE);
 
 			isRollDone = false;
@@ -403,13 +393,9 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 	 */
 	protected void endGame(){
 
-		if (players[0].hasWon() && !isComputerPlaying) turnText.setText(R.string.player1_wins);
-		else if (players[0].hasWon() && isComputerPlaying) turnText.setText(R.string.you_win);
-		else if (players[1].hasWon() && !isComputerPlaying) turnText.setText(R.string.player2_wins);
-		else turnText.setText(R.string.computer_wins);
-		turnText.setVisibility(View.VISIBLE);
-
 		isGameOver = true;
+
+		updateTurnText();
 
 		// Check for computer match and user won
 		if (isComputerPlaying && players[0].hasWon()) {
@@ -522,18 +508,14 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		board.resetRollArray();
 		hidePossibleTiles();
 
+		rollAmount = 0;
 		rollSlotIndex = 0;
 		isRollDone = false;
 		canRoll = true;
 		isEndTurn = false;
 		if (turn == 0 || !isComputerPlaying) rollButton.setVisibility(View.VISIBLE);
 
-		String text;
-		if (isComputerPlaying && turn == 1) text = "Computer's Turn";
-		else text = "Player " + (turn+1) + "'s Turn";
-
-		turnText.setText(text);
-		turnText.setVisibility(View.VISIBLE);
+		updateTurnText();
 	}
 
 	/**
@@ -623,4 +605,24 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 		}, COMPUTER_THINK_DURATION);
 	}
 
+	protected void updateTurnText() {
+		if (isComputerPlaying) {
+			if (isGameOver)
+				turnText.setText(players[0].hasWon() ? R.string.you_win : R.string.computer_wins);
+			else if (capture || rollAmount >= 4)
+				turnText.setText(turn == 0 ? R.string.you_roll_again : R.string.computer_roll_again);
+			else
+				turnText.setText(turn == 0 ? R.string.your_turn : R.string.computer_turn);
+		}
+		else {
+			if (isGameOver)
+				turnText.setText(players[0].hasWon() ? R.string.player1_wins : R.string.player2_wins);
+			else if (capture || rollAmount >= 4)
+				turnText.setText(turn == 0 ? R.string.player1_roll_again : R.string.player2_roll_again);
+			else
+				turnText.setText(turn == 0 ? R.string.player1_turn : R.string.player2_turn);
+		}
+
+		turnText.setVisibility(View.VISIBLE);
+	}
 }

@@ -1108,12 +1108,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				updateRollArray(currentIndex, rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
-					String text;
-					if (turn == 1) text = "Opponent Rolls Again!";
-					else text = "Roll Again!";
-
-					turnText.setText(text);
-					turnText.setVisibility(View.VISIBLE);
+					updateTurnText();
 				}
 			}
 		}, 990);
@@ -1342,18 +1337,14 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		board.resetRollArray();
 		hidePossibleTiles();
 
+		rollAmount = 0;
 		rollSlotIndex = 0;
 		isRollDone = false;
 		canRoll = true;
 		isEndTurn = false;
 		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
 
-		String text;
-		if (turn == 1) text = "Opponent's Turn";
-		else text = "Your Turn";
-
-		turnText.setText(text);
-		turnText.setVisibility(View.VISIBLE);
+		updateTurnText();
 	}
 
 	/**
@@ -1375,5 +1366,16 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 * Prevents buttons and text from appearing.
 	 */
 	protected void endGame(){}
+
+	protected void updateTurnText() {
+		if (isGameOver)
+			turnText.setText(players[0].hasWon() ? R.string.you_win : R.string.opponent_wins);
+		else if (capture || rollAmount >= 4)
+			turnText.setText(turn == 0 ? R.string.you_roll_again : R.string.opponent_roll_again);
+		else
+			turnText.setText(turn == 0 ? R.string.your_turn : R.string.opponent_turn);
+
+		turnText.setVisibility(View.VISIBLE);
+	}
 
 }

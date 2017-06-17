@@ -95,6 +95,7 @@ public class OnlineActivity extends GameActivity
 	boolean userPressedLeave = false;
 	boolean isSendingData = false;
 	boolean hasNetworkError = false;
+
 	int frame = 0;
 	int currentAckFrame = 0;
 
@@ -128,11 +129,7 @@ public class OnlineActivity extends GameActivity
 	public void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.AppTheme);
 		super.onCreate(savedInstanceState);
-
-		// set up a click listener for everything we care about
-		for (int id : CLICKABLES) {
-			findViewById(id).setOnClickListener(this);
-		}
+		findViewById(R.id.button_quick_game).setOnClickListener(this);
 	}
 
 	/*
@@ -156,11 +153,7 @@ public class OnlineActivity extends GameActivity
 			frame++;
 		}
 
-		if (v.getId() == R.id.button_sign_in) {
-			mSignInClicked = true;
-			client.connect();
-		}
-		else if (v.getId() == R.id.button_quick_game) {
+		if (v.getId() == R.id.button_quick_game) {
 			switchToScreen(R.id.screen_wait);
 			getVersion();
 			verifyVersion();
@@ -201,7 +194,7 @@ public class OnlineActivity extends GameActivity
 		rtmConfigBuilder.setRoomStatusUpdateListener(this);
 		rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
 		keepScreenOn();
-		resetGameVars();
+		resetGame();
 		Games.RealTimeMultiplayer.create(client, rtmConfigBuilder.build());
 	}
 
@@ -494,19 +487,18 @@ public class OnlineActivity extends GameActivity
 			turn = 0;
 			board.playerTurn = 0;
 			oppTurn = 1;
-			turnText.setText(R.string.your_turn);
+			rollButton.setVisibility(View.VISIBLE);
 			opponentId = participantIds.get(1);
 		}
 		else {
 			turn = 1;
 			board.playerTurn = 1;
 			oppTurn = 0;
-			turnText.setText(R.string.opponent_turn);
 			rollButton.setVisibility(View.INVISIBLE);
 			opponentId = participantIds.get(0);
 		}
 
-		turnText.setVisibility(View.VISIBLE);
+		updateTurnText();
 		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
 		currentPieceImage = playerOnBoardImages[turn][0];
 
@@ -698,12 +690,7 @@ public class OnlineActivity extends GameActivity
 				updateRollArray(currentIndex, rollAmount);
 
 				if ((rollAmount == 4 || rollAmount == 5) && rollSlotIndex < 4) {
-					String text;
-					if (turn == 1) text = "Opponent Rolls Again!";
-					else text = "Roll Again!";
-
-					turnText.setText(text);
-					turnText.setVisibility(View.VISIBLE);
+					updateTurnText();
 				}
 			}
 		}, 990);
@@ -760,16 +747,9 @@ public class OnlineActivity extends GameActivity
      * UI SECTION. Methods that implement the game's UI.
      */
 
-	// This array lists everything that's clickable, so we can install click
-	// event handlers.
-	final static int[] CLICKABLES = {
-			R.id.button_quick_game, R.id.button_sign_in
-	};
-
 	// This array lists all the individual screens our game has.
 	final static int[] SCREENS = {
-			R.id.screen_main, R.id.screen_sign_in,
-			R.id.screen_wait, R.id.rl
+			R.id.screen_main, R.id.screen_wait, R.id.rl
 	};
 
 	void switchToScreen(int screenId) {
@@ -815,10 +795,8 @@ public class OnlineActivity extends GameActivity
 
 
 	// Sets the flag to keep this screen on. It's recommended to do that during
-	// the
-	// handshake when setting up a game, because if the screen turns off, the
-	// game will be
-	// cancelled.
+	// the handshake when setting up a game, because if the screen turns off, the
+	// game will be cancelled.
 	void keepScreenOn() {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
@@ -863,12 +841,6 @@ public class OnlineActivity extends GameActivity
 		}
 
 		if (capture) {
-			String text;
-			if (turn == 1) text = "Opponent Rolls Again!";
-			else text = "Roll Again!";
-
-			turnText.setText(text);
-			turnText.setVisibility(View.VISIBLE);
 			tips.setVisibility(View.INVISIBLE);
 
 			isRollDone = false;
@@ -877,7 +849,6 @@ public class OnlineActivity extends GameActivity
 
 		hidePossibleTiles();
 		updateOffBoardImages();
-		updateOnBoardImages();
 
 		if ((!capture && board.rollEmpty()) || (board.hasOnlyNegativeRoll() && players[turn].hasNoPiecesOnBoard())) endTurn();
 
@@ -885,136 +856,28 @@ public class OnlineActivity extends GameActivity
 	}
 
 	/**
-	 * Displays an AlertDialog with the winner and asks if the user wants to play again.
-	 * Prevents buttons and text from appearing.
+	 * End of the game. Display a dialog to the user to rate or return to the online title screen.
 	 */
 	protected void endGame(){
-
-		if (players[0].hasWon()) turnText.setText(R.string.you_win);
-		else turnText.setText(R.string.opponent_wins);
-		turnText.setVisibility(View.VISIBLE);
-
 		isGameOver = true;
 
+		// Users get 1 coin for playing online regardless of winning or losing
 		Shop.Instance.addCoins(1);
 
-		updateOffBoardImages();
-		rollButton.setVisibility(View.INVISIBLE);
-		tips.setVisibility(View.INVISIBLE);
-
-		AlertDialog.Builder adb = new AlertDialog.Builder(this);
-		TextView tv = new TextView(this);
-		tv.setPadding(0, 40, 0, 40);
+		// Update the screen to show the final outcome
+		updateScreenOnGameOver();
 
 		// Display message notifying winner and amount of coins earned
-		String winner = "\nYou now have " + Shop.Instance.getCoins() + " coin(s)";
-		if (players[0].hasWon()) winner = "You win!\n\nYou have earned 1 coin!" + winner;
-		else winner = "Opponent wins!\n\nYou still earned 1 coin!" + winner;
-		tv.setText(winner);
-
-		tv.setTextSize(20f);
-		tv.setGravity(Gravity.CENTER_HORIZONTAL);
-		adb.setView(tv);
-		adb.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				userPressedLeave = true;
-				leaveRoom();
-			}
-		});
-		adb.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				userPressedLeave = true;
-				leaveRoom();
-				Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
-				startActivity(intent);
-			}
-		});
-		adb.show();
+		showGameOverDialog();
 	}
 
-	protected void resetGameVars() {
+	protected void resetGame() {
 
-		// Reset frames
-		frame = 0;
-		currentAckFrame = 0;
+		resetNetworkingVars();
 
-		// Clear message buffer
-		for (int i = 0; i < 9; i++) {
-			mMsgBuf[i] = 0;
-		}
+		resetImages();
 
-		turn = 0;
-		oppTurn = 1;
-
-		// Reset Board values
-		board.playerTurn = 0;
-		board.rollIndex = 0;
-		board.resetRollArray();
-
-		// Reset Player values and their pieces
-		players[0].reset();
-		players[1].reset();
-
-		hidePossibleTiles();
-		updateOffBoardImages();
-
-		offBoardPiece.setVisibility(View.INVISIBLE);
-		offBoardPieceAnimation.stop();
-		offBoardPieceAnimation.selectDrawable(0);
-
-		tips.setVisibility(View.INVISIBLE);
-		tips.setText(playerTips[turn]);
-		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
-
-		if (turn == 1) {
-			bottomBar.setBackgroundResource(R.drawable.bar1);
-			bottomBar.setAlpha(1.0f);
-			topBar.setBackgroundResource(R.drawable.bar2);
-			topBar.setAlpha(0.25f);
-		} else {
-			topBar.setBackgroundResource(R.drawable.bar1);
-			topBar.setAlpha(1.0f);
-			bottomBar.setBackgroundResource(R.drawable.bar2);
-			bottomBar.setAlpha(0.25f);
-		}
-
-		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
-
-		for (int i = 0; i < 5; i++) {
-			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
-		}
-
-		loadAvatars();
-
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 4; j++) {
-				playerAnimation[i][j].stop();
-				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
-				playerOnBoardImages[i][j].setVisibility(View.VISIBLE);
-				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
-			}
-		}
-
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 4; j++) {
-				players[i].pieces[j].setLocation(-1);
-				playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][0]);
-				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
-				playerOnBoardImages[i][j].setX(-tiles[0].getX());
-			}
-		}
-
-		rollSlotIndex = 0;
-		isRollDone = false;
-		canRoll = true;
-		isEndTurn = false;
-		isGameOver = false;
-		isMoveInProgress = false;
-		isRollInProgress = false;
-		isSendingData = false;
-		capture = false;
-		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
-
+		resetGameState();
 	}
 
 	/*
@@ -1137,27 +1000,6 @@ public class OnlineActivity extends GameActivity
 		}
 	}
 
-	void updateOnBoardImages() {
-
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 4; j++) {
-				int location = players[i].pieces[j].getLocation();
-				if (location != -1 && location != 32) {
-					playerOnBoardImages[i][j].setX(tiles[location].getX());
-					playerOnBoardImages[i][j].setY(tiles[location].getY());
-					playerOnBoardImages[i][j].bringToFront();
-					turnText.bringToFront();
-				}
-			}
-		}
-
-	}
-
-	protected void prepareForNextTurn() {
-		updateOnBoardImages();
-		super.prepareForNextTurn();
-	}
-
 	void waitForACK(final int waitFrame) {
 		final Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
@@ -1182,5 +1024,118 @@ public class OnlineActivity extends GameActivity
 				}
 			}
 		}, 500);
+	}
+
+	protected void showGameOverDialog() {
+		AlertDialog.Builder adb = new AlertDialog.Builder(this);
+		TextView tv = new TextView(this);
+		tv.setPadding(0, 40, 0, 40);
+
+		String winner = "\nYou now have " + Shop.Instance.getCoins() + " coin(s)";
+		if (players[0].hasWon()) winner = "You win!\n\nYou have earned 1 coin!" + winner;
+		else winner = "Opponent wins!\n\nYou still earned 1 coin!" + winner;
+		tv.setText(winner);
+		tv.setTextSize(20f);
+		tv.setGravity(Gravity.CENTER_HORIZONTAL);
+		adb.setView(tv);
+
+		adb.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				userPressedLeave = true;
+				leaveRoom();
+			}
+		});
+		adb.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				userPressedLeave = true;
+				leaveRoom();
+				Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
+				startActivity(intent);
+			}
+		});
+		adb.show();
+	}
+
+	protected void updateScreenOnGameOver() {
+		updateTurnText();
+
+		rollButton.setVisibility(View.INVISIBLE);
+		tips.setVisibility(View.INVISIBLE);
+
+		updateOffBoardImages();
+	}
+
+	protected void resetNetworkingVars() {
+		// Reset frames
+		frame = 0;
+		currentAckFrame = 0;
+
+		// Clear message buffer
+		for (int i = 0; i < 9; i++) {
+			mMsgBuf[i] = 0;
+		}
+	}
+
+	protected void resetGameState() {
+
+		turn = 0;
+		oppTurn = 1;
+
+		// Reset Board values
+		board.playerTurn = 0;
+		board.rollIndex = 0;
+		board.resetRollArray();
+		rollSlotIndex = 0;
+
+		// Reset Player values and their pieces
+		players[0].reset();
+		players[1].reset();
+
+		isRollDone = false;
+		canRoll = true;
+		isEndTurn = false;
+		isGameOver = false;
+		isMoveInProgress = false;
+		isRollInProgress = false;
+		isSendingData = false;
+		capture = false;
+	}
+
+	protected void resetImages() {
+		hidePossibleTiles();
+		updateOffBoardImages();
+
+		offBoardPiece.setVisibility(View.INVISIBLE);
+		offBoardPieceAnimation.stop();
+		offBoardPieceAnimation.selectDrawable(0);
+
+		tips.setVisibility(View.INVISIBLE);
+		tips.setText(playerTips[turn]);
+		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
+
+		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
+
+		for (int i = 0; i < 5; i++) {
+			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
+		}
+
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				playerAnimation[i][j].stop();
+				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
+				playerOnBoardImages[i][j].setVisibility(View.VISIBLE);
+				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
+			}
+		}
+
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
+				players[i].pieces[j].setLocation(-1);
+				playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][0]);
+				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
+				playerOnBoardImages[i][j].setX(-tiles[0].getX());
+			}
+		}
+
 	}
 }

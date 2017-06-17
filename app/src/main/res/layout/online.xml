@@ -30,27 +30,6 @@
         ads:adSize="SMART_BANNER"
         ads:adUnitId="@string/online_banner_ad_unit_id" />
 
-    <!-- SIGN-IN SCREEN -->
-    <LinearLayout
-        android:id="@+id/screen_sign_in"
-        android:layout_above="@id/ad_view"
-        style="@style/LLScreen">
-
-        <ImageView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/yutImageSignIn"
-            android:src="@drawable/yutonline"
-            android:paddingBottom="30dp"/>
-        <TextView style="@style/MainScreenButtonBlurb"
-                  android:text="" />
-
-        <com.google.android.gms.common.SignInButton android:id="@+id/button_sign_in"
-                                                    style="@style/SignInButton" />
-        <TextView style="@style/MainScreenButtonBlurb"
-                  android:text="@string/sign_in_online" />
-    </LinearLayout>
-
     <!-- MAIN SCREEN -->
     <LinearLayout
         android:id="@+id/screen_main"
