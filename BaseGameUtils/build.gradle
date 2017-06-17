@@ -11,9 +11,9 @@ buildscript {
 }
 
 dependencies {
-    compile 'com.google.android.gms:play-services-games:11.0.0'
-    compile 'com.google.android.gms:play-services-plus:11.0.0'
-    compile 'com.google.android.gms:play-services-drive:11.0.0'
+    compile 'com.google.android.gms:play-services-games:11.0.1'
+    compile 'com.google.android.gms:play-services-plus:11.0.1'
+    compile 'com.google.android.gms:play-services-drive:11.0.1'
 
 }
 

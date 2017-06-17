@@ -275,8 +275,8 @@ public class OnlineActivity extends GameActivity
 
 	// Handle back key to make sure we cleanly leave a game if we are in the middle of one
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent e) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && mCurScreen == R.id.rl) {
+	public void onBackPressed() {
+		if (mCurScreen == R.id.rl) {
 			AlertDialog.Builder adb = new AlertDialog.Builder(this);
 			TextView tv = new TextView(this);
 			tv.setPadding(0, 40, 0, 40);
@@ -296,11 +296,9 @@ public class OnlineActivity extends GameActivity
 				}
 			});
 			adb.show();
-			return true;
 		}
 		else {
 			quit();
-			return true;
 		}
 	}
 
