@@ -1012,6 +1012,7 @@ public class OnlineActivity extends GameActivity
 		isMoveInProgress = false;
 		isRollInProgress = false;
 		isSendingData = false;
+		capture = false;
 		if (turn == 0) rollButton.setVisibility(View.VISIBLE);
 
 	}
