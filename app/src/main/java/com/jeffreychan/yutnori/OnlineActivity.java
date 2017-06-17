@@ -840,6 +840,7 @@ public class OnlineActivity extends GameActivity
 		}
 
 		if (capture) {
+			updateTurnText();
 			tips.setVisibility(View.INVISIBLE);
 
 			isRollDone = false;
