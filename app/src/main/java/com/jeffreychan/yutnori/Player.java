@@ -31,7 +31,7 @@ public class Player {
 
 	public void addScore(int i){ score += i; }
 
-	public int getNumPieces() { return numPieces; }
+	public int getNumPiecesOnBoard() { return numPieces; }
 
 	public void addNumPieces(int i) { numPieces += i; }
 

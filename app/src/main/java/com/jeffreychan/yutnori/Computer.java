@@ -46,7 +46,7 @@ public class Computer {
 			for (int j : moves.get(i)){
 				for (int k = 0; k < 4; k++) {
 					if (players[0].pieces[k].getLocation() == j) {
-						if (players[1].getNumPieces() < 4 && j <= 5){
+						if (players[1].getNumPiecesOnBoard() < 4 && j <= 5){
 							if (players[1].pieces[i].getLocation() == -1) {
 								return new int[]{-1, j};
 							}
@@ -64,7 +64,7 @@ public class Computer {
 			for (int j : moves.get(i)){
 				for (int k = 0; k < 4; k++) {
 					if (players[1].pieces[k].getLocation() == j) {
-						if (players[1].getNumPieces() < 4 && j <= 5){
+						if (players[1].getNumPiecesOnBoard() < 4 && j <= 5){
 							if (players[1].pieces[i].getLocation() == -1) {
 								return new int[]{-1, j};
 							}
@@ -90,7 +90,7 @@ public class Computer {
 		for (int i = 0; i < moves.size(); i++){
 			for (int j : moves.get(i)){
 				if (shortcuts.contains(j)){
-					if (players[1].getNumPieces() < 4 && j == 5){
+					if (players[1].getNumPiecesOnBoard() < 4 && j == 5){
 						if (players[1].pieces[i].getLocation() == -1) {
 							return new int[]{-1, j};
 						}
@@ -118,7 +118,7 @@ public class Computer {
 			}
 		}
 		// Use off board pieces
-		if (players[1].getNumPieces() < 4){
+		if (players[1].getNumPiecesOnBoard() < 4){
 			for (int i = 0; i < 4; i++) {
 				// Verify that the piece is off the board and that it has a possible move onto the board
 				if (players[1].pieces[i].getLocation() == -1 && moves.get(i).size() > 0)

@@ -31,9 +31,10 @@ import java.util.TreeSet;
  */
 public class Board {
 
-	public int[] rollArray = new int[5];    // Max number of rolls that can be stored is 5
-	int rollIndex = 0;                      // The index pointing to the first empty roll slot
-	public int playerTurn = 0;                     // Current turn (0 = Player 1, 1 = Player 2)
+	private final static int MAX_ROLLS = 5;         // Max number of rolls that can be stored
+	private int[] rollArray = new int[MAX_ROLLS];   // The rolls the user has. 0 entries are not displayed.
+	private int rollIndex = 0;                      // The index pointing to the first empty roll slot
+	private int playerTurn = 0;                     // Current turn (0 = Player 1, 1 = Player 2)
 
 	// These tiles must be handled differently. You cannot simply add moves to these tiles to calculate move locations.
 	static Set<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 1, 5, 10, 15, 20, 21, 22, 23, 24, 25, 26, 27));
@@ -45,7 +46,7 @@ public class Board {
 	 * Initialize the roll array to all 0s
 	 */
 	public Board(){
-		for (int i = 0; i < 5; i++){
+		for (int i = 0; i < MAX_ROLLS; i++){
 			rollArray[i] = 0;
 		}
 	}
@@ -84,12 +85,72 @@ public class Board {
 		if (rollIndex < 4) rollIndex++;
 	}
 
+	/**
+	 * Counts how many rolls are available to the user.
+	 *
+	 * @return Number of rolls available
+	 */
+	public int getNonZeroRollCount() {
+		int count = 0;
+		for (int i : rollArray) {
+			if (i != 0) count++;
+		}
+		return count;
+	}
+
+	/**
+	 * Get the number of positive rolls available
+	 *
+	 * @return The number of positive rolls in rollArray
+	 */
+	public int getPosRollCount() {
+		int posCount = 0;
+		for (int i : rollArray) {
+			if (i != 0 && i != -1) posCount++;
+		}
+		return posCount;
+	}
+
+	/**
+	 * Get the entire roll array
+	 *
+	 * @return The roll array
+	 */
+	public int[] getRollArray() {
+		return rollArray;
+	}
+
+	/**
+	 * Returns the current roll index
+	 *
+	 * @return The current roll index
+	 */
+	public int getRollIndex() {
+		return rollIndex;
+	}
+
+	/**
+	 * Returns the roll at the requested index
+	 *
+	 * @param index The index requested
+	 * @return The roll at index
+	 */
+	public int getRollAtIndex(int index) {
+		return rollArray[index];
+	}
+
+	public void reset() {
+		playerTurn = 0;
+		rollIndex = 0;
+		resetRollArray();
+	}
+
 	/*
 	 * Set all rolls to 0
 	 */
 	public void resetRollArray(){
 		rollIndex = 0;
-		for (int i = 0; i < 5; i++){
+		for (int i = 0; i < MAX_ROLLS; i++){
 			rollArray[i] = 0;
 		}
 	}
@@ -103,6 +164,18 @@ public class Board {
 	 */
 	public int getPlayerTurn(){
 		return playerTurn;
+	}
+
+	/**
+	 * Sets the current turn. Used for online mode.
+	 *
+	 * 0 = Your turn
+	 * 1 = Opponent's turn
+	 *
+	 * @param turn The turn
+	 */
+	public void setPlayerTurn(int turn){
+		playerTurn = turn;
 	}
 
 	/*
@@ -120,6 +193,8 @@ public class Board {
 	 * @param i the roll to remove from the roll array
 	 */
 	public void removeRoll(int i) {
+
+		boolean wasFull = (MAX_ROLLS == getNonZeroRollCount());
 
 		// Find the first occurrence of the roll amount and remove it by setting it to zero.
 		for(int j = 0; j < rollArray.length; ++j) {
@@ -139,7 +214,7 @@ public class Board {
 		}
 
 		// Decrease roll index so the board knows where to add a new roll
-		if (rollIndex > 0) rollIndex--;
+		if (!wasFull && rollIndex > 0) rollIndex--;
 	}
 
 	/**
@@ -148,25 +223,11 @@ public class Board {
 	 */
 	public boolean rollEmpty(){
 		int count = 0;
-		for (int i = 0; i < 5; i++){
+		for (int i = 0; i < MAX_ROLLS; i++){
 			if (rollArray[i] != 0) count++;
 		}
 
 		return (count == 0);
-	}
-
-	/**
-	 * Counts how many rolls are available.
-	 *
-	 * @return Number of rolls available
-	 */
-	public int numberOfRolls(){
-		int count = 0;
-		for (int i = 0; i < 5; i++){
-			if (rollArray[i] != 0) count++;
-		}
-
-		return count;
 	}
 
 	/**
