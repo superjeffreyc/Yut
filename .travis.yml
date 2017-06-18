@@ -8,7 +8,7 @@ android:
         - build-tools-26.0.0
         - extra-google-m2repository
         - extra-android-m2repository
-	- extra-android-support
+        - extra-android-support
         - extra-google-google_play_services
 
 jdk:
