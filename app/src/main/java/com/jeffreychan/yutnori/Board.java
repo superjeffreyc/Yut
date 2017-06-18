@@ -237,11 +237,11 @@ public class Board {
 	 */
 	public boolean hasOnlyNegativeRoll(){
 		int count = 0;
-		for (int i = 0; i < 5; i++){
+		for (int i = 0; i < MAX_ROLLS; i++){
 			if (rollArray[i] == 0 || rollArray[i] == -1) count++;
 		}
 
-		return (count == 5);
+		return (count == MAX_ROLLS);
 	}
 
 	/**
