@@ -540,7 +540,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	protected void handleRoll(int rAmount){
 		isRollInProgress = true;
 
-		if (rAmount == 0) rollAmount = board.throwSticks();
+		rollAmount = (rAmount == 0 ? board.throwSticks() : rAmount);
 		rollButton.setVisibility(View.INVISIBLE);
 		turnText.setVisibility(View.INVISIBLE);
 
