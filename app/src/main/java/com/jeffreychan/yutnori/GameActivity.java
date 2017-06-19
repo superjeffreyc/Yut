@@ -250,35 +250,12 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	}
 
 	/**
-	 * Once a player has won, prevent any further click events
-	 * Otherwise, call the handleClick method if it is not the computer's turn
-	 * Also, check that an animation is not in progress
+	 * To be implemented by the subclass
 	 *
 	 * @param v The view being clicked on
 	 */
 	@Override
-	public void onClick(View v) {
-		if (isGameOver) return;
-
-		if (v.getId() == R.id.rollButton) { // Called when roll button is clicked
-			handleRoll(0);
-		}
-		else if (v.getId() == finish.getId()) {
-			movePiece(32, Move.NORMAL); // 32 = finish location
-		}
-		else if (v.getId() == offBoardPiece.getId()) {  // Image that represents both players' off board pieces
-			showPossibleTiles(players[turn].findAvailablePiece());
-		}
-		else if (tile_ids.contains(v.getId())){    // Activates on tile click
-			handleTileClick(v);
-		}
-		else if (player_ids.contains(v.getId())){  // Activates on animal click; animal covers tile
-			handlePlayerClick(v);
-		}
-		else {
-			hidePossibleTiles();    // Cancel move by clicking anything else
-		}
-	}
+	public void onClick(View v) {}
 
 	/**
 	 * Handles logic for tile clicks
