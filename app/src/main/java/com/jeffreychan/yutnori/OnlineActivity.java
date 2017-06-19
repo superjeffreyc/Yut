@@ -277,7 +277,27 @@ public class OnlineActivity extends GameActivity
 	// Handle back key to make sure we cleanly leave a game if we are in the middle of one
 	@Override
 	public void onBackPressed() {
-		if (mCurScreen == R.id.rl) super.onBackPressed();
+		if (mCurScreen == R.id.rl) {
+			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			TextView tv = new TextView(this);
+			tv.setPadding(0, 40, 0, 40);
+			tv.setText("Are you sure you want to leave this match?\nThe game will not be saved.");
+			tv.setTextSize(20f);
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			adb.setView(tv);
+			adb.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					userPressedLeave = true;
+					leaveRoom();
+				}
+			});
+			adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.cancel();
+				}
+			});
+			adb.show();
+		}
 		else quit();
 	}
 
@@ -980,6 +1000,8 @@ public class OnlineActivity extends GameActivity
 		isRollInProgress = false;
 		isSendingData = false;
 		hasNetworkError = false;
+		userPressedLeave = false;
+		animationError = false;
 		capture = false;
 	}
 
@@ -997,7 +1019,7 @@ public class OnlineActivity extends GameActivity
 
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
 
-		for (int i = 0; i < board.MAX_ROLLS; i++) {
+		for (int i = 0; i < Board.MAX_ROLLS; i++) {
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
 		}
 
