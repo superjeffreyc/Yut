@@ -24,6 +24,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.View;
@@ -55,6 +56,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 /**
  * Online mode for Yut
@@ -97,6 +99,10 @@ public class OnlineActivity extends GameActivity
 	int frame = 0;
 	int currentAckFrame = 0;
 
+	static Semaphore room_id_semaphore = new Semaphore(1);  // Controls access to mRoomId
+	static Semaphore current_frame_semaphore = new Semaphore(1);  // Controls access to currentAckFrame
+
+
 	/*
 	 * Message buffer for sending messages
 	 *
@@ -120,7 +126,7 @@ public class OnlineActivity extends GameActivity
 					}
 				}
 			};
-			
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.AppTheme);
@@ -241,8 +247,20 @@ public class OnlineActivity extends GameActivity
 	@Override
 	public void onStop() {
 		userPressedLeave = true;
+		switchToScreen(R.id.screen_wait);
 		disconnect();
 		super.onStop();
+	}
+
+	protected void endAnimation(){
+		int location = currentPiece.getLocation();
+		if (location == -1) {   // Error
+			leaveRoom();
+		}
+		else {
+			super.endAnimation();
+			if (animationError) leaveRoom();
+		}
 	}
 
 	// Activity just got to the foreground. We switch to the wait screen because we will now
@@ -282,10 +300,18 @@ public class OnlineActivity extends GameActivity
 	void disconnect() {
 		stopKeepingScreenOn();
 
-		if (mRoomId != null) {
-			Games.RealTimeMultiplayer.leave(client, this, mRoomId);
-			client.disconnect();    	// Disconnect from Google Play Services
-			mRoomId = null;
+		try {
+			room_id_semaphore.acquire();
+
+			if (mRoomId != null) {
+				Games.RealTimeMultiplayer.leave(client, this, mRoomId);
+				client.disconnect();    	// Disconnect from Google Play Services
+				mRoomId = null;
+			}
+		} catch (Exception e) {
+			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+		} finally {
+			room_id_semaphore.release();
 		}
 	}
 
@@ -318,8 +344,15 @@ public class OnlineActivity extends GameActivity
 		mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(client));
 
 		// save room ID if its not initialized in onRoomCreated() so we can leave cleanly before the game starts.
-		if(mRoomId==null)
-			mRoomId = room.getRoomId();
+		try {
+			room_id_semaphore.acquire();
+			if(mRoomId == null) mRoomId = room.getRoomId();
+		} catch (Exception e) {
+			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+		} finally {
+			room_id_semaphore.release();
+		}
+
 	}
 
 	// Called when we've successfully left the room (this happens a result of voluntarily leaving
@@ -333,7 +366,14 @@ public class OnlineActivity extends GameActivity
 	// Called when we get disconnected from the room. We return to the main screen.
 	@Override
 	public void onDisconnectedFromRoom(Room room) {
-		mRoomId = null;
+		try {
+			room_id_semaphore.acquire();
+			mRoomId = null;
+		} catch (Exception e) {
+			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+		} finally {
+			room_id_semaphore.release();
+		}
 		showGameError();
 	}
 
@@ -352,7 +392,14 @@ public class OnlineActivity extends GameActivity
 		}
 
 		// save room ID so we can leave cleanly before the game starts.
-		mRoomId = room.getRoomId();
+		try {
+			room_id_semaphore.acquire();
+			mRoomId = room.getRoomId();
+		} catch (Exception e) {
+			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+		} finally {
+			room_id_semaphore.release();
+		}
 
 		// show the waiting room UI
 		showWaitingRoom(room);
@@ -544,9 +591,16 @@ public class OnlineActivity extends GameActivity
 		}
 		else if (buf[0] == Op.ACK) {
 			if (frame == this.frame) {
-				currentAckFrame = frame;
-				isSendingData = false;
-				resendCount = 0;
+				try {
+					current_frame_semaphore.acquire();
+					currentAckFrame = frame;
+					isSendingData = false;
+					resendCount = 0;
+				} catch (Exception e) {
+					Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+				} finally {
+					current_frame_semaphore.release();
+				}
 			}
 		}
 		else {  // Invalid op
@@ -557,8 +611,16 @@ public class OnlineActivity extends GameActivity
 		// If this is not an ACK, tell the other user that we received the message
 		if (buf[0] != Op.ACK ) {
 			if (frame == this.frame + 1) {          // ACK
-				this.frame += 1;
-				currentAckFrame = frame;
+				try {
+					current_frame_semaphore.acquire();
+					this.frame += 1;
+					currentAckFrame = frame;
+				} catch (Exception e) {
+					Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+				} finally {
+					current_frame_semaphore.release();
+				}
+
 				broadcastClick(Op.ACK, -1, frame);
 			}
 			else {                                  // Too far out of sync
@@ -621,13 +683,13 @@ public class OnlineActivity extends GameActivity
 
 	void switchToScreen(int screenId) {
 
-		if (mCurScreen == R.id.rl) {
+		if (mCurScreen == R.id.rl && !userPressedLeave) {
 			if (mParticipants != null) {
 				for (Participant p: mParticipants) {
 					if (p.getParticipantId().equals(mMyId))
 						continue;
 					// Status can be STATUS_LEFT or STATUS_JOINED (doesn't seem to update quick enough)
-					if (!userPressedLeave && (p.getStatus() == Participant.STATUS_LEFT || p.getStatus() == Participant.STATUS_JOINED)) {
+					if (p.getStatus() == Participant.STATUS_LEFT || p.getStatus() == Participant.STATUS_JOINED) {
 						Toast t = Toast.makeText(this, "Opponent has left the game.", Toast.LENGTH_SHORT);
 						t.show();
 					}
@@ -820,27 +882,33 @@ public class OnlineActivity extends GameActivity
 
 			@Override
 			public void run() {
+				try {
+					current_frame_semaphore.acquire();
+					if (!hasNetworkError && waitFrame - currentAckFrame == 1) {
 
-				if (!hasNetworkError && waitFrame - currentAckFrame == 1) {
+						resendCount++;
 
-					resendCount++;
-
-					if (resendCount > 20) {
-						leaveRoom();  // No response from opponent after 20 attempts to resend
-					}
-					else {
-						// Re-send the data
-						try {
-							Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
+						if (resendCount > 20) {
+							leaveRoom();  // No response from opponent after 20 attempts to resend
 						}
-						catch (Exception e) {
-							hasNetworkError = true;
-							leaveRoom();
-						}
+						else {
+							// Re-send the data
+							try {
+								Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
+							}
+							catch (Exception e) {
+								hasNetworkError = true;
+								leaveRoom();
+							}
 
-						// Check again in a bit
-						handler.postDelayed(this, RESEND_DELAY_IN_MILLISECONDS);
+							// Check again in a bit
+							handler.postDelayed(this, RESEND_DELAY_IN_MILLISECONDS);
+						}
 					}
+				} catch (Exception e) {
+					Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+				} finally {
+					current_frame_semaphore.release();
 				}
 			}
 		}, RESEND_DELAY_IN_MILLISECONDS);
@@ -878,8 +946,15 @@ public class OnlineActivity extends GameActivity
 
 	protected void resetNetworkingVars() {
 		// Reset frames
-		frame = 0;
-		currentAckFrame = 0;
+		try {
+			current_frame_semaphore.acquire();
+			frame = 0;
+			currentAckFrame = 0;
+		} catch (Exception e) {
+			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+		} finally {
+			current_frame_semaphore.release();
+		}
 
 		// Clear message buffer
 		for (int i = 0; i < 9; i++) {
@@ -891,6 +966,8 @@ public class OnlineActivity extends GameActivity
 
 		turn = 0;
 		oppTurn = 1;
+
+		orderIndex = 0;
 
 		// Reset Board values
 		board.reset();
@@ -946,5 +1023,10 @@ public class OnlineActivity extends GameActivity
 			}
 		}
 
+	}
+
+	protected void startNextAnimation() {
+		super.startNextAnimation();
+		if (animationError) leaveRoom();
 	}
 }
