@@ -50,6 +50,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	boolean capture;            // Did previous move eat enemy piece
 	boolean isGameOver;         // Is the game over
 	boolean isMoveInProgress;
+	boolean userPressedLeave = false;
 
 	String[] playerTips = new String[2];
 
@@ -891,6 +892,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		adb.setView(tv);
 		adb.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
+				userPressedLeave = true;
 				quit();
 			}
 		});

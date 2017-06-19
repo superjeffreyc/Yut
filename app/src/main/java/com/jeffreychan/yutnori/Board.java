@@ -31,7 +31,7 @@ import java.util.TreeSet;
  */
 public class Board {
 
-	private final static int MAX_ROLLS = 5;         // Max number of rolls that can be stored
+	final static int MAX_ROLLS = 5;         // Max number of rolls that can be stored
 	private int[] rollArray = new int[MAX_ROLLS];   // The rolls the user has. 0 entries are not displayed.
 	private int rollIndex = 0;                      // The index pointing to the first empty roll slot
 	private int playerTurn = 0;                     // Current turn (0 = Player 1, 1 = Player 2)

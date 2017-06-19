@@ -92,7 +92,6 @@ public class OnlineActivity extends GameActivity
 	SparseIntArray IDtoRID = new SparseIntArray();
 	SparseIntArray RIDtoID = new SparseIntArray();
 
-	boolean userPressedLeave = false;
 	boolean isSendingData = false;
 	boolean hasNetworkError = false;
 
@@ -253,11 +252,7 @@ public class OnlineActivity extends GameActivity
 	}
 
 	protected void endAnimation(){
-		int location = currentPiece.getLocation();
-		if (location == -1) {   // Error
-			leaveRoom();
-		}
-		else {
+		if (currentPiece.getLocation() != -1) {
 			super.endAnimation();
 			if (animationError) leaveRoom();
 		}
@@ -518,6 +513,7 @@ public class OnlineActivity extends GameActivity
 
 		updateTurnText();
 		offBoardPiece.setBackgroundResource(avatarIds[turn][1]);
+		currentPiece = players[turn].pieces[0];
 		currentPieceImage = playerOnBoardImages[turn][0];
 
 		if (turn == 1) {
@@ -1001,25 +997,22 @@ public class OnlineActivity extends GameActivity
 
 		offBoardPieceAnimation = (AnimationDrawable) offBoardPiece.getBackground();
 
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < board.MAX_ROLLS; i++) {
 			rollSlot[i].setBackgroundResource(R.drawable.white_marker);
 		}
 
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
 				playerAnimation[i][j].stop();
-				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
-				playerOnBoardImages[i][j].setVisibility(View.VISIBLE);
 				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
-			}
-		}
 
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 4; j++) {
 				players[i].pieces[j].setLocation(-1);
 				playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][0]);
+
 				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
 				playerOnBoardImages[i][j].setX(-tiles[0].getX());
+				playerOnBoardImages[i][j].clearAnimation();
+				playerOnBoardImages[i][j].setVisibility(View.VISIBLE);
 			}
 		}
 
