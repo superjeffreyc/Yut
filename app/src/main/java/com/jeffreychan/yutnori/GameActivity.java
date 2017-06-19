@@ -1,7 +1,9 @@
 package com.jeffreychan.yutnori;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -850,6 +852,31 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		intent.putExtra("Song", mp.getCurrentPosition());
 		startActivity(intent);
 		finish();
+	}
+
+	/*
+	 * Shows an AlertDialog warning the user that the current game will not be saved upon exit.
+	 */
+	@Override
+	public void onBackPressed() {
+		AlertDialog.Builder adb = new AlertDialog.Builder(this);
+		TextView tv = new TextView(this);
+		tv.setPadding(0, 40, 0, 40);
+		tv.setText("Return to main menu?\nThe game will not be saved.");
+		tv.setTextSize(20f);
+		tv.setGravity(Gravity.CENTER_HORIZONTAL);
+		adb.setView(tv);
+		adb.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				quit();
+			}
+		});
+		adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				dialog.cancel();
+			}
+		});
+		adb.show();
 	}
 
 	// ---------------------------------------------------------------------------------------

@@ -116,9 +116,7 @@ public class OnlineActivity extends GameActivity
 
 					if (statusCode != GamesStatusCodes.STATUS_OK) {
 						hasNetworkError = true;
-						Toast t = Toast.makeText(context, "A network error has occurred.", Toast.LENGTH_SHORT);
-						t.show();
-						quit();
+						leaveRoom();
 					}
 				}
 			};
@@ -239,24 +237,11 @@ public class OnlineActivity extends GameActivity
 		super.onActivityResult(requestCode, responseCode, intent);
 	}
 
-	// Activity is going to the background. We have to leave the current room.
+	// Activity is going to the background. We have to disconnect.
 	@Override
 	public void onStop() {
-
 		userPressedLeave = true;
-
-		// if we're in a room, leave it.
-		leaveRoom();
-
-		// Disconnect from Google Play Services
-		client.disconnect();
-
-		// stop trying to keep the screen on
-		stopKeepingScreenOn();
-
-		// Go back to the main screen
-		switchToMainScreen();
-
+		disconnect();
 		super.onStop();
 	}
 
@@ -270,51 +255,37 @@ public class OnlineActivity extends GameActivity
 			switchToScreen(R.id.screen_wait);
 			client.connect();
 		}
+		else {
+			switchToScreen(R.id.screen_main);
+		}
 		super.onStart();
 	}
 
 	// Handle back key to make sure we cleanly leave a game if we are in the middle of one
 	@Override
 	public void onBackPressed() {
-		if (mCurScreen == R.id.rl) {
-			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			TextView tv = new TextView(this);
-			tv.setPadding(0, 40, 0, 40);
-			tv.setText("Are you sure you want to leave this match?\nThe game will not be saved.");
-			tv.setTextSize(20f);
-			tv.setGravity(Gravity.CENTER_HORIZONTAL);
-			adb.setView(tv);
-			adb.setPositiveButton("Leave", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					userPressedLeave = true;
-					leaveRoom();
-				}
-			});
-			adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.cancel();
-				}
-			});
-			adb.show();
-		}
-		else {
-			quit();
-		}
+		if (mCurScreen == R.id.rl) super.onBackPressed();
+		else quit();
 	}
 
 	// Leave the room.
 	void leaveRoom() {
-		stopKeepingScreenOn();
+
+		disconnect();
 
 		resendCount = 0;
 		opponentId = null;
 
+		switchToMainScreen();
+	}
+
+	void disconnect() {
+		stopKeepingScreenOn();
+
 		if (mRoomId != null) {
 			Games.RealTimeMultiplayer.leave(client, this, mRoomId);
+			client.disconnect();    	// Disconnect from Google Play Services
 			mRoomId = null;
-			switchToScreen(R.id.screen_wait);
-		} else {
-			switchToMainScreen();
 		}
 	}
 
@@ -528,11 +499,16 @@ public class OnlineActivity extends GameActivity
 	// Called when we receive a real-time message from the network.
 	@Override
 	public void onRealTimeMessageReceived(RealTimeMessage rtm) {
+		if (mCurScreen != R.id.rl) return;
+
 		byte[] buf = rtm.getMessageData();
 		String sender = rtm.getSenderParticipantId();
 
 		// Try to verify the sender of the data
-		if (!sender.equals(opponentId)) leaveRoom();
+		if (!sender.equals(opponentId)) {
+			leaveRoom();
+			return;
+		}
 
 		// Get the data and frame from the message
 		byte[] arr1 = { buf[1], buf[2], buf[3], buf[4] };
@@ -575,6 +551,7 @@ public class OnlineActivity extends GameActivity
 		}
 		else {  // Invalid op
 			leaveRoom();
+			return;
 		}
 
 		// If this is not an ACK, tell the other user that we received the message
@@ -619,7 +596,13 @@ public class OnlineActivity extends GameActivity
 				continue;
 
 			// Send the data
-			Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, p.getParticipantId());
+			try {
+				Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, p.getParticipantId());
+			}
+			catch (Exception e) {
+				leaveRoom();
+				return;
+			}
 
 			if (op != Op.ACK) {
 				waitForACK(frame);
@@ -755,13 +738,17 @@ public class OnlineActivity extends GameActivity
 	void checkRoomStatus() {
 		if (mParticipants != null) {
 
-			if (mParticipants.size() != 2) leaveRoom();
+			if (mParticipants.size() != 2) {
+				leaveRoom();
+				return;
+			}
 
 			for (Participant p: mParticipants) {
 				if (p.getParticipantId().equals(mMyId))
 					continue;
 				if (p.getStatus() == Participant.STATUS_LEFT) {
 					leaveRoom();
+					return;
 				}
 			}
 		}
@@ -843,7 +830,13 @@ public class OnlineActivity extends GameActivity
 					}
 					else {
 						// Re-send the data
-						Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
+						try {
+							Games.RealTimeMultiplayer.sendReliableMessage(client, mReliableMessageSentCallback, mMsgBuf, mRoomId, opponentId);
+						}
+						catch (Exception e) {
+							hasNetworkError = true;
+							leaveRoom();
+						}
 
 						// Check again in a bit
 						handler.postDelayed(this, RESEND_DELAY_IN_MILLISECONDS);
@@ -913,6 +906,7 @@ public class OnlineActivity extends GameActivity
 		isMoveInProgress = false;
 		isRollInProgress = false;
 		isSendingData = false;
+		hasNetworkError = false;
 		capture = false;
 	}
 
