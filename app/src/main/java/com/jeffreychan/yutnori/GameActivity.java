@@ -13,7 +13,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -40,7 +39,6 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeSet;
-import java.util.concurrent.Semaphore;
 
 public class GameActivity extends Activity implements OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -151,7 +149,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	boolean isRollInProgress = false;
 
 	boolean animationError = false;
-	Semaphore order_semaphore = new Semaphore(1);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -393,6 +390,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 */
 	protected void calculateAnimationOrder(int dest, int numMoves){
 		order = board.calculatePath(currentPiece.getLocation(), dest, numMoves);
+		orderIndex = 0;
 	}
 
 	// To be implemented by subclass
@@ -420,24 +418,19 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 * C D B
 	 */
 	protected void startNextAnimation(){
-		try {
-			order_semaphore.acquire();
-			if (orderIndex < order.length) {
-				if (order[orderIndex] == 'U') currentPieceImage.startAnimation(up);
-				else if (order[orderIndex] == 'D') currentPieceImage.startAnimation(down);
-				else if (order[orderIndex] == 'L') currentPieceImage.startAnimation(left);
-				else if (order[orderIndex] == 'R') currentPieceImage.startAnimation(right);
-				else if (order[orderIndex] == 'A') currentPieceImage.startAnimation(upRight);
-				else if (order[orderIndex] == 'B') currentPieceImage.startAnimation(downRight);
-				else if (order[orderIndex] == 'C') currentPieceImage.startAnimation(downLeft);
-				else if (order[orderIndex] == 'E') currentPieceImage.startAnimation(upLeft);
-				else if (order[orderIndex] == 'F') currentPieceImage.startAnimation(finishing);
-			}
-		} catch (Exception e) {
-			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
+		if (orderIndex < order.length) {
+			if (order[orderIndex] == 'U') currentPieceImage.startAnimation(up);
+			else if (order[orderIndex] == 'D') currentPieceImage.startAnimation(down);
+			else if (order[orderIndex] == 'L') currentPieceImage.startAnimation(left);
+			else if (order[orderIndex] == 'R') currentPieceImage.startAnimation(right);
+			else if (order[orderIndex] == 'A') currentPieceImage.startAnimation(upRight);
+			else if (order[orderIndex] == 'B') currentPieceImage.startAnimation(downRight);
+			else if (order[orderIndex] == 'C') currentPieceImage.startAnimation(downLeft);
+			else if (order[orderIndex] == 'E') currentPieceImage.startAnimation(upLeft);
+			else if (order[orderIndex] == 'F') currentPieceImage.startAnimation(finishing);
+		}
+		else {
 			animationError = true;
-		} finally {
-			order_semaphore.release();
 		}
 	}
 
@@ -445,15 +438,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	 * End of animation
 	 */
 	protected void endAnimation(){
-		try {
-			order_semaphore.acquire();
-			orderIndex = 0;
-		} catch (Exception e) {
-			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
-			animationError = true;
-		} finally {
-			order_semaphore.release();
-		}
+		orderIndex = 0;
 
 		if (currentMoveType == Move.STACK) stack();
 		else if (currentMoveType == Move.CAPTURE) capture();
@@ -1312,7 +1297,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			public void onAnimationEnd(Animation animation) {
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setY((float) (currentPieceImage.getY() - moveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1331,7 +1316,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			public void onAnimationEnd(Animation animation) {
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setY((float) (currentPieceImage.getY() + moveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1352,7 +1337,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			public void onAnimationEnd(Animation animation) {
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() - moveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1371,7 +1356,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			public void onAnimationEnd(Animation animation) {
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() + moveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1391,7 +1376,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() + diagonalMoveSize));
 				currentPieceImage.setY((float) (currentPieceImage.getY() - diagonalMoveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1411,7 +1396,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() + diagonalMoveSize));
 				currentPieceImage.setY((float) (currentPieceImage.getY() + diagonalMoveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1431,7 +1416,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() - diagonalMoveSize));
 				currentPieceImage.setY((float) (currentPieceImage.getY() - diagonalMoveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1451,7 +1436,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() - diagonalMoveSize));
 				currentPieceImage.setY((float) (currentPieceImage.getY() + diagonalMoveSize));
-				incrementOrder();
+				orderIndex++;
 				if (orderIndex < order.length) startNextAnimation();
 				else endAnimation();
 			}
@@ -1471,7 +1456,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				currentPieceImage.clearAnimation();
 				currentPieceImage.setX((float) (currentPieceImage.getX() - diagonalMoveSize));
 				currentPieceImage.setY((float) (currentPieceImage.getY() + diagonalMoveSize));
-				incrementOrder();
+				orderIndex++;
 				currentPieceImage.setVisibility(View.INVISIBLE);
 				endAnimation();
 			}
@@ -1480,17 +1465,4 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			public void onAnimationRepeat(Animation animation) {}
 		});
 	}
-
-	protected void incrementOrder() {
-		try {
-			order_semaphore.acquire();
-			orderIndex++;
-		} catch (Exception e) {
-			Log.e("Yut: OnlineActivity", Log.getStackTraceString(e));
-			animationError = true;
-		} finally {
-			order_semaphore.release();
-		}
-	}
-
 }

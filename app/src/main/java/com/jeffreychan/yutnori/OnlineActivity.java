@@ -98,9 +98,8 @@ public class OnlineActivity extends GameActivity
 	int frame = 0;
 	int currentAckFrame = 0;
 
-	static Semaphore room_id_semaphore = new Semaphore(1);  // Controls access to mRoomId
-	static Semaphore current_frame_semaphore = new Semaphore(1);  // Controls access to currentAckFrame
-
+	static Semaphore room_id_semaphore = new Semaphore(1);          // Controls access to mRoomId
+	static Semaphore current_frame_semaphore = new Semaphore(1);    // Controls access to currentAckFrame
 
 	/*
 	 * Message buffer for sending messages
@@ -762,9 +761,9 @@ public class OnlineActivity extends GameActivity
 
 		resetNetworkingVars();
 
-		resetImages();
-
 		resetGameState();
+
+		resetImages();
 	}
 
 	/*
@@ -1025,16 +1024,16 @@ public class OnlineActivity extends GameActivity
 
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j++) {
-				playerAnimation[i][j].stop();
-				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
-
 				players[i].pieces[j].setLocation(-1);
 				playerOffBoardImages[i][j].setBackgroundResource(avatarIds[i][0]);
 
+				playerOnBoardImages[i][j].clearAnimation();
 				playerOnBoardImages[i][j].setBackgroundResource(avatarIds[i][1]);
 				playerOnBoardImages[i][j].setX(-tiles[0].getX());
-				playerOnBoardImages[i][j].clearAnimation();
 				playerOnBoardImages[i][j].setVisibility(View.VISIBLE);
+
+				playerAnimation[i][j].stop();
+				playerAnimation[i][j] = (AnimationDrawable) playerOnBoardImages[i][j].getBackground();
 			}
 		}
 
