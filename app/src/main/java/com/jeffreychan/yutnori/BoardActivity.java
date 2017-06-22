@@ -49,6 +49,7 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 	@Override
 	public void onClick(View v) {
 		if (isGameOver) return;
+		if (rollButton.getVisibility() == View.VISIBLE && v.getId() != rollButton.getId()) return;
 		if (isMoveInProgress || isRollInProgress || (turn == 1 && isComputerPlaying)) return;
 
 		handleClick(v);
