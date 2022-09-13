@@ -12,7 +12,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -28,9 +28,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -169,7 +166,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		setupMusic();
 		setupBoard();
 		setupAnimations();
-		setupAd();
 	}
 
 	@Override
@@ -977,15 +973,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 				.build();
 	}
 
-	protected void setupAd() {
-		// Set up ad at bottom of screen
-		AdView mAdView = findViewById(R.id.ad_view);
-		AdRequest adRequest = new AdRequest.Builder()
-				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-				.build();
-		mAdView.loadAd(adRequest);
-	}
-
 	protected void setupPlayers() {
 		players[0] = new Player();
 		players[1] = new Player();
@@ -1024,7 +1011,7 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 		Point size = new Point();
 		display.getSize(size);
 		int width = size.x;
-		int height = size.y - AdSize.SMART_BANNER.getHeightInPixels(this);
+		int height = size.y;
 		heightOffset = (float) (height/20.0);
 
 		// Set up seal area

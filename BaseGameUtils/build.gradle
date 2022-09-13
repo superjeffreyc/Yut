@@ -2,28 +2,32 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
+        google()
+        mavenCentral()
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:7.2.2'
     }
 }
 
 dependencies {
-    compile 'com.google.android.gms:play-services-games:11.0.1'
-    compile 'com.google.android.gms:play-services-plus:11.0.1'
-    compile 'com.google.android.gms:play-services-drive:11.0.1'
+    implementation 'com.google.android.gms:play-services-base:18.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.3.0'
+    implementation 'com.google.android.gms:play-services-games:22.0.1'
+    implementation 'com.google.android.gms:play-services-plus:17.0.0'
+    implementation 'com.google.android.gms:play-services-drive:17.0.0'
 
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.0'
+    compileSdk 33
+    buildToolsVersion '33.0.0'
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 26
+        targetSdkVersion 33
     }
 
     buildTypes {

@@ -26,7 +26,7 @@ import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -36,10 +36,6 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.Games.GamesOptions;
 import com.google.android.gms.games.GamesActivityResultCodes;
-import com.google.android.gms.games.multiplayer.Invitation;
-import com.google.android.gms.games.multiplayer.Multiplayer;
-import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatch;
-import com.google.android.gms.games.request.GameRequest;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.Plus.PlusOptions;
 
@@ -154,24 +150,6 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     boolean mDebugLog = false;
 
     Handler mHandler;
-
-    /*
-     * If we got an invitation when we connected to the games client, it's here.
-     * Otherwise, it's null.
-     */
-    Invitation mInvitation;
-
-    /*
-     * If we got turn-based match when we connected to the games client, it's
-     * here. Otherwise, it's null.
-     */
-    TurnBasedMatch mTurnBasedMatch;
-
-    /*
-     * If we have incoming requests when we connected to the games client, they
-     * are here. Otherwise, it's null.
-     */
-    ArrayList<GameRequest> mRequests;
 
     // Listener
     GameHelperListener mListener = null;
@@ -371,44 +349,6 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         mActivity = null;
     }
 
-    /**
-     * Returns the invitation ID received through an invitation notification.
-     * This should be called from your GameHelperListener's
-     *
-     * @link{GameHelperListener#onSignInSucceeded method, to check if there's an
-     *                                            invitation available. In that
-     *                                            case, accept the invitation.
-     * @return The id of the invitation, or null if none was received.
-     */
-    @SuppressWarnings("JavaDoc")
-    public String getInvitationId() {
-        if (!mGoogleApiClient.isConnected()) {
-            Log.w(TAG,
-                    "Warning: getInvitationId() should only be called when signed in, "
-                            + "that is, after getting onSignInSucceeded()");
-        }
-        return mInvitation == null ? null : mInvitation.getInvitationId();
-    }
-
-    /**
-     * Returns the invitation received through an invitation notification. This
-     * should be called from your GameHelperListener's
-     *
-     * @link{GameHelperListener#onSignInSucceeded method, to check if there's an
-     *                                            invitation available. In that
-     *                                            case, accept the invitation.
-     * @return The invitation, or null if none was received.
-     */
-    @SuppressWarnings("JavaDoc")
-    public Invitation getInvitation() {
-        if (!mGoogleApiClient.isConnected()) {
-            Log.w(TAG,
-                    "Warning: getInvitation() should only be called when signed in, "
-                            + "that is, after getting onSignInSucceeded()");
-        }
-        return mInvitation;
-    }
-
     @Deprecated
     public void enableDebugLog(boolean enabled) {
         Log.w(TAG, "GameHelper.enableDebugLog(boolean,String) is deprecated. "
@@ -576,8 +516,6 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         }
         debugLog("Starting connection.");
         mConnecting = true;
-        mInvitation = null;
-        mTurnBasedMatch = null;
         mGoogleApiClient.connect();
     }
 
@@ -599,31 +537,6 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     @Override
     public void onConnected(Bundle connectionHint) {
         debugLog("onConnected: connected!");
-
-        if (connectionHint != null) {
-            debugLog("onConnected: connection hint provided. Checking for invite.");
-            Invitation inv = connectionHint
-                    .getParcelable(Multiplayer.EXTRA_INVITATION);
-            if (inv != null && inv.getInvitationId() != null) {
-                // retrieve and cache the invitation ID
-                debugLog("onConnected: connection hint has a room invite!");
-                mInvitation = inv;
-                debugLog("Invitation ID: " + mInvitation.getInvitationId());
-            }
-
-            // Do we have any requests pending?
-            mRequests = Games.Requests
-                    .getGameRequestsFromBundle(connectionHint);
-            if (!mRequests.isEmpty()) {
-                // We have requests in onConnected's connectionHint.
-                debugLog("onConnected: connection hint has " + mRequests.size()
-                        + " request(s)");
-            }
-
-            debugLog("onConnected: connection hint provided. Checking for TBMP game.");
-            mTurnBasedMatch = connectionHint
-                    .getParcelable(Multiplayer.EXTRA_TURN_BASED_MATCH);
-        }
 
         // we're good to go
         succeedSignIn();

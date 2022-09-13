@@ -14,7 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -65,7 +65,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	Button shopButton;
 	Button backButton;
 	Button switchButton;
-	Button playOnlineButton;
 
 	Spinner p1spin;
 	Spinner p2spin;
@@ -259,17 +258,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		settingsButton.setX(midX);
 		settingsButton.setY((int) (height * 8.75 / 10.0));
 		rl1.addView(settingsButton);
-
-		playOnlineButton = new Button(this);
-		playOnlineButton.setBackgroundResource(R.drawable.titlebutton);
-		playOnlineButton.setTextColor(Color.WHITE);
-		playOnlineButton.setText(R.string.play_online);
-		playOnlineButton.setId(View.generateViewId());
-		playOnlineButton.setLayoutParams(new RelativeLayout.LayoutParams(titleButtonWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
-		playOnlineButton.setOnClickListener(this);
-		playOnlineButton.setX(midX);
-		playOnlineButton.setY(startButton.getY());
-		rl2.addView(playOnlineButton);
 
 		onePlayerButton = new Button(this);
 		onePlayerButton.setBackgroundResource(R.drawable.titlebutton);
@@ -484,7 +472,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	private void setModeButtonClickable(boolean b){
 		onePlayerButton.setClickable(b);
 		twoPlayerButton.setClickable(b);
-		playOnlineButton.setClickable(b);
 		backButton.setClickable(b);
 	}
 
@@ -575,9 +562,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 	@Override
 	public void onStart() {
-		if (!client.isConnected()) {
-			client.connect();
-		}
 		super.onStart();
 	}
 
@@ -879,24 +863,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 			}
 		}
-		else if (v.getId() == playOnlineButton.getId()){
-			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
-				lastTimeButtonClicked = SystemClock.elapsedRealtime();
-
-				// Make sure the user is signed in
-				if (client != null && client.isConnected()) {
-					Intent intent = new Intent(this, OnlineActivity.class);
-					intent.putExtra("Song", mp.getCurrentPosition());
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-					startActivity(intent);
-					finish();
-				} else {
-					Toast t = Toast.makeText(context, "You must be signed in to Google to play online.", Toast.LENGTH_SHORT);
-					t.show();
-				}
-
-			}
-		}
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
 			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
 				lastTimeButtonClicked = SystemClock.elapsedRealtime();
@@ -906,7 +872,7 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 				else signInStatus = "Sign In To Google";
 
 				AlertDialog.Builder adb = new AlertDialog.Builder(this);
-				final CharSequence[] items = {"Share", "Rate This App", "Achievements", signInStatus, soundStatus, "Credits", "Close"};
+				final CharSequence[] items = {"Share", "Rate This App", soundStatus, "Credits", "Close"};
 				adb.setTitle("Options");
 				adb.setItems(items, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int item) {
@@ -920,19 +886,9 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 							Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=com.jeffreychan.yunnori"));
 							startActivity(intent);
 						} else if (item == 2) {
-							if (client.isConnected()) {
-								startActivityForResult(Games.Achievements.getAchievementsIntent(client), 0);
-							} else {
-								Toast savedToast = Toast.makeText(context, "You must be signed in to view achievements", Toast.LENGTH_SHORT);
-								savedToast.show();
-							}
-						} else if (item == 3) {
-							if (signInStatus.equals("Sign In To Google")) signInClicked();
-							else signOutClicked();
-						} else if (item == 4) {
 							if (soundStatus.equals("Unmute Sound")) turnOnSound();
 							else turnOffSound();
-						} else if (item == 5) {
+						} else if (item == 3) {
 							AlertDialog.Builder adb = new AlertDialog.Builder(context);
 							adb.setTitle("Credits");
 							ScrollView sv = new ScrollView(context);
@@ -985,7 +941,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		settingsButton.setVisibility(View.INVISIBLE);
 		onePlayerButton.setVisibility(View.INVISIBLE);
 		twoPlayerButton.setVisibility(View.INVISIBLE);
-		playOnlineButton.setVisibility(View.INVISIBLE);
 		backButton.setVisibility(View.INVISIBLE);
 
 		loading.setVisibility(View.VISIBLE);

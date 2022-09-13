@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.0'
+    compileSdk 33
+    buildToolsVersion '33.0.0'
 
     defaultConfig {
         applicationId "com.jeffreychan.yunnori"
         minSdkVersion 17
-        targetSdkVersion 26
-        versionCode 25
-        versionName "2.6"
+        targetSdkVersion 33
+        versionCode 30
+        versionName "3.0"
     }
 
     buildTypes {
@@ -30,9 +30,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.android.gms:play-services-ads:11.0.1'
-    compile 'com.google.android.gms:play-services-games:11.0.1'
-    compile 'org.jsoup:jsoup:1.10.3'
-    compile project(':BaseGameUtils')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.google.android.gms:play-services-games:22.0.1'
+    implementation 'org.jsoup:jsoup:1.15.3'
+    implementation project(':BaseGameUtils')
 }
