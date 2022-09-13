@@ -1,10 +1,10 @@
-# Yut [![Build Status](https://travis-ci.org/superjeffreyc/Yut.svg?branch=master)](https://travis-ci.org/superjeffreyc/Yut)
+# Yut
 
 
 Yut (pronounced yoot) is a traditional Korean board game which plays similar to "Sorry!"
 
 ## Official Website
-https://yutnori.herokuapp.com/
+https://superjeffc.github.io/yut/
 
 ## How to download and play on Android
 Head over to the Google Play Store and download the latest release: 
