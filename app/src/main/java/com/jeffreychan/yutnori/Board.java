@@ -251,7 +251,8 @@ public class Board {
 	 * Index 0 contains the destination location
 	 * Index 1 contains the roll amount
 	 *
-	 * Only a roll of -1 on tiles 0, 15, and 22 will return 2 Integer arrays in the ArrayList
+	 * Rolls on tiles 0, 15, and 22 will return 2 Integer arrays in the ArrayList, allowing the
+	 * user to decide which way they want to go.
 	 * All other locations and rolls will only return 1 Integer array
 	 *
 	 * @param move The roll amount
@@ -286,6 +287,18 @@ public class Board {
 					} else {
 						location--;
 					}
+
+					/* Rolling a positive number on the top right tile gives you two
+					 * possible choices.
+					 * This covers the second case.
+					 * The first case is covered at the end of the loop
+					 */
+					if (move >= 1) {
+						Integer[] secondMove = new Integer[2];
+						secondMove[0] = 5 + move;
+						secondMove[1] = move;
+						moveList.add(secondMove);
+					}
 				} else if (location == 10) {
 					if (move == 1 || move == 2) {
 						location = 24 + move;
@@ -295,6 +308,18 @@ public class Board {
 						location = 23 + move;
 					} else {
 						location--;
+					}
+
+					/* Rolling a positive number on the top left tile gives you two
+					 * possible choices.
+					 * This covers the second case.
+					 * The first case is covered at the end of the loop
+					 */
+					if (move >= 1) {
+						Integer[] secondMove = new Integer[2];
+						secondMove[0] = 10 + move;
+						secondMove[1] = move;
+						moveList.add(secondMove);
 					}
 				} else if (location == 15) {
 					if (move > 0 && move < 5) {
@@ -345,6 +370,26 @@ public class Board {
 						 */
 						Integer[] secondMove = new Integer[2];
 						secondMove[0] = 26;
+						secondMove[1] = move;
+						moveList.add(secondMove);
+					}
+
+					/* Rolling a positive number on the center tile gives you two
+					 * possible choices.
+					 * This covers the second case.
+					 * The first case is covered at the end of the loop
+					 */
+					if (move >= 1) {
+						Integer[] secondMove = new Integer[2];
+						if (move == 1 | move == 2) {
+							secondMove[0] = 22 + move;
+						} else if (move == 3) {
+							secondMove[0] = 15;
+						} else if (move == 4) {
+							secondMove[0] = 16;
+						} else if (move == 5) {
+							secondMove[0] = 17;
+						}
 						secondMove[1] = move;
 						moveList.add(secondMove);
 					}
@@ -435,12 +480,21 @@ public class Board {
 	 * Each element represents a direction to move on the board.
 	 * 
 	 * Direction Symbols:
-	 * U = Up
-	 * D = Down
-	 * L = Left
-	 * R = Right
-	 * A = Diagonal Down-left
-	 * E = Diagonal Down-right
+	 * U = Move up
+	 * D = Move down
+	 * L = Move left
+	 * R = Move right
+	 * A = Move up and right
+	 * B = Move down and right
+	 * C = Move down and left
+	 * E = Move up and left
+	 * F = Set visibility to invisible
+	 *
+	 * Shown as an image:
+	 *
+	 * E U A
+	 * L   R
+	 * C D B
 	 *
 	 * @param start The start location
 	 * @param dest The end location
@@ -479,10 +533,18 @@ public class Board {
 			for (int i = 0; i < numMoves; i++) array[j++] = 'F';
 		}
 		else if (start == 5){
-			for (int i = 0; i < numMoves; i++) array[j++] = 'C';
+			if (dest >= 20) {
+				for (int i = 0; i < numMoves; i++) array[j++] = 'C';
+			} else {
+				for (int i = 0; i < numMoves; i++) array[j++] = 'L';
+			}
 		}
 		else if (start == 10){
-			for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+			if (dest >= 22) {
+				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+			} else {
+				for (int i = 0; i < numMoves; i++) array[j++] = 'D';
+			}
 		}
 		else if (start == 20) {
 			for (int i = 0; i < numMoves; i++) array[j++] = 'C';
@@ -496,11 +558,20 @@ public class Board {
 			}
 		}
 		else if (start == 22){
-			if (numMoves <= 3){
-				for (int i = 0; i < numMoves; i++) array[j++] = 'B';
-			} else if (numMoves > 3){
-				for (int i = 0; i < 3; i++) array[j++] = 'B';
-				for (int i = 3; i < numMoves; i++) array[j++] = 'F';
+			if (dest >= 27) {
+				if (numMoves <= 3) {
+					for (int i = 0; i < numMoves; i++) array[j++] = 'B';
+				} else if (numMoves > 3) {
+					for (int i = 0; i < 3; i++) array[j++] = 'B';
+					for (int i = 3; i < numMoves; i++) array[j++] = 'F';
+				}
+			} else {
+				if (numMoves <= 3) {
+					for (int i = 0; i < numMoves; i++) array[j++] = 'C';
+				} else if (numMoves > 3) {
+					for (int i = 0; i < 3; i++) array[j++] = 'C';
+					for (int i = 3; i < numMoves; i++) array[j++] = 'R';
+				}
 			}
 		}
 		else if (start == 23){
