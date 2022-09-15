@@ -9,7 +9,7 @@
     <string name="play_online">Play Online</string>
     <string name="one_player">1-Player</string>
     <string name="two_player">2-Player</string>
-    <string name="swap">Swap</string>
+    <string name="swap">&lt;-&gt;</string>
     <string name="loading">Loading&#8230;</string>
     <string name="computer">Computer is making a move&#8230;</string>
     <string name="opponent">Opponent is making a move&#8230;</string>
@@ -36,7 +36,7 @@
     <string name="back">Back</string>
     <string name="twenty">20 Coins</string>
     <string name="future">Check back in the future for new avatars!</string>
-    <string name="set_avatar">Select a different avatar from the drop down menu or press the arrow button to swap the current avatars</string>
+    <string name="set_avatar">Press an avatar below to open a drop menu or press the orange button to swap the current avatars</string>
     <string name="change">Change</string>
     <string name="buy">Buy</string>
     <string name="welcome">Welcome to the Avatar Shop!</string>

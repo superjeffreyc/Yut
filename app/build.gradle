@@ -8,8 +8,8 @@ android {
         applicationId "com.jeffreychan.yunnori"
         minSdkVersion 17
         targetSdkVersion 33
-        versionCode 32
-        versionName "3.2"
+        versionCode 33
+        versionName "3.3"
     }
 
     buildTypes {
