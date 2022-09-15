@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import androidx.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -39,21 +38,10 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.games.Games;
-import com.google.example.games.basegameutils.BaseGameUtils;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TitleScreenActivity extends Activity implements OnClickListener, OnItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
-	private static int RC_SIGN_IN = 9001;
-
-	private boolean mResolvingConnectionFailure = false;
-	private boolean mAutoStartSignInFlow = true;
-	private boolean mSignInClicked = false;
+public class TitleScreenActivity extends Activity implements OnClickListener, OnItemSelectedListener {
 
 	Context context = this;
 
@@ -103,9 +91,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 	boolean isP1spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
 	boolean isP2spinFirstTime = true;   // Prevents initialization of spinner from activating OnItemSelected
 
-	GoogleApiClient client;
-	String signInStatus = "Sign In To Google";
-
 	String soundStatus = "Mute Sound";
 	boolean soundOn = true;
 
@@ -131,16 +116,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		mp.setLooping(true);
 		if (getIntent().hasExtra("Song")) mpPos = getIntent().getExtras().getInt("Song");
 		mp.seekTo(mpPos);
-
-		// Create client to connect to Google Play Games
-		client = new GoogleApiClient.Builder(this)
-				.addApi(Games.API)
-				.addScope(Games.SCOPE_GAMES)
-				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this)
-				.build();
-
-		if (client.isConnected()) signInStatus = "Sign Out Of Google";
 
 		// Formula to modify volume from https://stackoverflow.com/questions/5215459/android-mediaplayer-setvolume-function
 		int soundVolume = 75;
@@ -511,30 +486,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		}
 	}
 
-
-	public void onConnected(Bundle connectionHint){}
-
-	public void onConnectionSuspended(int cause){
-		// Attempt to reconnect
-		client.connect();
-	}
-
-	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-		if (mResolvingConnectionFailure) {
-			// already resolving
-			return;
-		}
-
-		// if the sign-in button was clicked or if auto sign-in is enabled,
-		// launch the sign-in flow
-		if (mSignInClicked || mAutoStartSignInFlow) {
-			mAutoStartSignInFlow = false;
-			mSignInClicked = false;
-			mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, client,
-					connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
-		}
-	}
-
 	/*
 	 * If the activity is placed in the background, save the current position of the song
 	 */
@@ -575,8 +526,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 			mp.stop();
 			mp.release();
 		}
-
-		client.disconnect();
 	}
 
 	/*
@@ -627,60 +576,8 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		soundOn = true;
 	}
 
-	private void signInClicked() {
-
-		mSignInClicked = true;
-
-		// Make sure the user is not connected before trying to connect
-		if (!client.isConnected()) {
-			client.connect();
-		}
-		else {
-			signInStatus = "Sign Out Of Google";
-		}
-	}
-
-	private void signOutClicked() {
-
-		mSignInClicked = false;
-
-		// Verify that the user is currently connected before trying to sign out
-		if (client.isConnected()) {
-			Games.signOut(client);
-			client.disconnect();
-		}
-		else {
-			signInStatus = "Sign In To Google";
-			return;
-		}
-
-		// Verify successful sign out
-		if (!client.isConnected()){
-			signInStatus = "Sign In To Google";
-			Toast t = Toast.makeText(context, "Successfully disconnected", Toast.LENGTH_SHORT);
-			t.show();
-		}
-		else {
-			Toast t = Toast.makeText(context, "Failed to disconnect", Toast.LENGTH_SHORT);
-			t.show();
-		}
-
-	}
-
 	protected void onActivityResult(int requestCode, int resultCode,
-	                                Intent intent) {
-		if (requestCode == RC_SIGN_IN) {
-			mSignInClicked = false;
-			mResolvingConnectionFailure = false;
-			if (resultCode == RESULT_OK) {
-				client.connect();
-			} else {
-				// Bring up an error dialog to alert the user that sign-in failed
-				Toast savedToast = Toast.makeText(context, "Unable to sign in to Google", Toast.LENGTH_SHORT);
-				savedToast.show();
-			}
-		}
-	}
+	                                Intent intent) {}
 
 	/*
 	 * Handles all clicks
@@ -694,8 +591,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 
 			Intent intent = new Intent(this, BoardActivity.class);
 			intent.putExtra("Computer", isOnePlayer);
-			if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
-			else intent.putExtra("SignedIn", "Disconnected");
 			intent.putExtra("Song", mp.getCurrentPosition());
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			startActivity(intent);
@@ -866,10 +761,6 @@ public class TitleScreenActivity extends Activity implements OnClickListener, On
 		else if (v.getId() == settingsButton.getId()){  // Bring up settings dialog
 			if (SystemClock.elapsedRealtime() - lastTimeButtonClicked > 500) {
 				lastTimeButtonClicked = SystemClock.elapsedRealtime();
-
-				// Display the correct message for Google Sign In based on client status
-				if (client.isConnected()) signInStatus = "Sign Out Of Google";
-				else signInStatus = "Sign In To Google";
 
 				AlertDialog.Builder adb = new AlertDialog.Builder(this);
 				final CharSequence[] items = {"Share", "Rate This App", soundStatus, "Credits", "Close"};

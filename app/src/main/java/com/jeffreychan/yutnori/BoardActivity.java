@@ -12,10 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.games.Games;
-
-public class BoardActivity extends GameActivity implements OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class BoardActivity extends GameActivity implements OnClickListener {
 
 	Context context = this;
 	boolean isComputerPlaying;
@@ -88,13 +85,6 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 	 * Sends all your other pieces at that location off the board but increases the value of the current piece.
 	 */
 	protected void stack(){
-		// Check for achievement for stacking all 4
-		for (int j = 0; j < 4; j++) {
-			if (players[turn].pieces[j].getLocation() == currentPiece.getLocation() && currentPiece != players[turn].pieces[j]) {
-				if (client != null && client.isConnected() && isComputerPlaying && turn == 0 && currentPiece.getValue() == 4) Games.Achievements.unlock(client, getResources().getString(R.string.achievement_the_stack));
-			}
-		}
-
 		super.stack();
 	}
 
@@ -230,25 +220,11 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 	protected void awardCoins() {
 		// Check for computer match and user won
 		if (isComputerPlaying && players[0].hasWon()) {
-			// Check if GoogleApiClient is connected
-			if (client != null && client.isConnected()) {
-				// Increment number of wins for white belt achievement
-				Games.Achievements.increment(client, getResources().getString(R.string.achievement_white_belt), 1);
-				// Achievement for beating computer once
-				Games.Achievements.unlock(client, getResources().getString(R.string.achievement_first_victory));
-				// Achievement for crossing finish with all 4 pieces against computer
-				if (currentPiece.getValue() == 4) Games.Achievements.unlock(client, getResources().getString(R.string.achievement_full_stack_finish));
-			}
-
 			Shop.Instance.addCoins(3);
 		}
 		else {
 			Shop.Instance.addCoins(1);
 		}
-
-		// Check for achievement for playing two player mode
-		if (client != null && client.isConnected() && !isComputerPlaying) Games.Achievements.unlock(client, getResources().getString(R.string.achievement_two_player_battle));
-
 	}
 
 	protected void showGameOverDialog() {
@@ -272,8 +248,6 @@ public class BoardActivity extends GameActivity implements OnClickListener, Goog
 				Intent intent = new Intent(context, BoardActivity.class);
 				intent.putExtra("Computer", isComputerPlaying);
 				intent.putExtra("Song", mp.getCurrentPosition());
-				if (client != null && client.isConnected()) intent.putExtra("SignedIn", "Connected");
-				else intent.putExtra("SignedIn", "Disconnected");
 				finish();
 				startActivity(intent);
 			}

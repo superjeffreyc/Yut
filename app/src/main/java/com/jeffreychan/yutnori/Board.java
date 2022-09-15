@@ -558,7 +558,7 @@ public class Board {
 			}
 		}
 		else if (start == 22){
-			if (dest >= 27) {
+			if (dest >= 27 || dest == 0) {
 				if (numMoves <= 3) {
 					for (int i = 0; i < numMoves; i++) array[j++] = 'B';
 				} else if (numMoves > 3) {

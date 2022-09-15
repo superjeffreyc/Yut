@@ -12,7 +12,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.NonNull;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
@@ -28,16 +27,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.games.Games;
-import com.google.example.games.basegameutils.BaseGameUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeSet;
 
-public class GameActivity extends Activity implements OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class GameActivity extends Activity implements OnClickListener {
 
 	boolean isRollDone;         // Did the stick throwing animation finish
 	boolean canRoll = true;     // Did the user roll 4 or 5
@@ -109,8 +103,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	Button rollButton;
 	RelativeLayout rl;
 
-	GoogleApiClient client;
-
 	// Used to access stored information on device
 	SharedPreferences prefs;
 
@@ -126,22 +118,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 	TreeSet<Integer> specialTiles = new TreeSet<>(Arrays.asList(0, 5, 10, 15, 22)); // These tiles are colored differently
 	ArrayList<Integer> tile_ids = new ArrayList<>();    // Contains the click ids for all tiles
 	ArrayList<Integer> player_ids = new ArrayList<>();  // Contains the click ids for all player pieces
-
-	// Request codes for the UIs that we show with startActivityForResult:
-	final static int RC_WAITING_ROOM = 10002;
-
-	// Request code used to invoke sign in user interactions.
-	final static int RC_SIGN_IN = 9001;
-
-	// Are we currently resolving a connection failure?
-	boolean mResolvingConnectionFailure = false;
-
-	// Has the user clicked the sign-in button?
-	boolean mSignInClicked = false;
-
-	// Set to true to automatically start the sign in flow when the Activity starts.
-	// Set to false to require the user to click the button in order to sign in.
-	boolean mAutoStartSignInFlow = true;
 
 	boolean isRollInProgress = false;
 
@@ -161,7 +137,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 
 		// Begin setup
 		setupAvatars();
-		setupClient();
 		setupPlayers();
 		setupMusic();
 		setupBoard();
@@ -173,29 +148,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) { return super.onOptionsItemSelected(item);	}
-
-	public void onConnected(Bundle connectionHint){}
-
-	@Override
-	public void onConnectionSuspended(int i) {
-		client.connect();
-	}
-
-	@Override
-	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-		if (mResolvingConnectionFailure) {
-			return;
-		}
-
-		if (mSignInClicked || mAutoStartSignInFlow) {
-			mAutoStartSignInFlow = false;
-			mSignInClicked = false;
-			mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, client,
-					connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
-		}
-
-	}
 
 	/*
 	 * If the activity is placed in the background, save the current position of the song
@@ -236,9 +188,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 
 	@Override
 	public void onStart() {
-		if (!client.isConnected()) {
-			client.connect();
-		}
 		super.onStart();
 	}
 
@@ -961,16 +910,6 @@ public class GameActivity extends Activity implements OnClickListener, GoogleApi
 			avatarIds[i] = Shop.Instance.getImageArray(s[i]);
 			playerTips[i] = "Press any moving " + s[i].toLowerCase();
 		}
-	}
-
-	protected void setupClient() {
-		// Set up GoogleApiClient
-		client = new GoogleApiClient.Builder(this)
-				.addApi(Games.API)
-				.addScope(Games.SCOPE_GAMES)
-				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this)
-				.build();
 	}
 
 	protected void setupPlayers() {
