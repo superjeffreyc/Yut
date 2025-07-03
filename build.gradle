@@ -4,13 +4,18 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        // UPDATE THE AGP VERSION HERE
+        // Check the latest stable version: https://developer.android.com/studio/releases/gradle-plugin
+        classpath 'com.android.tools.build:gradle:8.11.0'
+        // Example: Replace with the latest stable AGP
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        // UPDATE THE KOTLIN GRADLE PLUGIN VERSION HERE (if you use Kotlin)
+        // Check the latest stable version compatible with your AGP:
+        // https://kotlinlang.org/docs/releases.html#tooling-versions
+        // Make sure this version is compatible with the AGP version above.
+        // classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20" // Example: Replace with latest compatible Kotlin
     }
 }
 
@@ -18,10 +23,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
+        // If you had jcenter(), it should have been removed.
+        // Add any other necessary repositories here, e.g., for specific libraries:
+        // maven { url 'https://jitpack.io' }
     }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

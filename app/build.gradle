@@ -1,34 +1,85 @@
-apply plugin: 'com.android.application'
+// Apply the application plugin using the plugins block
+plugins {
+    id 'com.android.application'
+    // If you're using Kotlin, add the Kotlin Android plugin here:
+    // id 'org.jetbrains.kotlin.android'
+}
 
 android {
-    compileSdk 33
-    buildToolsVersion '33.0.0'
+    // Specify the namespace for your R class and generated sources
+    // This should match your original package name in AndroidManifest.xml
+    namespace 'com.jeffreychan.yunnori'
+
+    // Update to a more recent API level
+    // Check the latest stable API level: https://developer.android.com/studio/releases/platforms
+    compileSdk 34 // Example: Android 14
+
+    // buildToolsVersion is generally not needed with AGP 3.0.0+
+    // You can remove it unless you have a very specific reason to set it.
+    // buildToolsVersion '33.0.0'
 
     defaultConfig {
         applicationId "com.jeffreychan.yunnori"
-        minSdkVersion 17
-        targetSdkVersion 33
-        versionCode 33
-        versionName "3.3"
+        minSdk 17
+        // Update targetSdk to match compileSdk
+        targetSdk 34 // Example: Android 14
+        versionCode 34
+        versionName "3.4"
+
+        // For newer AGPs, consider adding testInstrumentationRunner if you have tests
+        // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true // Consider enabling minifyEnabled true for release builds to shrink and obfuscate code
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Note: getDefaultProguardFile('proguard-android.txt') is older;
+            // 'proguard-android-optimize.txt' includes more default optimizations.
+        }
+        // You might want a debug build type as well, though it's often configured by default
+        debug {
+            // Debug specific configurations
         }
     }
 
-    lintOptions {
-        // set to true to turn off analysis progress reporting by lint
-        quiet true
-        // if true, stop the gradle build if errors are found
-        abortOnError false
-        // if true, only report errors
-        ignoreWarnings true
+    // It's good practice to set Java version compatibility
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8 // Or higher, e.g., VERSION_11 or VERSION_17 with compatible AGP
+        targetCompatibility JavaVersion.VERSION_1_8 // Or higher
     }
+
+    // If using Kotlin, configure Kotlin options:
+    // kotlinOptions {
+    //    jvmTarget = '1.8' // Or higher, matching sourceCompatibility
+    // }
+
+    lint { // Changed from lintOptions to just lint for more recent AGP versions
+        quiet true
+        abortOnError false
+        ignoreWarnings true
+        // Consider more fine-grained lint configuration if needed
+    }
+
+    // If you have data binding or view binding:
+    // buildFeatures {
+    //    dataBinding true
+    //    viewBinding true
+    // }
 }
 
 dependencies {
+    // This is fine if you have JAR files in a 'libs' directory
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Add other common AndroidX dependencies as needed. Examples:
+    // implementation 'androidx.core:core-ktx:1.12.0' // If using Kotlin
+    // implementation 'androidx.appcompat:appcompat:1.6.1'
+    // implementation 'com.google.android.material:material:1.10.0'
+    // implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // Testing dependencies
+    // testImplementation 'junit:junit:4.13.2'
+    // androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    // androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
