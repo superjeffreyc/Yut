@@ -23,8 +23,8 @@ android {
         minSdk 36
         // Update targetSdk to match compileSdk
         targetSdk 36 // Example: Android 14
-        versionCode 35
-        versionName "3.5"
+        versionCode 36
+        versionName "3.6"
 
         // For newer AGPs, consider adding testInstrumentationRunner if you have tests
         // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
