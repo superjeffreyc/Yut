@@ -12,7 +12,7 @@ android {
 
     // Update to a more recent API level
     // Check the latest stable API level: https://developer.android.com/studio/releases/platforms
-    compileSdk 36 // Example: Android 14
+    compileSdk 35
 
     // buildToolsVersion is generally not needed with AGP 3.0.0+
     // You can remove it unless you have a very specific reason to set it.
@@ -20,11 +20,10 @@ android {
 
     defaultConfig {
         applicationId "com.jeffreychan.yunnori"
-        minSdk 36
-        // Update targetSdk to match compileSdk
-        targetSdk 36 // Example: Android 14
-        versionCode 37
-        versionName "3.7"
+        minSdk 35
+        targetSdk 35
+        versionCode 38
+        versionName "3.8"
 
         // For newer AGPs, consider adding testInstrumentationRunner if you have tests
         // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
