@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId "com.jeffreychan.yunnori"
-        minSdk 17
+        minSdk 36
         // Update targetSdk to match compileSdk
         targetSdk 36 // Example: Android 14
         versionCode 35
