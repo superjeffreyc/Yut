@@ -8,7 +8,7 @@ plugins {
 android {
     // Specify the namespace for your R class and generated sources
     // This should match your original package name in AndroidManifest.xml
-    namespace 'com.jeffreychan.yunnori'
+    namespace 'com.jeffreychan.yutnori'
 
     // Update to a more recent API level
     // Check the latest stable API level: https://developer.android.com/studio/releases/platforms
@@ -32,7 +32,6 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true // Consider enabling minifyEnabled true for release builds to shrink and obfuscate code
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Note: getDefaultProguardFile('proguard-android.txt') is older;
             // 'proguard-android-optimize.txt' includes more default optimizations.
@@ -45,8 +44,8 @@ android {
 
     // It's good practice to set Java version compatibility
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8 // Or higher, e.g., VERSION_11 or VERSION_17 with compatible AGP
-        targetCompatibility JavaVersion.VERSION_1_8 // Or higher
+        sourceCompatibility JavaVersion.VERSION_17 // Or higher, e.g., VERSION_11 or VERSION_17 with compatible AGP
+        targetCompatibility JavaVersion.VERSION_17 // Or higher
     }
 
     // If using Kotlin, configure Kotlin options:
