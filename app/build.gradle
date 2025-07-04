@@ -32,9 +32,14 @@ android {
 
     buildTypes {
         release {
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // Note: getDefaultProguardFile('proguard-android.txt') is older;
-            // 'proguard-android-optimize.txt' includes more default optimizations.
+            // Enables code-related app optimization.
+            minifyEnabled true
+
+            // Enables resource shrinking.
+            shrinkResources true
+
+            // Default file with automatically generated optimization rules.
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
         }
         // You might want a debug build type as well, though it's often configured by default
         debug {
