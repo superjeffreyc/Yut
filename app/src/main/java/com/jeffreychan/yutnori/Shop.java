@@ -85,6 +85,26 @@ public class Shop {
 				R.drawable.bird_icon
 		});
 
+		addAvatar("Hedgehog", 10, new Integer[]{
+				R.drawable.hedgehog1jump1,
+				R.drawable.hedgehog_animation1,
+				R.drawable.hedgehog_animation2,
+				R.drawable.hedgehog_animation3,
+				R.drawable.hedgehog_animation4,
+				R.drawable.hedgehog_goal,
+				R.drawable.hedgehog_icon
+		});
+
+		addAvatar("Fennec-Fox", 10, new Integer[]{
+				R.drawable.fennecfox1jump1,
+				R.drawable.fennecfox_animation1,
+				R.drawable.fennecfox_animation2,
+				R.drawable.fennecfox_animation3,
+				R.drawable.fennecfox_animation4,
+				R.drawable.fennecfox_goal,
+				R.drawable.fennecfox_icon
+		});
+
 		addAvatar("Polar-Bear", 50, new Integer[]{
 				R.drawable.polarbear1jump1,
 				R.drawable.polarbear_animation1,
@@ -145,16 +165,8 @@ public class Shop {
 		}
 
 		// debug
-//		editor.putInt("Rabbit", 0);
-//		editor.putInt("Bird", 0);
-//		editor.putInt("Polar-Bear", 0);
-//		editor.putInt("Leopard", 0);
-//		editor.putInt("Husky", 0);
-//		editor.putInt("coins", 250);
-//		editor.putString("animals", "Seal Penguin");
-//		playerAnimals = "Seal Penguin";
-//		lastSavedAnimals = playerAnimals;
-//		editor.commit();
+		//editor.putInt("coins", 250);
+		//editor.commit();
 
 	}
 
