@@ -22,8 +22,8 @@ android {
         applicationId "com.jeffreychan.yunnori"
         minSdk 21
         targetSdk 35
-        versionCode 41
-        versionName "4.1"
+        versionCode 42
+        versionName "4.2"
 
         // For newer AGPs, consider adding testInstrumentationRunner if you have tests
         // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

@@ -60,8 +60,8 @@
 
     <string name="guide1"><u>OBJECTIVE</u>\n\nThe first player to move all 4 of his or her pieces around the board wins.\n\n<u>ROLL PHASE</u>\n\nDuring your turn, you will be prompted to throw the sticks with the roll button.\n</string>
     <string name="guide2">If you roll a 4 or 5, you get to roll again. In addition, if you land on an opponent\'s piece, you get to roll again.\n\n<u>MOVE PHASE</u>\n\nYour possible moves are shown in the 5 circles near the bottom.\n</string>
-    <string name="guide3">To move, click any one of your available pieces (the jumping pieces) and select a yellow tile, which indicates a possible location you can move to with that piece.\n</string>
-    <string name="guide4"><u>POSSIBLE ROLLS</u>\n</string>
+    <string name="guide3">To move, click any one of your available pieces (the jumping pieces) and select a yellow tile, which indicates a possible location you can move to with that piece. Stack your pieces together to move faster around the board!\n</string>
+    <string name="guide4"><u>POSSIBLE ROLLS AND RATES</u>\n\n<b>-1</b>: 6.25%\n <b>1</b>: 18.75%\n <b>2</b>: 37.50%\n <b>3</b>: 25.00%\n <b>4</b>: 6.25%\n <b>5</b>: 6.25%\n\nNote: These rates are averages and you may get luckier or unluckier!\n</string>
     <string name="guide5"><u>REMAINING PIECES</u>\n\nPieces off the board that need to be completed will be shown at the top. Pieces already completed will have medals. Pieces on the board will not be shown at the top.\n</string>
     <string name="guide6"><u>COINS</u>\n\nEarn coins to buy new avatars!\n</string>
     <string name="guide7">- Earn 1 coin for playing a two player match\n- Earn 1 coin for losing against a computer\n- Earn 3 coins for winning against a computer</string>

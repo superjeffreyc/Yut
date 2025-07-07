@@ -56,7 +56,7 @@ public class Board {
 	 * The roll is determined by the number of sticks facing up, with the following exceptions:
 	 * All sticks face down is a roll of 5 and only one marked stick face up is a roll of -1.
 	 * This gives the following probabilities for these rolls:
-	 * (1) 4/16 (2) 6/16 (3) 4/16 (4) 1/16 (5) 1/16 (-1) 1/16
+	 * (1) 3/16 (2) 6/16 (3) 4/16 (4) 1/16 (5) 1/16 (-1) 1/16
 	 *
 	 * @return the value of the sticks thrown
 	 */
